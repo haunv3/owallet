@@ -106,6 +106,11 @@ export class CosmwasmAccount {
         if (!('type' in currency) || currency.type !== 'cw20') {
           throw new Error('Currency is not cw20');
         }
+        // What should we do here
+        // Check if the message is an nft with some extra params?
+        // And then do some switch case here
+        console.log('get here ========');
+
         await this.sendExecuteContractMsg(
           'send',
           currency.contractAddress || denomHelper.contractAddress,
@@ -122,12 +127,12 @@ export class CosmwasmAccount {
             gas: stdFee.gas ?? this.base.msgOpts.send.cw20.gas.toString()
           },
           signOptions,
-          this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
+          this.txEventsWithPreOnFulfill(onTxEvents, tx => {
             if (tx.code == null || tx.code === 0) {
               // After succeeding to send token, refresh the balance.
               const queryBalance = this.queries.queryBalances
                 .getQueryBech32Address(this.base.bech32Address)
-                .balances.find((bal) => {
+                .balances.find(bal => {
                   return (
                     bal.currency.coinMinimalDenom === currency.coinMinimalDenom
                   );
@@ -198,6 +203,8 @@ export class CosmwasmAccount {
               }
         ]
       : undefined;
+
+    console.log('protoMsgs', protoMsgs);
 
     await this.base.sendMsgs(
       type,
