@@ -15,6 +15,11 @@
     &:last-child {
       margin-right: 0;
     }
+    color: $color-darker;
+
+    &:hover {
+      color: $color-darker;
+    }
   }
   .btnSend {
     color: $color-white;
@@ -31,8 +36,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: $background-color;
+  width: 100%;
+
+  .title {
+    font-size: 14px;
+    font-weight: 700;
+    color: $color;
+  }
 
   .qrcode {
     margin-bottom: 20px;
+    border-radius: 8px;
   }
 }
