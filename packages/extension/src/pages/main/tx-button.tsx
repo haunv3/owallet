@@ -79,8 +79,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
         <DepositModal bech32Address={accountInfo.bech32Address} />
       </Modal>
       <Button
-        className={styleTxButton.button}
-        color="primary"
+        className={classnames(styleTxButton.button,styleTxButton.btnReceive)}
         outline
         onClick={(e) => {
           e.preventDefault();
@@ -88,7 +87,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
           setIsDepositOpen(true);
         }}
       >
-        <FormattedMessage id="main.account.button.deposit" />
+        <FormattedMessage id="main.account.button.receive" />
       </Button>
       {/*
         "Disabled" property in button tag will block the mouse enter/leave events.
@@ -99,9 +98,7 @@ export const TxButtonView: FunctionComponent = observer(() => {
         innerRef={sendBtnRef}
         className={classnames(styleTxButton.button, {
           disabled: !hasAssets
-        })}
-        color="primary"
-        outline
+        }, styleTxButton.btnSend)}
         data-loading={accountInfo.isSendingMsg === 'send'}
         onClick={(e) => {
           e.preventDefault();
