@@ -124,15 +124,6 @@ export const MainPage: FunctionComponent = observer(() => {
               )}
             </div>
             {chainStore.current.networkType === 'evm' ? (
-              <>
-                <AmountTokenEvm />
-              </>
-            ) : (
-              <>
-                <AmountTokenCosmos />
-              </>
-            )}
-            {chainStore.current.networkType === 'evm' ? (
               <div style={{ marginTop: 24 }}>
                 <TxButtonEvmView />
               </div>

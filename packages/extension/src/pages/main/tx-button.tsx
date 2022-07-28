@@ -81,9 +81,9 @@ export const TxButtonView: FunctionComponent = observer(() => {
       >
         <DepositModal bech32Address={accountInfo.bech32Address} />
       </Modal>
-      <Button
-        color=""
-        className={styleTxButton.button}
+     <Button
+        className={classnames(styleTxButton.button,styleTxButton.btnReceive)}
+        outline
         onClick={(e) => {
           e.preventDefault();
 
@@ -99,10 +99,13 @@ export const TxButtonView: FunctionComponent = observer(() => {
        */}
       <Button
         innerRef={sendBtnRef}
-        className={classnames(styleTxButton.button, {
-          disabled: !hasAssets
-        })}
-        style={{ cursor: !hasAssets ? 'default' : 'pointer' }}
+        className={classnames(
+          styleTxButton.button,
+          {
+            disabled: !hasAssets
+          },
+          styleTxButton.btnSend
+        )}
         data-loading={accountInfo.isSendingMsg === 'send'}
         onClick={(e) => {
           e.preventDefault();
@@ -175,7 +178,7 @@ export const TxButtonEvmView: FunctionComponent = observer(() => {
         <DepositModal bech32Address={accountInfo.bech32Address} />
       </Modal>
       <Button
-        className={classnames(styleTxButton.button,styleTxButton.btnReceive)}
+        className={classnames(styleTxButton.button, styleTxButton.btnReceive)}
         outline
         onClick={(e) => {
           e.preventDefault();
@@ -192,21 +195,23 @@ export const TxButtonEvmView: FunctionComponent = observer(() => {
        */}
       <Button
         innerRef={sendBtnRef}
-        className={classnames(styleTxButton.button, {
-          disabled: !hasAssets
-        }, styleTxButton.btnSend)}
+        className={classnames(
+          styleTxButton.button,
+          {
+            disabled: !hasAssets
+          },
+          styleTxButton.btnSend
+        )}
         data-loading={accountInfo.isSendingMsg === 'send'}
         onClick={(e) => {
           e.preventDefault();
 
           if (hasAssets) {
-            history.push('/send-evm');
+            history.push('/send');
           }
         }}
       >
-        <span>
-          <FormattedMessage id="main.account.button.send" />
-        </span>
+        <FormattedMessage id="main.account.button.send" />
       </Button>
       {!hasAssets ? (
         <Tooltip
