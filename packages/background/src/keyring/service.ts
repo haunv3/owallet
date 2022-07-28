@@ -335,7 +335,7 @@ export class KeyRingService {
     if (signer !== bech32Address) {
       throw new Error('Signer mismatched');
     }
-    console.log('it gonna be here');
+    console.log('message hereeeeeeee ==============', msgOrigin);
 
     const newSignDocBytes = (await this.interactionService.waitApprove(
       env,
