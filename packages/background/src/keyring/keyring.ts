@@ -489,7 +489,7 @@ export class KeyRing {
       [ChainIdHelper.parse(chainId).identifier]: coinType
     };
 
-    const keyStoreInMulti = this.multiKeyStore.find((keyStore) => {
+    const keyStoreInMulti = this.multiKeyStore.find(keyStore => {
       return (
         KeyRing.getKeyStoreId(keyStore) ===
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -692,6 +692,12 @@ export class KeyRing {
     defaultCoinType: number,
     message: Uint8Array
   ): Promise<Uint8Array> {
+    console.log(
+      'ready to sign the transaction FOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO'
+    );
+
+    console.log('message transaction', message);
+
     if (this.status !== KeyRingStatus.UNLOCKED) {
       throw new OWalletError('keyring', 143, 'Key ring is not unlocked');
     }
@@ -1083,7 +1089,7 @@ export class KeyRing {
         );
       }
       const parsedType = type.slice(0, type.lastIndexOf('['));
-      const typeValuePairs = value.map((item) =>
+      const typeValuePairs = value.map(item =>
         this.encodeField(types, name, parsedType, item, version)
       );
       return [

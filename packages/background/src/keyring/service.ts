@@ -274,6 +274,7 @@ export class KeyRingService {
       );
     }
 
+    console.log('sign amino =======');
     const newSignDoc = (await this.interactionService.waitApprove(
       env,
       '/sign',
@@ -344,6 +345,7 @@ export class KeyRingService {
     if (signer !== bech32Address) {
       throw new Error('Signer mismatched');
     }
+    console.log('message hereeeeeeee ==============', msgOrigin);
 
     const newSignDocBytes = (await this.interactionService.waitApprove(
       env,
@@ -487,10 +489,12 @@ export class KeyRingService {
       });
 
       return rawTxHex;
-    } catch (e) {
-      console.log('e', e.message);
     } finally {
-      this.interactionService.dispatchEvent(APP_PORT, 'request-sign-end', {});
+      this.interactionService.dispatchEvent(
+        APP_PORT,
+        'request-sign-ethereum-end',
+        {}
+      );
     }
   }
 

@@ -63,6 +63,8 @@ export class InteractionService {
 
     // console.log('interactionWaitingData', interactionWaitingData);
 
+    // console.log('interactionWaitingData', interactionWaitingData);
+
     const msg = new PushInteractionDataMsg(interactionWaitingData);
     console.log("🚀 ~ file: service.ts ~ line 65 ~ InteractionService ~ msg", msg)
 
