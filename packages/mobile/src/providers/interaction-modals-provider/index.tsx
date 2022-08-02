@@ -9,7 +9,7 @@ import { WCGoBackToBrowserModal } from '../../modals/wc-go-back-to-browser';
 import { BackHandler, Platform } from 'react-native';
 import { LoadingScreenModal } from '../loading-screen/modal';
 import { KeyRingStatus } from '@owallet/background';
-import { SignEthereumModal } from '../../modals/sign/sign-ethereum';
+// import { SignEthereumModal } from '../../modals/sign/sign-ethereum';
 import { navigationRef } from '../../router/root';
 import { HomeBaseModal } from '../../modals/home-base';
 
@@ -20,7 +20,7 @@ export const InteractionModalsProivder: FunctionComponent = observer(
       ledgerInitStore,
       permissionStore,
       signInteractionStore,
-      modalStore,
+      modalStore
     } = useStore();
 
     // Example usage
@@ -51,7 +51,7 @@ export const InteractionModalsProivder: FunctionComponent = observer(
             close={() => signInteractionStore.rejectAll()}
           />
         ) : null}
-        {signInteractionStore.waitingEthereumData ? (
+        {/* {signInteractionStore.waitingEthereumData ? (
           <SignEthereumModal
             isOpen={true}
             close={() => {
@@ -59,7 +59,7 @@ export const InteractionModalsProivder: FunctionComponent = observer(
               navigationRef.current.goBack();
             }}
           />
-        ) : null}
+        ) : null} */}
         {modalStore.getState ? (
           <HomeBaseModal isOpen={true} close={() => modalStore.close()} />
         ) : null}
