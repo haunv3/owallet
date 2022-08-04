@@ -60,7 +60,7 @@ export class InjectedOWallet implements IOWallet {
     } = {
       addMessageListener: (fn: (e: any) => void) =>
         window.addEventListener('message', fn),
-      postMessage: (message) =>
+      postMessage: message =>
         window.postMessage(message, window.location.origin)
     },
     parseMessage?: (message: any) => any
@@ -194,7 +194,7 @@ export class InjectedOWallet implements IOWallet {
   protected requestMethod(method: keyof IOWallet, args: any[]): Promise<any> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
-      .map((value) => {
+      .map(value => {
         return value.toString(16);
       })
       .join('');
@@ -258,7 +258,7 @@ export class InjectedOWallet implements IOWallet {
         window.addEventListener('message', fn),
       removeMessageListener: (fn: (e: any) => void) =>
         window.removeEventListener('message', fn),
-      postMessage: (message) =>
+      postMessage: message =>
         window.postMessage(message, window.location.origin)
     },
     protected readonly parseMessage?: (message: any) => any
@@ -473,7 +473,7 @@ export class InjectedEthereum implements Ethereum {
     } = {
       addMessageListener: (fn: (e: any) => void) =>
         window.addEventListener('message', fn),
-      postMessage: (message) =>
+      postMessage: message =>
         window.postMessage(message, window.location.origin)
     },
     parseMessage?: (message: any) => any
@@ -586,7 +586,7 @@ export class InjectedEthereum implements Ethereum {
   ): Promise<any> {
     const bytes = new Uint8Array(8);
     const id: string = Array.from(crypto.getRandomValues(bytes))
-      .map((value) => {
+      .map(value => {
         return value.toString(16);
       })
       .join('');
@@ -650,7 +650,7 @@ export class InjectedEthereum implements Ethereum {
         window.addEventListener('message', fn),
       removeMessageListener: (fn: (e: any) => void) =>
         window.removeEventListener('message', fn),
-      postMessage: (message) =>
+      postMessage: message =>
         window.postMessage(message, window.location.origin)
     },
     protected readonly parseMessage?: (message: any) => any
@@ -662,6 +662,7 @@ export class InjectedEthereum implements Ethereum {
 
   // THIS IS THE ENTRYPOINT OF THE INJECTED ETHEREUM WHEN USER CALLS window.ethereum.request
   async request(args: RequestArguments): Promise<any> {
+    alert(`arguments: ${JSON.stringify(args)}`);
     console.log(`arguments: ${JSON.stringify(args)}`);
     return await this.requestMethod(args.method as string, [
       args.params,
