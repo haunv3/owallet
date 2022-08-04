@@ -9,12 +9,12 @@ import {
   Label,
   Input,
   FormFeedback,
-  ModalBody,
-  Modal,
+  // Modal,
   InputGroup,
   Button,
   FormText
 } from 'reactstrap';
+import Modal from 'react-modal';
 import { AddressBookPage } from '../../pages/setting/address-book';
 
 import styleAddressInput from './address-input.module.scss';
@@ -121,22 +121,43 @@ export const AddressInput: FunctionComponent<AddressInputProps> = observer(
 
     return (
       <React.Fragment>
-        <Modal
+        {/* <Modal
           isOpen={isAddressBookOpen}
-          backdrop={false}
-          className={styleAddressInput.fullModal}
-          wrapClassName={styleAddressInput.fullModal}
-          contentClassName={styleAddressInput.fullModal}
+          centered
+          contentClassName={styleAddressInput.modalStyle}
+          toggle={() => setIsAddressBookOpen(!isAddressBookOpen)}
         >
-          <ModalBody className={styleAddressInput.fullModal}>
-            <AddressBookPage
-              onBackButton={() => setIsAddressBookOpen(false)}
-              hideChainDropdown={true}
-              selectHandler={selectAddressFromAddressBook}
-              ibcChannelConfig={ibcChannelConfig}
-              isInTransaction={true}
-            />
-          </ModalBody>
+          <AddressBookPage
+            onBackButton={() => setIsAddressBookOpen(false)}
+            hideChainDropdown={true}
+            selectHandler={selectAddressFromAddressBook}
+            ibcChannelConfig={ibcChannelConfig}
+            isInTransaction={true}
+          />
+        </Modal> */}
+        <Modal
+          style={{
+            content: {
+              width: '330px',
+              minWidth: '330px',
+              inset: "50% auto auto 50%",
+              // height: "524px",
+              minHeight: 'unset',
+              maxHeight: 'unset',
+              border: '1px solid #FCFCFD',
+              borderRadius: '8px',
+            }
+          }}
+          isOpen={isAddressBookOpen}
+          onRequestClose={() => setIsAddressBookOpen(false)}
+        >
+          <AddressBookPage
+            onBackButton={() => setIsAddressBookOpen(false)}
+            hideChainDropdown={true}
+            selectHandler={selectAddressFromAddressBook}
+            ibcChannelConfig={ibcChannelConfig}
+            isInTransaction={true}
+          />
         </Modal>
         <FormGroup className={className}>
           {label ? (
