@@ -481,7 +481,7 @@ export class InjectedEthereum implements Ethereum {
       // filter proxy-request by namespace
       if (
         !message ||
-        message.type !== 'proxy-request' ||
+        message.type !== NAMESPACE_ETHEREUM + 'proxy-request' ||
         message.namespace !== NAMESPACE_ETHEREUM
       ) {
         return;
@@ -516,6 +516,7 @@ export class InjectedEthereum implements Ethereum {
           '🚀 ~ file: inject.ts ~ line 524 ~ InjectedEthereum ~ eventListener.addMessageListener ~ message.method',
           message.method
         );
+        // alert(message.method);
         switch (message.method) {
           case 'eth_signTypedData_v4':
             await ethereum.signEthereumTypeData(chainId, message.args[0]);
@@ -559,11 +560,14 @@ export class InjectedEthereum implements Ethereum {
             }
             break;
           default:
-            result = await ethereum.request({
-              method: message.method as string,
-              params: message.args[0],
-              chainId
-            });
+            try {
+              result = await ethereum.request({
+                method: message.method as string,
+                params: message.args[0],
+                chainId
+              });
+            } catch (error) {}
+
             break;
         }
 
@@ -673,7 +677,6 @@ export class InjectedEthereum implements Ethereum {
 
   // THIS IS THE ENTRYPOINT OF THE INJECTED ETHEREUM WHEN USER CALLS window.ethereum.request
   async request(args: RequestArguments): Promise<any> {
-    alert(`arguments: ${JSON.stringify(args)}`);
     console.log(`arguments: ${JSON.stringify(args)}`);
     return await this.requestMethod(args.method as string, [
       args.params,
