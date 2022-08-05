@@ -489,7 +489,7 @@ export class KeyRing {
       [ChainIdHelper.parse(chainId).identifier]: coinType
     };
 
-    const keyStoreInMulti = this.multiKeyStore.find(keyStore => {
+    const keyStoreInMulti = this.multiKeyStore.find((keyStore) => {
       return (
         KeyRing.getKeyStoreId(keyStore) ===
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -1089,7 +1089,7 @@ export class KeyRing {
         );
       }
       const parsedType = type.slice(0, type.lastIndexOf('['));
-      const typeValuePairs = value.map(item =>
+      const typeValuePairs = value.map((item) =>
         this.encodeField(types, name, parsedType, item, version)
       );
       return [
@@ -1211,7 +1211,7 @@ export class KeyRing {
   ): Promise<{
     multiKeyStoreInfo: MultiKeyStoreInfoWithSelected;
   }> {
-    if (this.status !== KeyRingStatus.UNLOCKED || this.password == '') {
+    if (this.password == '') {
       throw new OWalletError(
         'keyring',
         141,
@@ -1243,7 +1243,7 @@ export class KeyRing {
   ): Promise<{
     multiKeyStoreInfo: MultiKeyStoreInfoWithSelected;
   }> {
-    if (this.status !== KeyRingStatus.UNLOCKED || this.password == '') {
+    if (this.password == '') {
       throw new OWalletError(
         'keyring',
         141,
