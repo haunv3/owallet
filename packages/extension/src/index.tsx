@@ -64,6 +64,7 @@ import { IntlProvider } from 'react-intl';
 import { SignEthereumPage } from './pages/sign/sign-ethereum';
 import { SendEvmPage } from './pages/send-evm';
 import { TokenPage } from './pages/token';
+import { Menu } from './pages/main/menu';
 
 const owallet = new OWallet(
   manifest.version,
@@ -189,6 +190,7 @@ ReactDOM.render(
                   <Route exact path="/unlock" component={LockPage} />
                   <Route exact path="/access" component={AccessPage} />
                   <Route exact path="/token" component={TokenPage} />
+                  <Route exact path="/menu" component={Menu} />
                   <Route
                     exact
                     path="/access/viewing-key"
