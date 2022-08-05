@@ -39,7 +39,6 @@ export const useInjectedSourceCode = () => {
     );
     fetch(`${InjectedProviderUrl}/injected-provider.bundle.js`)
       .then(res => {
-        alert('get here');
         return res.text();
       })
       .then(setCode)
@@ -126,9 +125,9 @@ export const WebpageScreen: FunctionComponent<
   const [eventEmitter] = useState(() => new EventEmitter());
   const onMessage = useCallback(
     (event: WebViewMessageEvent) => {
-      // if (__DEV__) {
-      //   console.log('WebViewMessageEvent', event.nativeEvent.data);
-      // }
+      if (__DEV__) {
+        console.log('WebViewMessageEvent', event.nativeEvent.data);
+      }
       eventEmitter.emit('message', event.nativeEvent);
     },
     [eventEmitter]
