@@ -118,6 +118,7 @@ import { colors, spacing, typography } from './themes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Hash } from '@owallet/crypto';
 import { useRoute } from '@react-navigation/core';
+import { TransferNFTScreen } from './screens/\btransfer-nft';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -536,6 +537,14 @@ export const OtherNavigation: FunctionComponent = () => {
         }}
         name="Send"
         component={SendScreen}
+      />
+      <Stack.Screen
+        options={{
+          title: 'Transfer',
+          header: () => <CustomHeader />
+        }}
+        name="TransferNFT"
+        component={TransferNFTScreen}
       />
       <Stack.Screen
         options={{
