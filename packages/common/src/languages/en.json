@@ -53,6 +53,8 @@
   "setting.connections.confirm.delete-connection.paragraph": "Are you sure you want to disable this connection?",
 
   "setting.address-book.button.add": "Add more",
+  "setting.address-book.button.delete": "Delete",
+  "setting.address-book.button.edit": "Edit",
   "setting.address-book.add-address.title": "Add Address",
   "setting.address-book.edit-address.title": "Edit Address",
   "setting.address-book.name": "Name",
