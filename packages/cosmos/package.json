@@ -9,7 +9,7 @@
     "access": "public"
   },
   "scripts": {
-    "clean": "rm -rf node_modules; rm -rf build",
+    "clean": "rimraf node_modules build",
     "build": "yarn build:proto && tsc",
     "build:proto": "mkdirp build/stargate/proto/generated && cp ./src/stargate/proto/generated/* ./build/stargate/proto/generated",
     "dev": "yarn build:proto && tsc -w",
