@@ -45,11 +45,17 @@
   display: flex;
   margin-top: 12px;
   margin-bottom: 24px;
+  color: $color-white;
 }
 
 .button {
   flex: 1;
-  background: linear-gradient(90deg, $primary-color 0%, $second-color 100%);
+  background: linear-gradient(
+    90deg,
+    $primary-color 0%,
+    $second-color 100%
+  );
+  // color: $color-white;
 }
 
 .reject-btn {

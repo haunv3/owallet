@@ -262,7 +262,6 @@ export const SignEthereumPage: FunctionComponent = observer(() => {
               signInteractionStore.isLoading ? (
                 <Button
                   className={style.button}
-                  color="primary"
                   disabled={true}
                   outline
                 >

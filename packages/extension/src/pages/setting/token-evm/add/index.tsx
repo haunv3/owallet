@@ -259,6 +259,9 @@ export const AddEvmTokenPage: FunctionComponent = observer(() => {
         />
         <Input
           type="text"
+          style={{
+            color: '#353945'
+          }}
           label={intl.formatMessage({
             id: 'setting.token.add.name'
           })}
@@ -267,6 +270,9 @@ export const AddEvmTokenPage: FunctionComponent = observer(() => {
         />
         <Input
           type="text"
+          style={{
+            color: '#353945'
+          }}
           label={intl.formatMessage({
             id: 'setting.token.add.symbol'
           })}
@@ -275,6 +281,9 @@ export const AddEvmTokenPage: FunctionComponent = observer(() => {
         />
         <Input
           type="text"
+          style={{
+            color: '#353945'
+          }}
           label={intl.formatMessage({
             id: 'setting.token.add.decimals'
           })}
@@ -287,6 +296,9 @@ export const AddEvmTokenPage: FunctionComponent = observer(() => {
             label={intl.formatMessage({
               id: 'setting.token.add.secret20.viewing-key'
             })}
+            style={{
+              color: '#353945'
+            }}
             name="viewingKey"
             autoComplete="off"
             ref={form.register({

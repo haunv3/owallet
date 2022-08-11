@@ -132,8 +132,9 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
       Token: 'token',
       Menu: 'menu'
     };
+    
     const hrefReplace = window.location.href.replace(
-      'chrome-extension://cldpgmdapgjebdphikkmaagjllpgoffa/popup.html#/',
+      window.location.origin + window.location.pathname + '#/',
       ''
     );
 

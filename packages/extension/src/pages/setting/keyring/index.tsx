@@ -306,17 +306,19 @@ export const AccountTitleSettingModal: FunctionComponent<{
           />
         </div>
       )}
-      <div
-        style={
-          styleAccount ?? {
-            textAlign: 'center',
-            color: '#434193',
-            fontSize: 24
+      {type && (
+        <div
+          style={
+            styleAccount ?? {
+              textAlign: 'center',
+              color: '#434193',
+              fontSize: 24
+            }
           }
-        }
-      >
-        {text}
-      </div>
+        >
+          {text}
+        </div>
+      )}
       <div style={{ height: 20 }} />
     </>
   );

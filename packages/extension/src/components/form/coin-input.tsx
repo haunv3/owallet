@@ -115,7 +115,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
             : new CoinPretty(amountConfig.sendCurrency, new Int(0))
         );
       }
-    }, [tokenDenom]);
+    }, [tokenDenom, chainStore.current.chainId]);
 
     const selectableCurrencies = amountConfig.sendableCurrencies
       .filter((cur) => {
@@ -205,9 +205,9 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
                   }}
                 >
                   <span>{`Total: ${balance
-                    .trim(true)
-                    .maxDecimals(6)
-                    .toString()}`}</span>
+                    ?.trim(true)
+                    ?.maxDecimals(6)
+                    ?.toString() || 0}`}</span>
                 </div>
               ) : null}
             </Label>
@@ -253,11 +253,18 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
                 style={{
                   width: 50,
                   height: 28,
-                  backgroundColor: '#7664E4',
+                  backgroundColor: amountConfig.isMax ? '#7664E4' : '#f8fafc',
                   borderRadius: 4
                 }}
               >
-                <span style={{ color: 'white', fontSize: 14 }}>MAX</span>
+                <span
+                  style={{
+                    color: amountConfig.isMax ? 'white' : '#7664E4',
+                    fontSize: 14
+                  }}
+                >
+                  MAX
+                </span>
               </div>
             </div>
           </InputGroup>

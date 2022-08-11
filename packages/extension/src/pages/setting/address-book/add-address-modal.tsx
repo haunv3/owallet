@@ -5,7 +5,7 @@ import { Button } from 'reactstrap';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { observer } from 'mobx-react-lite';
 import { AddressBookConfig, MemoConfig, RecipientConfig } from '@owallet/hooks';
-
+import style from './style.module.scss';
 /**
  *
  * @param closeModal
@@ -56,20 +56,15 @@ export const AddAddressModal: FunctionComponent<{
 
     return (
       <>
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: 20,
-            color: '#353945'
-          }}
-        >
-          {typeAddress + ' Address'}
-        </div>
-        <form style={{ display: 'flex', flexDirection: 'column' }}>
+        <div className={style.textTypeAddress}>{typeAddress + ' Address'}</div>
+        <form className={style.formAdd}>
           <Input
             type="text"
             label={intl.formatMessage({ id: 'setting.address-book.name' })}
             autoComplete="off"
+            styleInputGroup={{
+              boxShadow: '0px 2px 4px 1px rgba(8, 4, 28, 0.12)'
+            }}
             value={name}
             onChange={(e) => {
               setName(e.target.value);
@@ -101,8 +96,7 @@ export const AddAddressModal: FunctionComponent<{
             </Button>
             <Button
               type="submit"
-              color="primary"
-              style={{ width: '50%' }}
+              className={style.buttonSave}
               disabled={
                 !name ||
                 recipientConfig.getError() != null ||

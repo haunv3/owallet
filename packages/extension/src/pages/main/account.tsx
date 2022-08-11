@@ -127,7 +127,7 @@ export const AccountView: FunctionComponent = observer(() => {
               </Address>
             </span>
           </div>
-          <div
+          {/* <div
             className={styleAccount.address}
             onClick={() => copyAddress(accountInfo.evmosHexAddress)}
           >
@@ -142,7 +142,7 @@ export const AccountView: FunctionComponent = observer(() => {
                   : accountInfo.bech32Address}
               </Address>
             </span>
-          </div>
+          </div> */}
           <div style={{ flex: 1 }} />
         </div>
       )}

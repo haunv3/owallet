@@ -252,11 +252,17 @@ export const AddTokenPage: FunctionComponent = observer(() => {
           label={intl.formatMessage({
             id: 'setting.token.add.name'
           })}
+          style={{
+            color: '#353945'
+          }}
           value={tokenInfo?.name ?? '-'}
           readOnly={true}
         />
         <Input
           type="text"
+          style={{
+            color: '#353945'
+          }}
           label={intl.formatMessage({
             id: 'setting.token.add.symbol'
           })}
@@ -264,6 +270,9 @@ export const AddTokenPage: FunctionComponent = observer(() => {
           readOnly={true}
         />
         <Input
+          style={{
+            color: '#353945'
+          }}
           type="text"
           label={intl.formatMessage({
             id: 'setting.token.add.decimals'

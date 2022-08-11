@@ -132,6 +132,7 @@ export const StakeView: FunctionComponent = observer(() => {
 export const LinkStakeView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, analyticsStore } = useStore();
   const queries = queriesStore.get(chainStore.current.chainId);
+  const chainInfo = chainStore.getChain(chainStore.current.chainId);
   const accountInfo = accountStore.getAccount(chainStore.current.chainId);
   const inflation = queries.cosmos.queryInflation;
   const stakable = queries.queryBalances.getQueryBech32Address(
@@ -191,11 +192,16 @@ export const LinkStakeView: FunctionComponent = observer(() => {
           if (!isStakableExist) {
             e.preventDefault();
           } else {
-            history.push('/stake/validator-list');
-            analyticsStore.logEvent('Stake button clicked', {
-              chainId: chainStore.current.chainId,
-              chainName: chainStore.current.chainName
-            });
+            // history.push('/stake/validator-list');
+            // analyticsStore.logEvent('Stake button clicked', {
+            //   chainId: chainStore.current.chainId,
+            //   chainName: chainStore.current.chainName
+            // });
+            const pttrn = /^(https?:\/\/)?(www\.)?([^\/]+)/gm;
+            const urlInfo = pttrn.exec(chainInfo.raw.txExplorer.txUrl);
+            window.open(
+              urlInfo && urlInfo[0] ? urlInfo[0] : 'https://scan.orai.io/'
+            );
           }
         }}
       >

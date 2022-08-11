@@ -28,7 +28,15 @@ export const TokenPage: FunctionComponent = observer(() => {
     .get(chainStore.current.chainId)
     .queryBalances.getQueryBech32Address(accountInfo.bech32Address);
 
-  const tokens = queryBalances.unstakables;
+  const tokens = queryBalances.balances;
+
+  // const queryBalances = queriesStore
+  //   .get(chainStore.current.chainId)
+  //   .queryBalances.getQueryBech32Address(
+  //     accountStore.getAccount(chainStore.current.chainId).bech32Address
+  //   );
+
+  // const tokens = queryBalances.balances;
 
   const hasTokens = tokens.length > 0;
   const handleClickToken = (token) => {
@@ -82,10 +90,12 @@ export const TokenPage: FunctionComponent = observer(() => {
                 }}
               />
               <div style={{ paddingRight: 20, paddingLeft: 20 }}>
-                <LayoutHidePage hidePage={() => {
-                  setHasSend(false);
-                  setCoinMinimalDenom('');
-                }} />
+                <LayoutHidePage
+                  hidePage={() => {
+                    setHasSend(false);
+                    setCoinMinimalDenom('');
+                  }}
+                />
                 <SendPage coinMinimalDenom={coinMinimalDenom} />
               </div>
             </>

@@ -12,15 +12,16 @@
 
     .channel {
       float: right;
-
       letter-spacing: 0.14px;
       color: $color;
+      &:hover {
+        color: white
+      }
     }
   }
 
   :global(.dropdown-toggle) {
     box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02) !important;
-
     &::after {
       border-radius: 2px;
       content: ' ';
@@ -63,14 +64,12 @@
 
 :global(.dropdown-menu .dropdown-item:hover) {
   &:hover {
-    // background-color: $color-gray-70;
-    color: $color;
+    color: $color-white !important;
   }
 }
 
 :global(.dropdown-item:active) {
   &:active {
-    // background-color: $color-gray-70;
     color: $color;
   }
 }

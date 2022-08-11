@@ -17,6 +17,7 @@ import {
   Card,
   CardBody,
   Modal,
+  ModalBody,
   Popover,
   PopoverBody,
   PopoverHeader
@@ -252,11 +253,11 @@ export const SettingPage: FunctionComponent = observer(() => {
           type={1}
         />
         {isHasTabs === 1 && (
-          <Card>
-            <CardBody>
-              <SettingConnectionsPage />
-            </CardBody>
-          </Card>
+          <Modal isOpen={!!isHasTabs} centered toggle={() => setIsHasTabs(0)}>
+            <ModalBody>
+              <SettingConnectionsPage toggleModal={() => setIsHasTabs(0)} />
+            </ModalBody>
+          </Modal>
         )}
 
         <PageButtonSetting
