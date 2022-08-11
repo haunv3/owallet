@@ -7,7 +7,7 @@ import React, {
 
 import { Button } from 'reactstrap';
 
-import { Ledger, LedgerInitErrorOn } from '../../ledger';
+import { LedgerInternal as Ledger, LedgerInitErrorOn } from '@owallet/background';
 
 import style from './style.module.scss';
 import { EmptyLayout } from '../../layouts/empty-layout';
