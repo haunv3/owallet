@@ -63,6 +63,12 @@
   }
 }
 
+.card-add-token {
+  :global(.card-body) {
+    padding: 0 !important;
+  }
+}
+
 .card {
   margin-bottom: $layout-margin;
   // background-color: #3b3b45 !important;

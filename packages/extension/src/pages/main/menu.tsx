@@ -105,7 +105,7 @@ export const Menu: FunctionComponent = observer(() => {
           </div>
         ) : null}
         {isNumberTabs === 3 && (
-          <Card className={classnames(styleMenu.card, 'shadow')}>
+          <Card className={classnames(styleMenu.cardAddToken, 'shadow')}>
             <CardBody>
               {chainStore.current.features.includes('cosmwasm') ||
               chainStore.current.features.includes('secretwasm') ? (

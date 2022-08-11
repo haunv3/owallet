@@ -67,15 +67,15 @@ export const MainPage: FunctionComponent = observer(() => {
     }
   }, [chainStore, confirm, chainStore.isInitializing, currentChainId, intl]);
 
-  const accountInfo = accountStore.getAccount(chainStore.current.chainId);
+  // const accountInfo = accountStore.getAccount(chainStore.current.chainId);
 
-  const queryBalances = queriesStore
-    .get(chainStore.current.chainId)
-    .queryBalances.getQueryBech32Address(accountInfo.bech32Address);
+  // const queryBalances = queriesStore
+  //   .get(chainStore.current.chainId)
+  //   .queryBalances.getQueryBech32Address(accountInfo.bech32Address);
 
-  const tokens = queryBalances.unstakables;
+  // const tokens = queryBalances.unstakables;
 
-  const hasTokens = tokens.length > 0;
+  // const hasTokens = tokens.length > 0;
   return (
     <HeaderLayout
       showChainName

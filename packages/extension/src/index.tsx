@@ -85,7 +85,7 @@ window.owallet = owallet;
 window.ethereum = ethereum;
 
 // Make sure that icon file will be included in bundle
-require('./public/assets/svg/oraichain-pro-logo.svg');
+require('./public/assets/orai_wallet_logo.png');
 require('./public/assets/icon/icon-16.png');
 require('./public/assets/icon/icon-48.png');
 require('./public/assets/icon/icon-128.png');

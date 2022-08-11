@@ -147,7 +147,7 @@ $container-width: 420px;
   border: none;
   &:hover {
     color: $color-darker;
-    background: linear-gradient(90deg, $primary-color 0%, $second-color 100%);
+    // background: linear-gradient(90deg, $primary-color 0%, $second-color 100%);
   }
   &:active {
     color: $color-darker;

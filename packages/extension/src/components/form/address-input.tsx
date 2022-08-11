@@ -9,12 +9,13 @@ import {
   Label,
   Input,
   FormFeedback,
-  // Modal,
+  Modal,
   InputGroup,
   Button,
-  FormText
+  FormText,
+  ModalBody
 } from 'reactstrap';
-import Modal from 'react-modal';
+// import Modal from 'react-modal';
 import { AddressBookPage } from '../../pages/setting/address-book';
 
 import styleAddressInput from './address-input.module.scss';
@@ -121,43 +122,20 @@ export const AddressInput: FunctionComponent<AddressInputProps> = observer(
 
     return (
       <React.Fragment>
-        {/* <Modal
-          isOpen={isAddressBookOpen}
-          centered
-          contentClassName={styleAddressInput.modalStyle}
-          toggle={() => setIsAddressBookOpen(!isAddressBookOpen)}
-        >
-          <AddressBookPage
-            onBackButton={() => setIsAddressBookOpen(false)}
-            hideChainDropdown={true}
-            selectHandler={selectAddressFromAddressBook}
-            ibcChannelConfig={ibcChannelConfig}
-            isInTransaction={true}
-          />
-        </Modal> */}
         <Modal
-          style={{
-            content: {
-              width: '330px',
-              minWidth: '330px',
-              inset: '50% auto auto 50%',
-              // height: "524px",
-              minHeight: 'unset',
-              maxHeight: 'unset',
-              border: '1px solid #FCFCFD',
-              borderRadius: '8px'
-            }
-          }}
           isOpen={isAddressBookOpen}
-          onRequestClose={() => setIsAddressBookOpen(false)}
+          toggle={() => setIsAddressBookOpen(false)}
+          centered
         >
-          <AddressBookPage
-            onBackButton={() => setIsAddressBookOpen(false)}
-            hideChainDropdown={true}
-            selectHandler={selectAddressFromAddressBook}
-            ibcChannelConfig={ibcChannelConfig}
-            isInTransaction={true}
-          />
+          <ModalBody>
+            <AddressBookPage
+              onBackButton={() => setIsAddressBookOpen(false)}
+              hideChainDropdown={true}
+              selectHandler={selectAddressFromAddressBook}
+              ibcChannelConfig={ibcChannelConfig}
+              isInTransaction={true}
+            />
+          </ModalBody>
         </Modal>
         <FormGroup className={className}>
           {label ? (

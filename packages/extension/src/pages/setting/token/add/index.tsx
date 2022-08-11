@@ -102,7 +102,8 @@ export const AddTokenPage: FunctionComponent = observer(() => {
   };
 
   return (
-    <>
+    <div style={{ padding: 20 }}>
+      <div style={{ fontSize: 24, textAlign: 'center', paddingBottom: 30 }}>Add Token</div>
       <Form
         className={style.container}
         onSubmit={form.handleSubmit(async (data) => {
@@ -217,6 +218,12 @@ export const AddTokenPage: FunctionComponent = observer(() => {
           label={intl.formatMessage({
             id: 'setting.token.add.contract-address'
           })}
+          styleInputGroup={{
+            boxShadow: '0px 2px 4px 1px rgba(8, 4, 28, 0.12)'
+          }}
+          style={{
+            color: '#000'
+          }}
           name="contractAddress"
           autoComplete="off"
           readOnly={tokensStore.waitingSuggestedToken != null}
@@ -252,6 +259,9 @@ export const AddTokenPage: FunctionComponent = observer(() => {
           label={intl.formatMessage({
             id: 'setting.token.add.name'
           })}
+          styleInputGroup={{
+            boxShadow: '0px 2px 4px 1px rgba(8, 4, 28, 0.12)'
+          }}
           style={{
             color: '#353945'
           }}
@@ -263,6 +273,9 @@ export const AddTokenPage: FunctionComponent = observer(() => {
           style={{
             color: '#353945'
           }}
+          styleInputGroup={{
+            boxShadow: '0px 2px 4px 1px rgba(8, 4, 28, 0.12)'
+          }}
           label={intl.formatMessage({
             id: 'setting.token.add.symbol'
           })}
@@ -272,6 +285,9 @@ export const AddTokenPage: FunctionComponent = observer(() => {
         <Input
           style={{
             color: '#353945'
+          }}
+          styleInputGroup={{
+            boxShadow: '0px 2px 4px 1px rgba(8, 4, 28, 0.12)'
           }}
           type="text"
           label={intl.formatMessage({
@@ -329,6 +345,6 @@ export const AddTokenPage: FunctionComponent = observer(() => {
           <FormattedMessage id="setting.token.add.button.submit" />
         </Button>
       </Form>
-    </>
+    </div>
   );
 });

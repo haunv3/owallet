@@ -80,9 +80,9 @@ export class InteractionService {
         onApprove: resolve,
         onReject: reject
       });
-      setTimeout(() => {
-        reject();
-      }, 10000);
+      // setTimeout(() => {
+      //   reject();
+      // }, 10000);
       fn();
     });
   }

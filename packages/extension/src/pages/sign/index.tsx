@@ -196,17 +196,25 @@ export const SignPage: FunctionComponent = observer(() => {
   })();
 
   return (
-    <HeaderLayout
-      showChainName={alternativeTitle == null}
-      alternativeTitle={alternativeTitle != null ? alternativeTitle : undefined}
-      canChangeChainInfo={false}
-      onBackButton={
-        interactionInfo.interactionInternal
-          ? () => {
-              history.goBack();
-            }
-          : undefined
-      }
+    // <HeaderLayout
+    //   showChainName={alternativeTitle == null}
+    //   alternativeTitle={alternativeTitle != null ? alternativeTitle : undefined}
+    //   canChangeChainInfo={false}
+    //   onBackButton={
+    //     interactionInfo.interactionInternal
+    //       ? () => {
+    //           history.goBack();
+    //         }
+    //       : undefined
+    //   }
+    // >
+    <div
+      style={{
+        padding: 20,
+        backgroundColor: '#FFFFFF',
+        height: '100%',
+        overflowX: 'auto'
+      }}
     >
       {
         /*
@@ -227,7 +235,9 @@ export const SignPage: FunctionComponent = observer(() => {
               {chainStore?.current?.raw?.chainName || 'Oraichain'}
             </div>
             <div className={classnames(style.tabs)}>
-              <ul>
+              <ul style={{
+               
+              }}>
                 <li className={classnames({ activeTabs: tab === Tab.Details })}>
                   <a
                     className={classnames(style.tab, {
@@ -293,11 +303,7 @@ export const SignPage: FunctionComponent = observer(() => {
             <div className={style.buttons}>
               {keyRingStore.keyRingType === 'ledger' &&
               signInteractionStore.isLoading ? (
-                <Button
-                  className={style.button}
-                  disabled={true}
-                  outline
-                >
+                <Button className={style.button} disabled={true} outline>
                   <FormattedMessage id="sign.button.confirm-ledger" />{' '}
                   <i className="fa fa-spinner fa-spin fa-fw" />
                 </Button>
@@ -377,6 +383,7 @@ export const SignPage: FunctionComponent = observer(() => {
           </div>
         )
       }
-    </HeaderLayout>
+      {/* </HeaderLayout> */}
+    </div>
   );
 });

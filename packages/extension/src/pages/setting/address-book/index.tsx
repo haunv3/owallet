@@ -240,7 +240,40 @@ export const AddressBookPage: FunctionComponent<{
               type={'text'}
               styleInputGroup={{
                 display: 'flex',
-                flexDirection: 'row-reverse'
+                flexDirection: 'row-reverse',
+                backgroundColor: 'rgba(230, 232, 236, 0.2)'
+              }}
+              style={{
+                backgroundColor: 'rgba(230, 232, 236, 0.2)'
+              }}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+              placeholder={'Search Name/Address'}
+              append={
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    width: 50,
+                    backgroundColor: 'rgba(230, 232, 236, 0.2)'
+                  }}
+                >
+                  <img
+                    src={require('../../../public/assets/img/light.svg')}
+                    alt=""
+                  />
+                </div>
+              }
+            />
+            {/* <Input
+              type={'text'}
+              styleInputGroup={{
+                display: 'flex',
+                flexDirection: 'row-reverse',
+                boxShadow: '0px 2px 4px 1px rgba(8, 4, 28, 0.12)'
               }}
               value={search}
               onChange={(e) => {
@@ -262,7 +295,7 @@ export const AddressBookPage: FunctionComponent<{
                   />
                 </div>
               }
-            />
+            /> */}
           </div>
           <div style={{ flex: '1 1 0', overflowY: 'auto' }}>
             {addressBookList.map((data, i) => {

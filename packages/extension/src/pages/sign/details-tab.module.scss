@@ -1,4 +1,4 @@
-@import "../../styles/var";
+@import '../../styles/var';
 
 .hr {
   background-color: gray;
@@ -54,10 +54,12 @@
       display: flex;
       flex: 1;
       flex-direction: column;
-
       .content-title {
         font-size: 16px;
         font-weight: bold;
+        color: $color-neutral-3 !important;
+      }
+      pre {
         color: $color-neutral-3 !important;
       }
 

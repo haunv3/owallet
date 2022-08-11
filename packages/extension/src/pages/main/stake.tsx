@@ -189,20 +189,25 @@ export const LinkStakeView: FunctionComponent = observer(() => {
       <div style={{ flex: 1 }} />
       <div
         onClick={(e) => {
-          if (!isStakableExist) {
-            e.preventDefault();
-          } else {
-            // history.push('/stake/validator-list');
-            // analyticsStore.logEvent('Stake button clicked', {
-            //   chainId: chainStore.current.chainId,
-            //   chainName: chainStore.current.chainName
-            // });
-            const pttrn = /^(https?:\/\/)?(www\.)?([^\/]+)/gm;
-            const urlInfo = pttrn.exec(chainInfo.raw.txExplorer.txUrl);
-            window.open(
-              urlInfo && urlInfo[0] ? urlInfo[0] : 'https://scan.orai.io/'
-            );
-          }
+          const pttrn = /^(https?:\/\/)?(www\.)?([^\/]+)/gm;
+          const urlInfo = pttrn.exec(chainInfo.raw.txExplorer.txUrl);
+          window.open(
+            urlInfo && urlInfo[0] ? urlInfo[0] : 'https://scan.orai.io/'
+          );
+          // if (!isStakableExist) {
+          //   e.preventDefault();
+          // } else {
+          //   // history.push('/stake/validator-list');
+          //   // analyticsStore.logEvent('Stake button clicked', {
+          //   //   chainId: chainStore.current.chainId,
+          //   //   chainName: chainStore.current.chainName
+          //   // });
+          //   const pttrn = /^(https?:\/\/)?(www\.)?([^\/]+)/gm;
+          //   const urlInfo = pttrn.exec(chainInfo.raw.txExplorer.txUrl);
+          //   window.open(
+          //     urlInfo && urlInfo[0] ? urlInfo[0] : 'https://scan.orai.io/'
+          //   );
+          // }
         }}
       >
         <span
