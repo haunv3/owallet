@@ -99,8 +99,6 @@ export const LedgerGrantPage: FunctionComponent = observer(() => {
       }
     }
 
-    console.log('REACH HERE ON TRY INIT');
-
     setInitErrorOn(initErrorOn);
     setTryInitializing(false);
 

@@ -162,7 +162,7 @@ export const EmbedChainInfos: AppChainInfo[] = [
       txUrl: 'https://scan.orai.io/txs/{txHash}',
       accountUrl: 'https://scan.orai.io/account/{address}'
     },
-    // beta: true // use v1beta1
+    beta: true // use v1beta1
   },
   {
     rpc: 'https://testnet-rpc.orai.io',
@@ -285,41 +285,41 @@ export const EmbedChainInfos: AppChainInfo[] = [
     },
     features: ['stargate', 'ibc-transfer', 'cosmwasm']
   },
-  // {
-  //   rpc: 'https://tendermint1.kawaii.global',
-  //   evmRpc: 'https://endpoint1.kawaii.global',
-  //   rest: 'https://cosmos1.kawaii.global',
-  //   chainId: 'kawaii_6886-1',
-  //   chainName: 'Kawaiiverse',
-  //   stakeCurrency: {
-  //     coinDenom: 'ORAIE',
-  //     coinMinimalDenom: 'oraie',
-  //     coinDecimals: 18,
-  //     coinGeckoId: 'oraie'
-  //   },
-  //   bip44: {
-  //     coinType: 60
-  //   },
-  //   bech32Config: Bech32Address.defaultBech32Config('oraie'),
-  //   get currencies() {
-  //     return [this.stakeCurrency];
-  //   },
-  //   get feeCurrencies() {
-  //     return [this.stakeCurrency];
-  //   },
-  //   gasPriceStep: {
-  //     low: 0,
-  //     average: 0.000025,
-  //     high: 0.00004
-  //   },
-  //   features: ['ibc-transfer', 'ibc-go', 'stargate']
-  // },
+  {
+    rpc: 'https://tendermint1.kawaii.global',
+    evmRpc: 'https://endpoint1.kawaii.global',
+    rest: 'https://cosmos1.kawaii.global',
+    chainId: 'kawaii_6886-1',
+    chainName: 'Kawaiiverse Cosmos',
+    stakeCurrency: {
+      coinDenom: 'ORAIE',
+      coinMinimalDenom: 'oraie',
+      coinDecimals: 18,
+      coinGeckoId: 'oraie'
+    },
+    bip44: {
+      coinType: 60
+    },
+    bech32Config: Bech32Address.defaultBech32Config('oraie'),
+    get currencies() {
+      return [this.stakeCurrency];
+    },
+    get feeCurrencies() {
+      return [this.stakeCurrency];
+    },
+    gasPriceStep: {
+      low: 0,
+      average: 0.000025,
+      high: 0.00004
+    },
+    features: ['ibc-transfer', 'ibc-go', 'stargate']
+  },
   {
     rpc: 'https://tendermint1.kawaii.global',
     rest: 'https://endpoint1.kawaii.global',
     chainId: '0x1ae6',
     networkType: "evm",
-    chainName: 'Kawaiiverse',
+    chainName: 'Kawaiiverse EVM',
     stakeCurrency: {
       coinDenom: 'ORAIE',
       coinMinimalDenom: 'oraie',
