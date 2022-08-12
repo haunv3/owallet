@@ -143,7 +143,7 @@ export const RecoverMnemonicPage: FunctionComponent<{
               id: 'register.create.textarea.mnemonic.place-holder'
             })}
             style={{
-              border: '1px solid rgba(8, 4, 28, 0.12)'
+              border: '1px solid rgba(8, 4, 28, 0.12)',
             }}
             name="words"
             rows={3}

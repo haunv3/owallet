@@ -1,6 +1,6 @@
 {
   "name": "owallet",
-  "description": "OWallet is a browser extension wallet for the Inter blockchain ecosystem.",
+  "description": "OWallet: Cosmos x EVM in one Wallet",
   "private": true,
   "workspaces": {
     "packages": [

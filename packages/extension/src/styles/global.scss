@@ -76,9 +76,12 @@ hr {
 }
 
 .form-text,
-.valid-feedback,
-.invalid-feedback {
+.valid-feedback {
   position: absolute;
+}
+
+.invalid-feedback {
+  // position: absolute;
 }
 
 .form-control {

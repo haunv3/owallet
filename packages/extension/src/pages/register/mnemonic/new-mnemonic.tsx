@@ -169,7 +169,7 @@ export const GenerateMnemonicModePage: FunctionComponent<{
           className={style.mnemonic}
           style={{
             border: '1px solid rgba(8, 4, 28, 0.12)',
-            color: '#7664e4'
+            color: '#7664e4',
           }}
           autoCapitalize="none"
           placeholder={intl.formatMessage({
