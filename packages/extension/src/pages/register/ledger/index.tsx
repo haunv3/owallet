@@ -131,6 +131,7 @@ export const ImportLedgerPage: FunctionComponent<{
               styleInputGroup={{
                 border: '1px solid rgba(8, 4, 28, 0.12)'
               }}
+              style={{ position: 'relative'}}
               name="confirmPassword"
               ref={register({
                 required: intl.formatMessage({

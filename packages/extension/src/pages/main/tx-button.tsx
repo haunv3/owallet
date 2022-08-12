@@ -135,7 +135,7 @@ export const TxButtonView: FunctionComponent<TxButtonViewProps> = observer(
 );
 
 export const TxButtonEvmView: FunctionComponent<TxButtonViewProps> = observer(
-  () => {
+  ({ setHasSend, hasSend }) => {
     const { accountStore, chainStore, queriesStore } = useStore();
 
     const accountInfo = accountStore.getAccount(chainStore.current.chainId);
@@ -214,7 +214,7 @@ export const TxButtonEvmView: FunctionComponent<TxButtonViewProps> = observer(
             e.preventDefault();
 
             if (hasAssets) {
-              history.push('/send');
+              setHasSend(!hasSend);
             }
           }}
         >

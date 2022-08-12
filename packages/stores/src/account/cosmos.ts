@@ -172,12 +172,12 @@ export class CosmosAccount {
               gas: stdFee.gas ?? this.base.msgOpts.send.native.gas.toString()
             },
             signOptions,
-            this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+            this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
               if (tx.code == null || tx.code === 0) {
                 // After succeeding to send token, refresh the balance.
                 const queryBalance = this.queries.queryBalances
                   .getQueryBech32Address(this.base.bech32Address)
-                  .balances.find(bal => {
+                  .balances.find((bal) => {
                     return (
                       bal.currency.coinMinimalDenom ===
                       currency.coinMinimalDenom
@@ -301,12 +301,12 @@ export class CosmosAccount {
         gas: stdFee.gas ?? this.base.msgOpts.ibcTransfer.gas.toString()
       },
       signOptions,
-      this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+      this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
         if (tx.code == null || tx.code === 0) {
           // After succeeding to send token, refresh the balance.
           const queryBalance = this.queries.queryBalances
             .getQueryBech32Address(this.base.bech32Address)
-            .balances.find(bal => {
+            .balances.find((bal) => {
               return (
                 bal.currency.coinMinimalDenom === currency.coinMinimalDenom
               );
@@ -383,7 +383,7 @@ export class CosmosAccount {
         gas: stdFee.gas ?? this.base.msgOpts.delegate.gas.toString()
       },
       signOptions,
-      this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+      this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
         if (tx.code == null || tx.code === 0) {
           // After succeeding to delegate, refresh the validators and delegations, rewards.
           this.queries.cosmos.queryValidators
@@ -461,7 +461,7 @@ export class CosmosAccount {
         gas: stdFee.gas ?? this.base.msgOpts.undelegate.gas.toString()
       },
       signOptions,
-      this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+      this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
         if (tx.code == null || tx.code === 0) {
           // After succeeding to unbond, refresh the validators and delegations, unbonding delegations, rewards.
           this.queries.cosmos.queryValidators
@@ -548,7 +548,7 @@ export class CosmosAccount {
         gas: stdFee.gas ?? this.base.msgOpts.redelegate.gas.toString()
       },
       signOptions,
-      this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+      this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
         if (tx.code == null || tx.code === 0) {
           // After succeeding to redelegate, refresh the validators and delegations, rewards.
           this.queries.cosmos.queryValidators
@@ -575,9 +575,10 @@ export class CosmosAccount {
       | {
           onBroadcasted?: (txHash: Uint8Array) => void;
           onFulfill?: (tx: any) => void;
-        }
+        },
+    currency?: string
   ) {
-    const msgs = validatorAddresses.map(validatorAddress => {
+    const msgs = validatorAddresses.map((validatorAddress) => {
       return {
         type: this.base.msgOpts.withdrawRewards.type,
         value: {
@@ -592,7 +593,7 @@ export class CosmosAccount {
       {
         aminoMsgs: msgs,
         protoMsgs: this.hasNoLegacyStdFeature()
-          ? msgs.map(msg => {
+          ? msgs.map((msg) => {
               return {
                 type_url:
                   '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
@@ -617,8 +618,21 @@ export class CosmosAccount {
           ).toString()
       },
       signOptions,
-      this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+      this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
         if (tx.code == null || tx.code === 0) {
+          console.log({ currency });
+          // After succeeding to send token, refresh the balance.
+          const queryBalance = this.queries.queryBalances
+            .getQueryBech32Address(this.base.bech32Address)
+            .balances.find((bal) => {
+              return (
+                bal.currency.coinMinimalDenom === currency //currency.coinMinimalDenom
+              );
+            });
+
+          if (queryBalance) {
+            queryBalance.fetch();
+          }
           // After succeeding to withdraw rewards, refresh rewards.
           this.queries.cosmos.queryRewards
             .getQueryBech32Address(this.base.bech32Address)
@@ -712,11 +726,11 @@ export class CosmosAccount {
         gas: stdFee.gas ?? this.base.msgOpts.govVote.gas.toString()
       },
       signOptions,
-      this.txEventsWithPreOnFulfill(onTxEvents, tx => {
+      this.txEventsWithPreOnFulfill(onTxEvents, (tx) => {
         if (tx.code == null || tx.code === 0) {
           // After succeeding to vote, refresh the proposal.
           const proposal = this.queries.cosmos.queryGovernance.proposals.find(
-            proposal => proposal.id === proposalId
+            (proposal) => proposal.id === proposalId
           );
           if (proposal) {
             proposal.fetch();

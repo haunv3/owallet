@@ -41,6 +41,10 @@ export interface CoinInputProps {
   disableAllBalance?: boolean;
 }
 
+const reduceStringAssets = (str) => {
+  return str.split('(')[0] || str;
+};
+
 export const CoinInput: FunctionComponent<CoinInputProps> = observer(
   ({ amountConfig, className, label, disableAllBalance, placeholder }) => {
     const intl = useIntl();
@@ -204,10 +208,11 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
                     amountConfig.toggleIsMax();
                   }}
                 >
-                  <span>{`Total: ${balance
-                    ?.trim(true)
-                    ?.maxDecimals(6)
-                    ?.toString() || 0}`}</span>
+                  <span>{`Total: ${
+                    reduceStringAssets(
+                      balance?.trim(true)?.maxDecimals(6)?.toString()
+                    ) || 0
+                  }`}</span>
                 </div>
               ) : null}
             </Label>

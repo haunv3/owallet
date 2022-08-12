@@ -37,6 +37,12 @@ export const SignPage: FunctionComponent = observer(() => {
 
   const intl = useIntl();
 
+  useEffect(() => {
+    return () => {
+      signInteractionStore.reject();
+    };
+  }, []);
+
   const {
     chainStore,
     keyRingStore,

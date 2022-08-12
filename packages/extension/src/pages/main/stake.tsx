@@ -18,7 +18,12 @@ import { FormattedMessage } from 'react-intl';
 
 export const StakeView: FunctionComponent = observer(() => {
   const history = useHistory();
-  const { chainStore, accountStore, queriesStore, analyticsStore } = useStore();
+  const {
+    chainStore,
+    accountStore,
+    queriesStore,
+    analyticsStore,
+  } = useStore();
   const accountInfo = accountStore.getAccount(chainStore.current.chainId);
   const queries = queriesStore.get(chainStore.current.chainId);
 
@@ -48,8 +53,11 @@ export const StakeView: FunctionComponent = observer(() => {
                 chainId: chainStore.current.chainId,
                 chainName: chainStore.current.chainName
               });
+            },
+            onFulfill: (tx) => {
+              console.log(tx, 'TX INFO ON CLAIM PAGE!!!!!!!!!!!!!!!!!!!!!');
             }
-          }
+          },
         );
         history.push('/');
         notification.push({

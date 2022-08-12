@@ -8,6 +8,7 @@ import styleAsset from './asset.module.scss';
 import { ToolTip } from '../../components/tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useLanguage } from '@owallet/common';
+import { useHistory } from 'react-router';
 
 const LazyDoughnut = React.lazy(async () => {
   const module = await import(
@@ -108,9 +109,7 @@ const LazyDoughnut = React.lazy(async () => {
 
 export const AssetStakedChartView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, priceStore } = useStore();
-
   const intl = useIntl();
-
   const language = useLanguage();
 
   const fiatCurrency = language.fiatCurrency;
