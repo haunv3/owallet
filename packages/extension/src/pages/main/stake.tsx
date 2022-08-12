@@ -58,6 +58,7 @@ export const StakeView: FunctionComponent = observer(() => {
               console.log(tx, 'TX INFO ON CLAIM PAGE!!!!!!!!!!!!!!!!!!!!!');
             }
           },
+          stakableReward.currency.coinMinimalDenom
         );
         history.push('/');
         notification.push({

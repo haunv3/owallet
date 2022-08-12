@@ -162,27 +162,15 @@ export const TxButtonEvmView: FunctionComponent<TxButtonViewProps> = observer(
       parseFloat(
         evmBalance?.trim(true).shrink(true).maxDecimals(6).toString()
       ) > 0;
-
+    
     return (
       <div className={styleTxButton.containerTxButton}>
         <Modal
           toggle={() => setIsDepositOpen(false)}
           centered
           isOpen={isDepositOpen}
-          // style={{
-          //   content: {
-          //     width: '330px',
-          //     minWidth: '330px',
-          //     minHeight: 'unset',
-          //     maxHeight: 'unset'
-          //   }
-          // }}
-          // isOpen={isDepositOpen}
-          // onRequestClose={() => {
-          //   setIsDepositOpen(false);
-          // }}
         >
-          <DepositModal bech32Address={accountInfo.bech32Address} />
+          <DepositModal bech32Address={accountInfo.evmosHexAddress} />
         </Modal>
         <Button
           className={classnames(styleTxButton.button, styleTxButton.btnReceive)}
