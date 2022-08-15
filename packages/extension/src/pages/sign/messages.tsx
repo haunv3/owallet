@@ -519,7 +519,7 @@ export const WasmExecutionMsgView: FunctionComponent<{
 }> = observer(({ msg }) => {
   const { chainStore, accountStore } = useStore();
 
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const intl = useIntl();
 
   const toggleOpen = () => setIsOpen((isOpen) => !isOpen);

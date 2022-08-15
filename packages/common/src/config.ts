@@ -299,7 +299,7 @@ export const EmbedChainInfos: AppChainInfo[] = [
     rpc: 'https://tendermint1.kawaii.global',
     rest: 'https://endpoint1.kawaii.global',
     chainId: '0x1ae6',
-    networkType: "evm",
+    networkType: 'evm',
     chainName: 'Kawaiiverse EVM',
     stakeCurrency: {
       coinDenom: 'ORAIE',
