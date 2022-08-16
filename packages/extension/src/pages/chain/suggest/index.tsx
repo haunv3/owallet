@@ -71,8 +71,12 @@ export const ChainSuggestedPage: FunctionComponent = observer(() => {
         <div className={style.buttons}>
           <Button
             className={style.button}
-            color="danger"
+            // color="danger"
             outline
+            style={{
+              border: '1px solid red',
+              color: 'red'
+            }}
             disabled={!chainSuggestStore.waitingSuggestedChainInfo}
             data-loading={chainSuggestStore.isLoading}
             onClick={async (e) => {

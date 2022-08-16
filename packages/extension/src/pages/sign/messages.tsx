@@ -583,7 +583,7 @@ export const WasmExecutionMsgView: FunctionComponent<{
       ) : null}
       <Button
         size="sm"
-        style={{ float: 'right', marginRight: '6px' }}
+        style={{ float: 'right', marginRight: isOpen ? '12px' : '6px' }}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
