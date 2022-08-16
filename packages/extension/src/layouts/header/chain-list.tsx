@@ -141,6 +141,34 @@ export const ChainList: FunctionComponent = observer(() => {
             <ChainElement key={chainInfo.chainId} chainInfo={chainInfo.raw} />
           )
       )}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <hr
+          className="my-3"
+          style={{
+            flex: 1,
+            borderTop: '1px solid rgba(255, 255, 255)'
+          }}
+        ></hr>
+        <div
+          style={{
+            fontSize: '14px',
+            color: 'rgba(255, 255, 255)',
+            margin: '0 8px'
+          }}
+        >
+          Beta Support
+        </div>
+        <hr
+          className="my-3"
+          style={{
+            flex: 1,
+            borderTop: '1px solid rgba(255, 255, 255)'
+          }}
+        />
+      </div>
+      {betaChainList.map((chainInfo) => (
+        <ChainElement key={chainInfo.chainId} chainInfo={chainInfo.raw} />
+      ))}
     </div>
   );
 });
