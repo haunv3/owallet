@@ -1,6 +1,6 @@
 {
   "name": "@owallet/types",
-  "version": "0.9.12",
+  "version": "0.0.2",
   "main": "build/index.js",
   "author": "oraichain labs",
   "license": "Apache-2.0",
