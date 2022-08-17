@@ -56,7 +56,17 @@ const ChainElement: FunctionComponent<{
                     {
                       chainName: chainInfo.chainName
                     }
-                  )
+                  ),
+                  styleParagraph: {
+                    color: '#A6A6B0'
+                  },
+                  yes: 'Yes',
+                  no: 'No',
+                  styleNoBtn: {
+                    background: '#F5F5FA',
+                    border: '1px solid #3B3B45',
+                    color: '#3B3B45'
+                  }
                 })
               ) {
                 await chainStore.removeChainInfo(chainInfo.chainId);
@@ -74,7 +84,7 @@ export const ChainList: FunctionComponent = observer(() => {
 
   const mainChainList = chainStore.chainInfos;
   const betaChainList = chainStore.chainInfos.filter(
-    (chainInfo) => chainInfo.beta
+    (chainInfo) => chainInfo.beta && chainInfo.chainId != 'Oraichain'
   );
 
   return (
