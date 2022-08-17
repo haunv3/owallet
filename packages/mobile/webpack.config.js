@@ -11,6 +11,7 @@ const tsRule = {
   test: /\.ts$/,
   loader: 'ts-loader',
   options: {
+    transpileOnly: true,
     configFile: 'tsconfig.provider.json'
   }
 };
