@@ -150,6 +150,7 @@ export const Header: FunctionComponent<Props & LocalProps> = observer(
                   style={{
                     color:
                       hrefReplace === checkRouter[e] ? '#FCFCFD' : '#777E90',
+                    fontWeight: hrefReplace === checkRouter[e] ? 600 : 'none',
                     backgroundColor:
                       hrefReplace === checkRouter[e] ? '#7664E4' : 'none'
                   }}

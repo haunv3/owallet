@@ -16,6 +16,7 @@ import { useConfirm } from '../../components/confirm';
 import { IBCTransferView } from '../main/ibc-transfer';
 import { IBCTransferPage } from '../../pages/ibc-transfer';
 import { SendPage } from '../send';
+import { SelectChain } from '../../layouts/header';
 
 export const TokenPage: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, uiConfigStore } = useStore();
@@ -49,6 +50,8 @@ export const TokenPage: FunctionComponent = observer(() => {
 
   return (
     <HeaderLayout showChainName canChangeChainInfo>
+      <SelectChain showChainName canChangeChainInfo />
+      <div style={{ height: 10 }} />
       {uiConfigStore.showAdvancedIBCTransfer &&
       chainStore.current.features?.includes('ibc-transfer') ? (
         <>

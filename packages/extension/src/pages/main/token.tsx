@@ -236,8 +236,6 @@ export const TokensView: FunctionComponent<{
   handleClickToken?: (token) => void;
   coinMinimalDenom?: string;
 }> = observer(({ tokens, handleClickToken, coinMinimalDenom }) => {
-  console.log({ a: "abc" });
-  
   // const { chainStore, accountStore, queriesStore } = useStore();
 
   // const accountInfo = accountStore.getAccount(chainStore.current.chainId);
