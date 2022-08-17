@@ -236,15 +236,19 @@ export const TokensView: FunctionComponent<{
   handleClickToken?: (token) => void;
   coinMinimalDenom?: string;
 }> = observer(({ tokens, handleClickToken, coinMinimalDenom }) => {
+  console.log({ a: "abc" });
+  
   // const { chainStore, accountStore, queriesStore } = useStore();
 
   // const accountInfo = accountStore.getAccount(chainStore.current.chainId);
 
   const displayTokens = tokens
-    .filter((token) => token?.balance)
+    .filter((token) => {
+      return token?.balance;
+    })
     .sort((a, b) => {
-      const aDecIsZero = a.balance.toDec().isZero();
-      const bDecIsZero = b.balance.toDec().isZero();
+      const aDecIsZero = a.balance?.toDec()?.isZero();
+      const bDecIsZero = b.balance?.toDec()?.isZero();
 
       if (aDecIsZero && !bDecIsZero) {
         return 1;
@@ -255,6 +259,7 @@ export const TokensView: FunctionComponent<{
 
       return a.currency.coinDenom < b.currency.coinDenom ? -1 : 1;
     });
+
 
   const history = useHistory();
   const [search, setSearch] = useState('');

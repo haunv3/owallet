@@ -9,7 +9,8 @@ export const DataTab: FunctionComponent<{
 }> = observer(({ signDocHelper }) => {
   return (
     <pre className={style.message} style={{
-      color: '#353945'
+      color: '#353945',
+      fontSize: 12
     }}>
       {JSON.stringify(signDocHelper.signDocJson, undefined, 2)}
     </pre>

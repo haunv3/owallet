@@ -241,9 +241,7 @@ export const SignPage: FunctionComponent = observer(() => {
               {chainStore?.current?.raw?.chainName || 'Oraichain'}
             </div>
             <div className={classnames(style.tabs)}>
-              <ul style={{
-               
-              }}>
+              <ul>
                 <li className={classnames({ activeTabs: tab === Tab.Details })}>
                   <a
                     className={classnames(style.tab, {

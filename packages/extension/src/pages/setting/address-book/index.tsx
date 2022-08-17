@@ -229,7 +229,7 @@ export const AddressBookPage: FunctionComponent<{
                   alt=""
                   style={{ marginRight: 4 }}
                 />
-                <span>
+                <span style={{ fontSize: 12, fontWeight: 600}}>
                   <FormattedMessage id="setting.address-book.button.add" />
                 </span>
               </div>

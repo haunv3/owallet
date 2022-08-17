@@ -56,7 +56,7 @@ export const SetKeyRingPage: FunctionComponent = observer(() => {
               alt=""
               style={{ marginRight: 4 }}
             />
-            <span>
+            <span style={{ fontSize: 12, fontWeight: 600 }}>
               <FormattedMessage id="setting.address-book.button.add" />
             </span>
           </div>
@@ -257,7 +257,7 @@ export const AccountSettingModal: FunctionComponent<{
     return (
       <Modal isOpen={isOpen} toggle={toggle} centered>
         <ModalBody>
-          <AccountTitleSettingModal type={typeSettingAccount} toggle={toggle}/>
+          <AccountTitleSettingModal type={typeSettingAccount} toggle={toggle} />
           {typeSettingAccount === 'view' && (
             <ExportPage indexExport={index.toString()} keyStore={keyStore} />
           )}

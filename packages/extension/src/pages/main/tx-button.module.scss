@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: row;
   .button {
+    font-weight: 500;
     flex: 1;
     background-color: $color-neutral-8;
     margin-right: $layout-margin;
@@ -35,6 +36,6 @@
   }
   .title {
     color: $color-neutral-2;
-    font-size: 23px;
+    font-size: 21px;
   }
 }

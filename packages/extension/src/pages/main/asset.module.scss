@@ -1,4 +1,4 @@
-@import "../../styles/var";
+@import '../../styles/var';
 
 .container-asset {
   flex: 1;
@@ -77,19 +77,21 @@
 .legend {
   display: flex;
   width: 100%;
-
   .label {
     letter-spacing: -0.3px;
     flex: 1;
+    font-size: 14px;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
   }
 
   .value {
     letter-spacing: -0.3px;
     flex: 1;
+    font-size: 14px;
     display: flex;
-    font-weight: bold;
+    font-weight: 600;
   }
 
   img {

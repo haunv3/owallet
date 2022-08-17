@@ -26,7 +26,11 @@ export const TokenPage: FunctionComponent = observer(() => {
   const [coinMinimalDenom, setCoinMinimalDenom] = React.useState('');
   const queryBalances = queriesStore
     .get(chainStore.current.chainId)
-    .queryBalances.getQueryBech32Address(accountInfo.bech32Address);
+    .queryBalances.getQueryBech32Address(
+      chainStore.current.networkType === 'evm'
+        ? accountInfo.evmosHexAddress
+        : accountInfo.bech32Address
+    );
 
   const tokens = queryBalances.balances;
   // const queryBalances = queriesStore

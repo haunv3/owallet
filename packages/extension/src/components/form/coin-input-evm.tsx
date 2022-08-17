@@ -22,16 +22,17 @@ import {
   ZeroAmountError,
   NegativeAmountError,
   InsufficientAmountError,
-  IAmountConfig
+  IAmountConfig,
+  IFeeEthereumConfig
 } from '@owallet/hooks';
 import { CoinPretty, Dec, DecUtils, Int } from '@owallet/unit';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useStore } from '../../stores';
 import { DenomHelper } from '@owallet/common';
 
-export interface CoinInputProps {
+export interface CoinInputEvmProps {
   amountConfig: IAmountConfig;
-
+  feeConfig?: any;
   balanceText?: string;
 
   className?: string;
@@ -42,11 +43,18 @@ export interface CoinInputProps {
 }
 
 const reduceStringAssets = (str) => {
-  return str && str.split('(')[0] || '';
+  return (str && str.split('(')[0]) || '';
 };
 
-export const CoinInput: FunctionComponent<CoinInputProps> = observer(
-  ({ amountConfig, className, label, disableAllBalance, placeholder }) => {
+export const CoinInputEvm: FunctionComponent<CoinInputEvmProps> = observer(
+  ({
+    amountConfig,
+    className,
+    label,
+    disableAllBalance,
+    placeholder,
+    feeConfig
+  }) => {
     const intl = useIntl();
 
     const [randomId] = useState(() => {
@@ -134,6 +142,10 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
       amountConfig.sendCurrency.coinMinimalDenom
     );
 
+    const ba = balance?.trim(true)?.maxDecimals(6)?.toString()?.split(' ');
+    useEffect(() => {
+    }, [parseFloat(feeConfig)])
+
     return (
       <React.Fragment>
         <FormGroup className={className}>
@@ -204,8 +216,12 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
                   )}
                   onClick={(e) => {
                     e.preventDefault();
-
-                    amountConfig.toggleIsMax();
+                    amountConfig.setAmount(
+                      (parseFloat(ba[0]) - parseFloat(feeConfig))
+                        .toFixed(8)
+                        .toString()
+                    );
+                    // amountConfig.toggleIsMax();
                   }}
                 >
                   <span>{`Total: ${
@@ -247,11 +263,16 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
               autoComplete="off"
               placeholder={placeholder}
             />
-            <div
+            {/* <div
               style={{ padding: 7.5, textAlign: 'center', cursor: 'pointer' }}
               onClick={(e) => {
                 e.preventDefault();
-                amountConfig.toggleIsMax();
+                amountConfig.setAmount(
+                  (parseFloat(ba[0]) - parseFloat(feeConfig))
+                    .toFixed(8)
+                    .toString()
+                );
+                // amountConfig.toggleIsMax();
               }}
             >
               <div
@@ -271,7 +292,7 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
                   MAX
                 </span>
               </div>
-            </div>
+            </div> */}
           </InputGroup>
           {errorText != null ? (
             <FormFeedback style={{ display: 'block', position: 'sticky' }}>
