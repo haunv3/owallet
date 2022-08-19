@@ -5,6 +5,7 @@ export function initEvents(router: Router) {
   router.registerMessage(PushEventDataMsg);
 
   router.addHandler('interaction-foreground', (_, msg) => {
+    console.log('eventeventeventeventeventevent interaction-foreground');
     switch (msg.constructor) {
       case PushEventDataMsg:
         if ((msg as PushEventDataMsg).data.type === 'keystore-changed') {
