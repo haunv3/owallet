@@ -101,7 +101,14 @@ export class RootStore {
     this.keyRingStore = new KeyRingStore(
       {
         dispatchEvent: (type: string) => {
-          window.dispatchEvent(new Event(type));
+          window.dispatchEvent(
+            new CustomEvent(type, {
+              detail: {
+                test: 'oraichain'
+              }
+            })
+          );
+          // window.dispatchEvent(new Event(type));
         }
       },
       'scrypt',
