@@ -12,7 +12,7 @@ import { useIntl } from 'react-intl';
 const ChainElement: FunctionComponent<{
   chainInfo: ChainInfoWithEmbed;
 }> = observer(({ chainInfo }) => {
-  const { chainStore, analyticsStore , keyRingStore} = useStore();
+  const { chainStore, analyticsStore, keyRingStore } = useStore();
 
   const intl = useIntl();
 
@@ -32,7 +32,11 @@ const ChainElement: FunctionComponent<{
             toChainId: chainInfo.chainId,
             toChainName: chainInfo.chainName
           });
-          await keyRingStore.changChain();
+          await keyRingStore.changeChain({
+            chainId: chainInfo.chainId,
+            chainName: chainInfo.chainName,
+            networkType: chainInfo.networkType
+          });
           chainStore.selectChain(chainInfo.chainId);
           chainStore.saveLastViewChainId();
         }
