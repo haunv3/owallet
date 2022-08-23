@@ -405,8 +405,8 @@ export class KeyRingStore {
   }
 
   @flow
-  *changChain() {
-    const msg = new ChangeChainMsg(1);
+  *changeChain(chainInfos: Object = {}) {
+    const msg = new ChangeChainMsg(chainInfos);
     yield* toGenerator(this.requester.sendMessage(BACKGROUND_PORT, msg));
     this.dispatchKeyStoreChangeEvent();
   }
