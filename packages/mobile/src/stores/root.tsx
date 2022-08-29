@@ -36,6 +36,10 @@ import { FiatCurrency } from '@owallet/types';
 import { ModalStore } from './modal';
 
 import { version } from '../../package.json';
+import {
+  embedChainInfosStore,
+  EmbedChainInfosStore
+} from './chain/embedchaininfos';
 
 export class RootStore {
   public readonly uiConfigStore: UIConfigStore;
@@ -82,6 +86,7 @@ export class RootStore {
   public readonly browserStore: BrowserStore;
   public readonly modalStore: ModalStore;
   public readonly appInitStore: AppInit;
+  public readonly embedChainInfosStore: EmbedChainInfosStore;
 
   constructor() {
     const router = new RNRouterUI(RNEnv.produceEnv);
@@ -160,7 +165,7 @@ export class RootStore {
             );
           }
         },
-        chainOpts: this.chainStore.chainInfos.map(chainInfo => {
+        chainOpts: this.chainStore.chainInfos.map((chainInfo) => {
           if (chainInfo.chainId.startsWith('osmosis')) {
             return {
               chainId: chainInfo.chainId,
@@ -256,6 +261,7 @@ export class RootStore {
     this.deepLinkUriStore = new DeepLinkStore();
     this.browserStore = browserStore;
     this.appInitStore = appInit;
+    this.embedChainInfosStore = embedChainInfosStore;
     this.modalStore = new ModalStore();
   }
 }

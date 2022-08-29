@@ -1,4 +1,10 @@
-import React, { FunctionComponent, ReactElement, useCallback } from 'react';
+import React, {
+  FunctionComponent,
+  ReactElement,
+  useCallback,
+  useEffect,
+  useState
+} from 'react';
 import { observer } from 'mobx-react-lite';
 import { Card, CardBody } from '../../components/card';
 import { View, ViewStyle, Image } from 'react-native';
@@ -8,7 +14,6 @@ import { useStore } from '../../stores';
 import { AddressCopyable } from '../../components/address-copyable';
 import { LoadingSpinner } from '../../components/spinner';
 import { useSmartNavigation } from '../../navigation.provider';
-import { NetworkErrorView } from './network-error-view';
 import { DownArrowIcon, SettingDashboardIcon } from '../../components/icon';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -23,12 +28,15 @@ import { NamespaceModal, AddressQRCodeModal } from './components';
 import { Hash } from '@owallet/crypto';
 import LinearGradient from 'react-native-linear-gradient';
 import MyWalletModal from './components/my-wallet-modal/my-wallet-modal';
+import { NetworkErrorViewEVM } from './network-error-view-evm';
 
-export const AccountCard: FunctionComponent<{
+export const AccountCardEVM: FunctionComponent<{
   containerStyle?: ViewStyle;
 }> = observer(({ containerStyle }) => {
   const { chainStore, accountStore, queriesStore, priceStore, modalStore } =
     useStore();
+
+  const [evmAddress, setEvmAddress] = useState(null);
 
   const deterministicNumber = useCallback(chainInfo => {
     const bytes = Hash.sha256(
@@ -49,40 +57,35 @@ export const AccountCard: FunctionComponent<{
   );
 
   const smartNavigation = useSmartNavigation();
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
 
   const account = accountStore.getAccount(chainStore.current.chainId);
   const queries = queriesStore.get(chainStore.current.chainId);
 
-  const queryStakable = queries.queryBalances.getQueryBech32Address(
-    account.bech32Address
-  ).stakable;
+  useEffect(() => {
+    setEvmAddress(account.evmosHexAddress);
+  }, [account?.evmosHexAddress]);
 
-  console.log('queryStakable', queryStakable);
-  console.log('queryStakable balance', queryStakable.balance);
+  // const queryStakable = queries.queryBalances.getQueryBech32Address(
+  //   account.bech32Address
+  // ).stakable;
+  // const stakable = queryStakable?.balance;
+  let totalPrice;
+  let total;
+  // if (account.evmosHexAddress) {
+  //   total = queries.evm.queryEvmBalance.getQueryBalance(
+  //     account.evmosHexAddress
+  //   )?.balance;
 
-  const stakable = queryStakable.balance;
-  const queryDelegated = queries.cosmos.queryDelegations.getQueryBech32Address(
-    account.bech32Address
-  );
-  const delegated = queryDelegated.total;
+  //   if (total) {
+  //     totalPrice = priceStore?.calculatePrice(total, 'USD');
+  //   }
+  // }
+  // const data: [number, number] = [
+  //   parseFloat(stakable.toDec().toString()),
+  //   parseFloat(stakedSum.toDec().toString())
+  // ];
 
-  const queryUnbonding =
-    queries.cosmos.queryUnbondingDelegations.getQueryBech32Address(
-      account.bech32Address
-    );
-  const unbonding = queryUnbonding.total;
-
-  const stakedSum = delegated.add(unbonding);
-
-  const total = stakable.add(stakedSum);
-
-  const totalPrice = priceStore.calculatePrice(total);
-
-  const data: [number, number] = [
-    parseFloat(stakable.toDec().toString()),
-    parseFloat(stakedSum.toDec().toString())
-  ];
   const safeAreaInsets = useSafeAreaInsets();
   const onPressBtnMain = name => {
     if (name === 'Buy') {
@@ -221,8 +224,8 @@ export const AccountCard: FunctionComponent<{
                 }}
               >
                 {totalPrice
-                  ? totalPrice.toString()
-                  : total.shrink(true).maxDecimals(6).toString()}
+                  ? totalPrice?.toString()
+                  : total?.shrink(true).maxDecimals(6).toString()}
               </Text>
             </View>
             <View
@@ -295,8 +298,13 @@ export const AccountCard: FunctionComponent<{
               </View>
 
               <AddressCopyable
-                address={account.bech32Address}
+                address={
+                  chainStore.current.networkType === 'cosmos'
+                    ? account.bech32Address
+                    : evmAddress
+                }
                 maxCharacters={22}
+                networkType={chainStore.current.networkType}
               />
             </View>
             <TouchableOpacity onPress={_onPressMyWallet}>
@@ -304,7 +312,7 @@ export const AccountCard: FunctionComponent<{
             </TouchableOpacity>
           </View>
 
-          {queryStakable.isFetching ? (
+          {/* {queryStakable?.isFetching ? (
             <View
               style={{
                 position: 'absolute',
@@ -314,11 +322,11 @@ export const AccountCard: FunctionComponent<{
             >
               <LoadingSpinner color={colors['gray-150']} size={22} />
             </View>
-          ) : null}
+          ) : null} */}
         </View>
       </CardBody>
 
-      <NetworkErrorView />
+      {/* <NetworkErrorViewEVM /> */}
       <View style={{ height: 20 }} />
       {/* <CardBody>
         <View

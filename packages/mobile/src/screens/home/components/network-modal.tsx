@@ -6,8 +6,14 @@ import { _keyExtract } from '../../../utils/helper';
 import FastImage from 'react-native-fast-image';
 import { VectorCharacter } from '../../../components/vector-character';
 import { CText as Text } from '../../../components/text';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-export const NetworkModal = ({ profileColor, chainStore, modalStore }) => { 
+export const NetworkModal = ({
+  profileColor,
+  chainStore,
+  modalStore,
+  smartNavigation
+}) => {
   const _renderItem = ({ item }) => {
     return (
       <RectButton
@@ -134,6 +140,15 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
         >
           {`Select networks`}
         </Text>
+
+        <TouchableOpacity
+          onPress={() => {
+            smartNavigation.navigateSmart('Network.select', {});
+            modalStore.close();
+          }}
+        >
+          <Text>+</Text>
+        </TouchableOpacity>
       </View>
 
       <View

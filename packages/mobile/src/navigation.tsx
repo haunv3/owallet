@@ -114,6 +114,7 @@ import { OnboardingIntroScreen } from './screens/onboarding';
 import { NftsScreen, NftDetailScreen } from './screens/nfts';
 import { DelegateDetailScreen } from './screens/stake/delegate/delegate-detail';
 import { NetworkModal } from './screens/home/components';
+import { SelectNetworkScreen } from './screens/network';
 import { colors, spacing, typography } from './themes';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Hash } from '@owallet/crypto';
@@ -121,7 +122,7 @@ import { useRoute } from '@react-navigation/core';
 import { TransferNFTScreen } from './screens/transfer-nft';
 
 const Stack = createStackNavigator();
-const Drawer = createDrawerNavigator();
+// const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 
 const HomeScreenHeaderLeft: FunctionComponent = observer(() => {
@@ -185,6 +186,7 @@ const HomeScreenHeaderRight: FunctionComponent = observer(() => {
 const HomeScreenHeaderTitle: FunctionComponent = observer(() => {
   const { chainStore, modalStore } = useStore();
 
+  const smartNavigation = useSmartNavigation();
   const deterministicNumber = useCallback(chainInfo => {
     const bytes = Hash.sha256(
       Buffer.from(chainInfo.stakeCurrency.coinMinimalDenom)
@@ -202,14 +204,15 @@ const HomeScreenHeaderTitle: FunctionComponent = observer(() => {
     },
     [deterministicNumber]
   );
-
+  // const navigation = useNavigation();
   const _onPressNetworkModal = () => {
     modalStore.setOpen();
     modalStore.setChildren(
       NetworkModal({
         profileColor,
         chainStore,
-        modalStore
+        modalStore,
+        smartNavigation
       })
     );
   };
@@ -279,7 +282,7 @@ export const CustomHeader: FunctionComponent = observer(() => {
           paddingHorizontal: spacing['12']
         }}
       >
-        {route.name === 'Home' ? (
+        {route.name === 'Home' || route.name === 'Network.select' ? (
           <View />
         ) : (
           <TouchableWithoutFeedback onPress={onPressBack}>
@@ -335,7 +338,6 @@ export const MainNavigation: FunctionComponent = () => {
         name="Home"
         component={HomeScreen}
       />
-
       <Stack.Screen
         options={{
           title: '',
@@ -580,6 +582,13 @@ export const OtherNavigation: FunctionComponent = () => {
         }}
         name="Governance Details"
         component={GovernanceDetailsScreen}
+      />
+      <Stack.Screen
+        options={{
+          header: () => <CustomHeader />
+        }}
+        name="Network.select"
+        component={SelectNetworkScreen}
       />
       {/* <Stack.Screen
         options={{

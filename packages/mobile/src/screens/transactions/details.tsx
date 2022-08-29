@@ -61,7 +61,7 @@ const bindValueTxInfo = (label: string, value: string) => {
     case 'Transaction hash':
     case 'From':
     case 'To':
-      return formatContractAddress(value);
+      return formatContractAddress(value ?? '');
 
     default:
       return value;
@@ -270,7 +270,7 @@ export const TransactionDetail: FunctionComponent<any> = () => {
     },
     {
       label: 'Amount',
-      value: `${convertAmount(amount)} ${denom}`
+      value: `${convertAmount(amount)} ${denom ?? ''}`
     }
   ];
 
@@ -295,7 +295,7 @@ export const TransactionDetail: FunctionComponent<any> = () => {
     },
     {
       label: 'Amount',
-      value: `${convertAmount(amount)} ${denom}`
+      value: `${convertAmount(amount)} ${denom ?? ''}`
     },
     {
       label: 'Time',

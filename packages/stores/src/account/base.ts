@@ -65,9 +65,9 @@ export interface MsgOpt {
 type AminoMsgsOrWithProtoMsgs =
   | Msg[]
   | {
-    aminoMsgs: Msg[];
-    protoMsgs?: google.protobuf.IAny[];
-  };
+      aminoMsgs: Msg[];
+      protoMsgs?: google.protobuf.IAny[];
+    };
 
 export interface AccountSetOpts<MsgOpts> {
   readonly prefetching: boolean;
@@ -123,10 +123,18 @@ export class AccountSetBase<MsgOpts, Queries> {
     onTxEvents?:
       | ((tx: any) => void)
       | {
-        onBroadcastFailed?: (e?: Error) => void;
-        onBroadcasted?: (txHash: Uint8Array) => void;
-        onFulfill?: (tx: any) => void;
-      }
+          onBroadcastFailed?: (e?: Error) => void;
+          onBroadcasted?: (txHash: Uint8Array) => void;
+          onFulfill?: (tx: any) => void;
+        },
+    nftOptions?: {
+      type: string;
+      contract_addr: string;
+      token_id: string;
+      recipient?: string;
+      amount?: string;
+      to?: string;
+    }
   ) => Promise<boolean>)[] = [];
 
   constructor(
@@ -144,7 +152,7 @@ export class AccountSetBase<MsgOpts, Queries> {
     this.pubKey = new Uint8Array();
 
     if (opts.autoInit) {
-      this.init()
+      this.init();
     }
   }
 
@@ -171,9 +179,9 @@ export class AccountSetBase<MsgOpts, Queries> {
       onTxEvents?:
         | ((tx: any) => void)
         | {
-          onBroadcasted?: (txHash: Uint8Array) => void;
-          onFulfill?: (tx: any) => void;
-        }
+            onBroadcasted?: (txHash: Uint8Array) => void;
+            onFulfill?: (tx: any) => void;
+          }
     ) => Promise<boolean>
   ) {
     this.sendTokenFns.push(fn);
@@ -290,10 +298,18 @@ export class AccountSetBase<MsgOpts, Queries> {
     onTxEvents?:
       | ((tx: any) => void)
       | {
-        onBroadcastFailed?: (e?: Error) => void;
-        onBroadcasted?: (txHash: Uint8Array) => void;
-        onFulfill?: (tx: any) => void;
-      }
+          onBroadcastFailed?: (e?: Error) => void;
+          onBroadcasted?: (txHash: Uint8Array) => void;
+          onFulfill?: (tx: any) => void;
+        },
+    nftOptions?: {
+      type: string;
+      contract_addr: string;
+      token_id: string;
+      recipient?: string;
+      amount?: string;
+      to?: string;
+    }
   ) {
     runInAction(() => {
       this._isSendingMsg = type;
@@ -360,7 +376,7 @@ export class AccountSetBase<MsgOpts, Queries> {
         wsObject: this.opts.wsObject
       }
     );
-    txTracer.traceTx(txHash).then((tx) => {
+    txTracer.traceTx(txHash).then(tx => {
       txTracer.close();
 
       runInAction(() => {
@@ -372,7 +388,7 @@ export class AccountSetBase<MsgOpts, Queries> {
         const bal = this.queries.queryBalances
           .getQueryBech32Address(this.bech32Address)
           .balances.find(
-            (bal) => bal.currency.coinMinimalDenom === feeAmount.denom
+            bal => bal.currency.coinMinimalDenom === feeAmount.denom
           );
 
         if (bal) {
@@ -404,10 +420,10 @@ export class AccountSetBase<MsgOpts, Queries> {
     onTxEvents?:
       | ((tx: any) => void)
       | {
-        onBroadcastFailed?: (e?: Error) => void;
-        onBroadcasted?: (txHash: Uint8Array) => void;
-        onFulfill?: (tx: any) => void;
-      }
+          onBroadcastFailed?: (e?: Error) => void;
+          onBroadcasted?: (txHash: Uint8Array) => void;
+          onFulfill?: (tx: any) => void;
+        }
   ) {
     runInAction(() => {
       this._isSendingMsg = type;
@@ -457,8 +473,8 @@ export class AccountSetBase<MsgOpts, Queries> {
       this._isSendingMsg = false;
     });
 
-    const sleep = (milliseconds) => {
-      return new Promise((resolve) => setTimeout(resolve, milliseconds));
+    const sleep = milliseconds => {
+      return new Promise(resolve => setTimeout(resolve, milliseconds));
     };
 
     const waitForPendingTransaction = async (
@@ -559,9 +575,17 @@ export class AccountSetBase<MsgOpts, Queries> {
     onTxEvents?:
       | ((tx: any) => void)
       | {
-        onBroadcasted?: (txHash: Uint8Array) => void;
-        onFulfill?: (tx: any) => void;
-      }
+          onBroadcasted?: (txHash: Uint8Array) => void;
+          onFulfill?: (tx: any) => void;
+        },
+    nftOptions?: {
+      type: string;
+      contract_addr: string;
+      token_id: string;
+      recipient?: string;
+      amount?: string;
+      to?: string;
+    }
   ) {
     for (let i = 0; i < this.sendTokenFns.length; i++) {
       const fn = this.sendTokenFns[i];
@@ -574,7 +598,8 @@ export class AccountSetBase<MsgOpts, Queries> {
           memo,
           stdFee,
           signOptions,
-          onTxEvents
+          onTxEvents,
+          nftOptions
         )
       ) {
         return;
@@ -623,9 +648,6 @@ export class AccountSetBase<MsgOpts, Queries> {
       } else {
         aminoMsgs = msgs;
       }
-
-      console.log({ msgs });
-      
 
       if (aminoMsgs.length === 0) {
         throw new Error('There is no msg to send');
@@ -695,10 +717,6 @@ export class AccountSetBase<MsgOpts, Queries> {
           this.bech32Address,
           signDoc,
           signOptions
-        );
-        console.log(
-          '🚀 ~ file: base.ts ~ line 696 ~ AccountSetBase<MsgOpts, ~ signResponse',
-          signResponse
         );
 
         signedTx = cosmos.tx.v1beta1.TxRaw.encode({
