@@ -95,7 +95,11 @@ export class ObservableQueryErc20BalanceInner extends ObservableQueryBalanceInne
       if (!currency) {
         throw new Error(`Unknown currency: ${denom}`);
       }
+      // Android does not support BigInt yet
+      // so I comment it out to evm chain work on Android
+      // need to do something with this to handle evm chain and BigInt stuff
       return new CoinPretty(currency, new Int(0)).ready(false);
+      // For iOS build, un-comment this part
       // if (!this.queryErc20Balance.response?.data) {
       //   return new CoinPretty(currency, new Int(0)).ready(false);
       // }
