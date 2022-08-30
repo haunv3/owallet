@@ -11,6 +11,7 @@ import { Result } from './types';
 import { ObservableEvmContractChainQuery } from './contract-query';
 import { evmosToEth } from '@hanchon/ethermint-address-converter';
 import { AppCurrency, ERC20Currency } from '@owallet/types';
+import { MyBigInt } from '../../common/utils/';
 
 export class ObservableQueryErc20Balance extends ObservableEvmContractChainQuery<Result> {
   constructor(
@@ -95,23 +96,22 @@ export class ObservableQueryErc20BalanceInner extends ObservableQueryBalanceInne
       if (!currency) {
         throw new Error(`Unknown currency: ${denom}`);
       }
-      // Android does not support BigInt yet
-      // so I comment it out to evm chain work on Android
-      // need to do something with this to handle evm chain and BigInt stuff
-      return new CoinPretty(currency, new Int(0)).ready(false);
-      // For iOS build, un-comment this part
-      // if (!this.queryErc20Balance.response?.data) {
-      //   return new CoinPretty(currency, new Int(0)).ready(false);
-      // }
 
-      // console.log(
-      //   this.queryErc20Balance.response?.data?.result,
-      //   'RESULT QUERY ERC20 BALANCE!!!!!!!!'
-      // );
-      // return new CoinPretty(
-      //   currency,
-      //   new Int(BigInt(this.queryErc20Balance.response.data.result).toString())
-      // );
+      if (!this.queryErc20Balance.response?.data) {
+        return new CoinPretty(currency, new Int(0)).ready(false);
+      }
+
+      console.log(
+        this.queryErc20Balance.response?.data?.result,
+        'RESULT QUERY ERC20 BALANCE!!!!!!!!'
+      );
+
+      return new CoinPretty(
+        currency,
+        new Int(
+          new MyBigInt(this.queryErc20Balance.response.data.result).toString()
+        )
+      );
     } catch (error) {
       console.log('Error when query erc20 balance: ', error);
     }
