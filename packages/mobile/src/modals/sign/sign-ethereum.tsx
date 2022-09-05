@@ -192,12 +192,13 @@ export const SignEthereumModal: FunctionComponent<{
             }}
             underlayColor={colors['danger-400']}
             loading={signInteractionStore.isLoading}
+            disabled={signInteractionStore.isLoading}
             onPress={_onPressReject}
           />
           <Button
             text="Approve"
             size="large"
-            disabled={false}
+            disabled={signInteractionStore.isLoading}
             containerStyle={{
               width: '40%'
             }}
