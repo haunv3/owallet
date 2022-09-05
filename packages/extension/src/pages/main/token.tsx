@@ -241,6 +241,19 @@ export const TokensView: FunctionComponent<{
   // const accountInfo = accountStore.getAccount(chainStore.current.chainId);
 
   const displayTokens = tokens
+    .filter((v, i, obj) => {
+      const denomHelper = new DenomHelper(
+        v.balance.trim(true).shrink(true).currency.coinMinimalDenom
+      );
+      return denomHelper.contractAddress
+        ? obj.findIndex(
+            (v2) =>
+              new DenomHelper(
+                v2.balance.trim(true).shrink(true).currency.coinMinimalDenom
+              ).contractAddress === denomHelper.contractAddress
+          ) === i
+        : v;
+    })
     .filter((token) => {
       return token?.balance;
     })
