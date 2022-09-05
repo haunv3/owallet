@@ -226,7 +226,7 @@ const { SmartNavigatorProvider, useSmartNavigation } =
       };
       TxSuccessResult: {
         chainId?: string;
-        txHash: string;
+        txHash?: string;
       };
       TxFailedResult: {
         chainId?: string;
