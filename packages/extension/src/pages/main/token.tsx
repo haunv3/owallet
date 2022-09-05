@@ -245,17 +245,16 @@ export const TokensView: FunctionComponent<{
       const denomHelper = new DenomHelper(
         v.balance.trim(true).shrink(true).currency.coinMinimalDenom
       );
-      return denomHelper.contractAddress
-        ? obj.findIndex(
-            (v2) =>
-              new DenomHelper(
-                v2.balance.trim(true).shrink(true).currency.coinMinimalDenom
-              ).contractAddress === denomHelper.contractAddress
-          ) === i
-        : v;
-    })
-    .filter((token) => {
-      return token?.balance;
+      return (
+        (denomHelper.contractAddress
+          ? obj.findIndex(
+              (v2) =>
+                new DenomHelper(
+                  v2.balance.trim(true).shrink(true).currency.coinMinimalDenom
+                ).contractAddress === denomHelper.contractAddress
+            ) === i
+          : v) && v?.balance
+      );
     })
     .sort((a, b) => {
       const aDecIsZero = a.balance?.toDec()?.isZero();
@@ -270,7 +269,6 @@ export const TokensView: FunctionComponent<{
 
       return a.currency.coinDenom < b.currency.coinDenom ? -1 : 1;
     });
-
 
   const history = useHistory();
   const [search, setSearch] = useState('');
