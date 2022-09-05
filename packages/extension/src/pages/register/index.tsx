@@ -55,7 +55,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
   }, []);
 
   const { keyRingStore } = useStore();
-
+  
   const registerConfig = useRegisterConfig(keyRingStore, [
     ...(AdditionalSignInPrepend ?? []),
     {
@@ -74,11 +74,12 @@ export const RegisterPage: FunctionComponent = observer(() => {
       page: ImportLedgerPage
     }
   ]);
-
   return (
     <EmptyLayout
       className={style.container}
-      style={{ padding: 0, overflowY: 'auto', height: '100vh' }}
+      style={{ 
+        justifyContent: registerConfig.isIntro || registerConfig.isFinalized ? 'center' : 'start'
+      }}
     >
       <div className={style.logoContainer}>
         <div>
