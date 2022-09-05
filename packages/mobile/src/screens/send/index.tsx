@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
 
 export const SendScreen: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, analyticsStore } = useStore();
-  const safeAreaInsets = useSafeAreaInsets();
   const route = useRoute<
     RouteProp<
       Record<
@@ -58,8 +57,6 @@ export const SendScreen: FunctionComponent = observer(() => {
   const chainId = route?.params?.chainId
     ? route?.params?.chainId
     : chainStore?.current?.chainId;
-
-  console.log({ route: route });
 
   const account = accountStore.getAccount(chainId);
   const queries = queriesStore.get(chainId);
@@ -154,9 +151,12 @@ export const SendScreen: FunctionComponent = observer(() => {
             memoConfig={sendConfigs.memoConfig}
             labelStyle={styles.sendlabelInput}
           />
-          <TouchableOpacity
+          <Button
+            text="Send"
+            size="large"
+            disabled={!account.isReadyToSendMsgs || !txStateIsValid}
+            loading={account.isSendingMsg === 'send'}
             style={{
-              marginBottom: 24,
               backgroundColor: colors['purple-900'],
               borderRadius: 8
             }}
@@ -205,8 +205,8 @@ export const SendScreen: FunctionComponent = observer(() => {
                 }
               }
             }}
-          >
-            <Text
+          />
+          {/* <Text
               style={{
                 color: 'white',
                 textAlign: 'center',
@@ -217,7 +217,7 @@ export const SendScreen: FunctionComponent = observer(() => {
             >
               Send
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </PageWithScrollView>

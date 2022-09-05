@@ -1,7 +1,13 @@
 import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { registerModal } from '../base';
 import { CardModal } from '../card';
-import { ScrollView, Text, View } from 'react-native';
+import {
+  ScrollView,
+  Text,
+  View,
+  KeyboardAvoidingView,
+  Platform
+} from 'react-native';
 import { useStyle } from '../../styles';
 import { useStore } from '../../stores';
 
@@ -16,6 +22,8 @@ import { TextInput } from '../../components/input';
 import { useFeeEthereumConfig, useGasEthereumConfig } from '@owallet/hooks';
 import { FeeEthereumInSign } from './fee-ethereum';
 import { navigationRef } from '../../router/root';
+
+const keyboardVerticalOffset = Platform.OS === 'ios' ? 130 : 0;
 
 export const SignEthereumModal: FunctionComponent<{
   isOpen: boolean;
@@ -116,117 +124,120 @@ export const SignEthereumModal: FunctionComponent<{
     };
 
     return (
-      <CardModal title="Confirm Ethereum Transaction">
+      <CardModal>
         {/* {wcSession ? (
           <WCAppLogoAndName
             containerStyle={style.flatten(['margin-y-14'])}
             peerMeta={wcSession.peerMeta}
           />
         ) : null} */}
-        <View style={style.flatten(['margin-bottom-16'])}>
-          <Text style={style.flatten(['margin-bottom-3'])}>
-            <Text style={style.flatten(['subtitle3', 'color-primary'])}>
-              {`1 `}
-            </Text>
-            <Text
-              style={style.flatten(['subtitle3', 'color-text-black-medium'])}
-            >
-              Message
-            </Text>
-          </Text>
-          <View
-            style={style.flatten([
-              'border-radius-8',
-              'border-width-1',
-              'border-color-border-white',
-              'overflow-hidden'
-            ])}
-          >
-            <ScrollView
-              style={style.flatten(['max-height-214'])}
-              persistentScrollbar={true}
-            >
-              <Text>{JSON.stringify(dataSign, null, 2)}</Text>
-            </ScrollView>
-          </View>
-        </View>
-        <TextInput
-          label="Memo"
-          onChangeText={txt => {
-            setMemo(txt);
-          }}
-          defaultValue={''}
-        />
-        {/* <TextInput
-          label="Fee"
-          onChangeText={txt => {
-            setFee(txt);
-          }}
-          defaultValue={'0x0'}
-        /> */}
-
-        <FeeEthereumInSign
-          feeConfig={feeConfig}
-          gasConfig={gasConfig}
-          gasPrice={gasPrice}
-          decimals={decimals.current}
-        />
-
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-evenly'
-          }}
+        <KeyboardAvoidingView
+          behavior="position"
+          keyboardVerticalOffset={keyboardVerticalOffset}
         >
-          <Button
-            text="Reject"
-            size="large"
-            containerStyle={{
-              width: '40%'
+          <View style={style.flatten(['margin-bottom-16'])}>
+            <Text style={style.flatten(['margin-bottom-3'])}>
+              <Text style={style.flatten(['subtitle3', 'color-primary'])}>
+                {`1 `}
+              </Text>
+              <Text
+                style={style.flatten(['subtitle3', 'color-text-black-medium'])}
+              >
+                Message
+              </Text>
+            </Text>
+            <View
+              style={style.flatten([
+                'border-radius-8',
+                'border-width-1',
+                'border-color-border-white',
+                'overflow-hidden'
+              ])}
+            >
+              <ScrollView
+                style={style.flatten(['max-height-214'])}
+                persistentScrollbar={true}
+              >
+                <Text>{JSON.stringify(dataSign, null, 2)}</Text>
+              </ScrollView>
+            </View>
+          </View>
+          <TextInput
+            label="Memo"
+            onChangeText={txt => {
+              setMemo(txt);
             }}
+            defaultValue={''}
+          />
+
+          <FeeEthereumInSign
+            feeConfig={feeConfig}
+            gasConfig={gasConfig}
+            gasPrice={gasPrice}
+            decimals={decimals.current}
+          />
+
+          <View
             style={{
-              backgroundColor: colors['red-500']
+              flexDirection: 'row',
+              justifyContent: 'space-evenly'
             }}
-            textStyle={{
-              color: colors['white']
-            }}
-            underlayColor={colors['danger-400']}
-            loading={signInteractionStore.isLoading}
-            disabled={signInteractionStore.isLoading}
-            onPress={_onPressReject}
-          />
-          <Button
-            text="Approve"
-            size="large"
-            disabled={signInteractionStore.isLoading}
-            containerStyle={{
-              width: '40%'
-            }}
-            loading={signInteractionStore.isLoading}
-            onPress={async () => {
-              try {
-                const gasPrice =
-                  '0x' +
-                  parseInt(
-                    new Big(parseFloat(feeConfig.feeRaw))
-                      .mul(new Big(10).pow(decimals.current))
-                      .div(parseFloat(gasConfig.gasRaw))
-                      .toFixed(decimals.current)
-                  ).toString(16);
-                await signInteractionStore.approveEthereumAndWaitEnd({
-                  gasPrice,
-                  gasLimit: `0x${parseFloat(gasConfig.gasRaw).toString(16)}`,
-                  memo
-                });
-                if (navigationRef.current.getCurrentRoute().name === 'Send') {
-                  navigationRef.current.navigate('TxSuccessResult', {});
+          >
+            <Button
+              text="Reject"
+              size="large"
+              containerStyle={{
+                width: '40%'
+              }}
+              style={{
+                backgroundColor: colors['red-500']
+              }}
+              textStyle={{
+                color: colors['white']
+              }}
+              underlayColor={colors['danger-400']}
+              loading={signInteractionStore.isLoading}
+              disabled={signInteractionStore.isLoading}
+              onPress={_onPressReject}
+            />
+            <Button
+              text="Approve"
+              size="large"
+              disabled={signInteractionStore.isLoading}
+              containerStyle={{
+                width: '40%'
+              }}
+              style={{
+                backgroundColor: signInteractionStore.isLoading
+                  ? colors['gray-400']
+                  : colors['purple-900']
+              }}
+              loading={signInteractionStore.isLoading}
+              onPress={async () => {
+                try {
+                  const gasPrice =
+                    '0x' +
+                    parseInt(
+                      new Big(parseFloat(feeConfig.feeRaw))
+                        .mul(new Big(10).pow(decimals.current))
+                        .div(parseFloat(gasConfig.gasRaw))
+                        .toFixed(decimals.current)
+                    ).toString(16);
+                  await signInteractionStore.approveEthereumAndWaitEnd({
+                    gasPrice,
+                    gasLimit: `0x${parseFloat(gasConfig.gasRaw).toString(16)}`,
+                    memo
+                  });
+                  if (navigationRef.current.getCurrentRoute().name === 'Send') {
+                    navigationRef.current.navigate('TxSuccessResult', {});
+                  }
+                } catch (error) {
+                  console.log(error);
                 }
-              } catch (error) {
-                console.log(error);
-              }
-            }}
-          />
-        </View>
+              }}
+            />
+          </View>
+        </KeyboardAvoidingView>
       </CardModal>
     );
   }),

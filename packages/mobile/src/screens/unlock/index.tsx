@@ -96,6 +96,7 @@ export const UnlockScreen: FunctionComponent = observer(() => {
   const navigation = useNavigation();
 
   const [downloading, setDownloading] = useState(false);
+  const [installing, setInstalling] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   const navigateToHomeOnce = useRef(false);
@@ -153,11 +154,12 @@ export const UnlockScreen: FunctionComponent = observer(() => {
           case CodePush.SyncStatus.INSTALLING_UPDATE:
             console.log('INSTALLING_UPDATE');
             // show installing
-            // setState({ showInstalling: true });
+            setInstalling(true);
             break;
           case CodePush.SyncStatus.UPDATE_INSTALLED:
             console.log('UPDATE_INSTALLED');
             setDownloading(false);
+            setInstalling(false);
             // Hide loading modal
             // setState({ showDownloadingModal: false });
             break;
@@ -236,7 +238,7 @@ export const UnlockScreen: FunctionComponent = observer(() => {
   return !routeToRegisterOnce.current &&
     keyRingStore.status === KeyRingStatus.EMPTY ? (
     <View />
-  ) : downloading ? (
+  ) : downloading || installing ? (
     <View
       style={{
         width: '100%',
@@ -270,17 +272,38 @@ export const UnlockScreen: FunctionComponent = observer(() => {
           opacity: isLoading ? 0.5 : 1
         }}
       >
-        Checking for update
+        {installing ? `Installing` : `Checking for`} update
       </Text>
-      <Image
-        style={{
-          width: 300,
-          height: 8
+      <View style={{ marginVertical: 12 }}>
+        <Image
+          style={{
+            width: 300,
+            height: 8
+          }}
+          fadeDuration={0}
+          resizeMode="stretch"
+          source={require('../../assets/image/transactions/process_pedding.gif')}
+        />
+      </View>
+      <TouchableOpacity
+        onPress={() => {
+          setDownloading(false);
+          setInstalling(false);
         }}
-        fadeDuration={0}
-        resizeMode="stretch"
-        source={require('../../assets/image/transactions/process_pedding.gif')}
-      />
+      >
+        <Text
+          style={{
+            color: colors['purple-700'],
+            textAlign: 'center',
+            fontWeight: '600',
+            fontSize: 16,
+            lineHeight: 22,
+            opacity: isLoading ? 0.5 : 1
+          }}
+        >
+          Cancel
+        </Text>
+      </TouchableOpacity>
     </View>
   ) : (
     <React.Fragment>
