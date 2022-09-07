@@ -232,7 +232,8 @@ export const SignEthereumModal: FunctionComponent<{
                     navigationRef.current.navigate('TxSuccessResult', {});
                   }
                 } catch (error) {
-                  console.log(error);
+                  signInteractionStore.rejectAll();
+                  console.log('error approveEthereumAndWaitEnd', error);
                 }
               }}
             />

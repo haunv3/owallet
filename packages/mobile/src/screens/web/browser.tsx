@@ -13,7 +13,6 @@ import { SearchIcon } from '../../components/icon';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { checkValidDomain } from '../../utils/helper';
 import { useStore } from '../../stores';
-import { InjectedProviderUrl } from './config';
 import { SwtichTab } from './components/switch-tabs';
 import { BrowserFooterSection } from './components/footer-section';
 import { WebViewStateContext } from './components/context';

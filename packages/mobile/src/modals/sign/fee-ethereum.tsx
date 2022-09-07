@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { TextStyle, ViewStyle } from 'react-native';
 import { TextInput } from '../../components/input';
 import Big from 'big.js';
+import { observer } from 'mobx-react-lite';
 
 export const FeeInput: FunctionComponent<{
   labelStyle?: TextStyle;
@@ -14,77 +15,76 @@ export const FeeInput: FunctionComponent<{
   label: string;
   feeConfig: any;
   decimals: number;
-}> = ({
-  labelStyle,
-  containerStyle,
-  inputContainerStyle,
-  label,
-  feeConfig,
-  gasConfig,
-  gasPrice,
-  decimals
-}) => {
-  useEffect(() => {
-    try {
-      if (gasConfig.gasRaw !== 'NaN' && gasPrice != 'NaN') {
-        feeConfig.setFee(
-          new Big(parseInt(gasConfig.gasRaw)).mul(gasPrice).toFixed(decimals)
-        );
+}> = observer(
+  ({
+    labelStyle,
+    containerStyle,
+    inputContainerStyle,
+    label,
+    feeConfig,
+    gasConfig,
+    gasPrice,
+    decimals
+  }) => {
+    useEffect(() => {
+      try {
+        if (gasConfig.gasRaw !== 'NaN' && gasPrice != 'NaN') {
+          feeConfig.setFee(
+            new Big(parseInt(gasConfig.gasRaw)).mul(gasPrice).toFixed(decimals)
+          );
+        } else {
+          feeConfig.setFee(parseFloat(feeConfig.feeRaw).toString());
+        }
+      } catch (error) {
+        feeConfig.setFee(parseFloat(feeConfig.feeRaw).toString());
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [gasConfig.gasRaw, gasPrice]);
+    }, [gasConfig.gasRaw, gasPrice]);
 
-  return (
-    <TextInput
-      labelStyle={labelStyle}
-      containerStyle={containerStyle}
-      inputContainerStyle={inputContainerStyle}
-      label={label}
-      value={parseFloat(feeConfig.feeRaw).toString()}
-      onChangeText={text => {
-        feeConfig.setFee(text);
-      }}
-      inputRight={
-        <View>
-          <Text>{feeConfig.chainInfo.stakeCurrency.coinDenom}</Text>
-        </View>
-      }
-      keyboardType="number-pad"
-    />
-  );
-};
+    return (
+      <TextInput
+        labelStyle={labelStyle}
+        containerStyle={containerStyle}
+        inputContainerStyle={inputContainerStyle}
+        label={label}
+        value={feeConfig.feeRaw}
+        onChangeText={text => {
+          feeConfig.setFee(text);
+        }}
+        inputRight={
+          <View>
+            <Text>{feeConfig.chainInfo.stakeCurrency.coinDenom}</Text>
+          </View>
+        }
+        keyboardType="decimal-pad"
+      />
+    );
+  }
+);
 
 export const GasInput: FunctionComponent<{
   labelStyle?: TextStyle;
   containerStyle?: ViewStyle;
   inputContainerStyle?: ViewStyle;
-
   label: string;
-
   gasConfig: IGasConfig;
-}> = ({
-  labelStyle,
-  containerStyle,
-  inputContainerStyle,
-  label,
-  gasConfig
-}) => {
-  return (
-    <TextInput
-      labelStyle={labelStyle}
-      containerStyle={containerStyle}
-      inputContainerStyle={inputContainerStyle}
-      label={label}
-      value={gasConfig.gasRaw}
-      onChangeText={text => {
-        gasConfig.setGas(text);
-      }}
-      keyboardType="number-pad"
-    />
-  );
-};
+}> = observer(
+  ({ labelStyle, containerStyle, inputContainerStyle, label, gasConfig }) => {
+    return (
+      <TextInput
+        labelStyle={labelStyle}
+        containerStyle={containerStyle}
+        inputContainerStyle={inputContainerStyle}
+        label={label}
+        value={gasConfig.gasRaw}
+        onChangeText={text => {
+          gasConfig.setGas(text);
+        }}
+        keyboardType="number-pad"
+      />
+    );
+  }
+);
 
 export const FeeEthereumInSign: FunctionComponent<{
   feeConfig: IFeeEthereumConfig;

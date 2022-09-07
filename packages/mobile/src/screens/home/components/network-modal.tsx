@@ -120,7 +120,6 @@ export const NetworkModal = ({
   };
 
   return (
-    // container
     <View
       style={{
         alignItems: 'center'
@@ -141,14 +140,14 @@ export const NetworkModal = ({
           {`Select networks`}
         </Text>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => {
             smartNavigation.navigateSmart('Network.select', {});
             modalStore.close();
           }}
         >
           <Text>+</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <View

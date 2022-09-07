@@ -118,24 +118,19 @@ export const HomeScreen: FunctionComponent = observer(props => {
 
     setRefreshing(false);
   }, [accountStore, chainStore, priceStore, queriesStore]);
-  const queries = queriesStore.get(chainStore.current.chainId);
+  // const queries = queriesStore.get(chainStore.current.chainId);
 
-  const queryBalances = queriesStore
-    .get(chainStore.current.chainId)
-    .queryBalances.getQueryBech32Address(
-      accountStore.getAccount(chainStore.current.chainId).bech32Address
-    );
+  // const queryBalances = queriesStore
+  //   .get(chainStore.current.chainId)
+  //   .queryBalances.getQueryBech32Address(
+  //     accountStore.getAccount(chainStore.current.chainId).bech32Address
+  //   );
 
-  const queryBalancesEVM = queries.evm.queryEvmBalance.getQueryBalance(
-    accountStore.getAccount(chainStore.current.chainId).evmosHexAddress
-  );
+  // const queryBalancesEVM = queries.evm.queryEvmBalance.getQueryBalance(
+  //   accountStore.getAccount(chainStore.current.chainId).evmosHexAddress
+  // );
 
-  // console.log('queryBalances', queryBalances);
-  console.log('queryBalancesEVM', queryBalancesEVM);
-
-  const tokens = queryBalances.balances;
-
-  console.log('tokens', tokens);
+  // const tokens = queryBalances.balances;
 
   return (
     <PageWithScrollViewInBottomTabView

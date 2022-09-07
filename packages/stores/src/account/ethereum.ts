@@ -6,6 +6,8 @@ import { DenomHelper } from '@owallet/common';
 import { Dec, DecUtils, Int } from '@owallet/unit';
 import { ChainIdHelper, cosmos, ibc } from '@owallet/cosmos';
 import { BondStatus } from '../query/cosmos/staking/types';
+import Web3 from 'web3';
+import ERC20_ABI from '../query/evm/erc20.json';
 import {
   HasCosmosQueries,
   HasEvmQueries,
@@ -95,6 +97,15 @@ export class EthereumAccount {
 
     if (signOptions.networkType === 'evm') {
       switch (denomHelper.type) {
+        // case 'erc20':
+        // Do something with web3 stuff here
+        // Example: https://www.coinbase.com/cloud/discover/solutions/send-erc20-with-web3-library
+        // Something just like this ?
+        // const provider = this.chainGetter.getChain(this.chainId).rest;
+        // const web3 = new Web3(provider);
+        // const contract = new web3.eth.Contract(ERC20_ABI, this.contractAddress) // token address(aka contract address) is show on extension UI, just find some way to get it
+        // let data = contract.methods.transfer(toAddress, amount).encodeABI()
+        // return;
         case 'native':
           const actualAmount = (() => {
             let dec = new Dec(amount);

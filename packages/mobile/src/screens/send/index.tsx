@@ -4,7 +4,7 @@ import { useSendTxConfig } from '@owallet/hooks';
 import { useStore } from '../../stores';
 import { EthereumEndpoint } from '@owallet/common';
 import { PageWithScrollView } from '../../components/page';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {
   AddressInput,
   AmountInput,
@@ -16,8 +16,7 @@ import { Button } from '../../components/button';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSmartNavigation } from '../../navigation.provider';
 import { Buffer } from 'buffer';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, metrics, spacing, typography } from '../../themes';
+import { colors, spacing } from '../../themes';
 import { CText as Text } from '../../components/text';
 
 const styles = StyleSheet.create({
@@ -83,8 +82,6 @@ export const SendScreen: FunctionComponent = observer(() => {
       });
 
       if (currency) {
-        console.log('currency', currency);
-
         sendConfigs.amountConfig.setSendCurrency(currency);
       }
     }
@@ -135,16 +132,20 @@ export const SendScreen: FunctionComponent = observer(() => {
           <AmountInput
             placeholder="ex. 1000 ORAI"
             label="Amount"
+            allowMax={chainStore.current.networkType !== 'evm' ? true : false}
             amountConfig={sendConfigs.amountConfig}
             labelStyle={styles.sendlabelInput}
           />
-          <FeeButtons
-            label="Transaction Fee"
-            gasLabel="gas"
-            feeConfig={sendConfigs.feeConfig}
-            gasConfig={sendConfigs.gasConfig}
-            labelStyle={styles.sendlabelInput}
-          />
+          {chainStore.current.networkType !== 'evm' ? (
+            <FeeButtons
+              label="Transaction Fee"
+              gasLabel="gas"
+              feeConfig={sendConfigs.feeConfig}
+              gasConfig={sendConfigs.gasConfig}
+              labelStyle={styles.sendlabelInput}
+            />
+          ) : null}
+
           <MemoInput
             label="Memo (Optional)"
             placeholder="Type your memo here"
@@ -196,6 +197,7 @@ export const SendScreen: FunctionComponent = observer(() => {
                   ) {
                     return;
                   }
+                  alert(e?.message);
                   console.log('send error', e);
                   if (smartNavigation.canGoBack) {
                     smartNavigation.goBack();
@@ -206,18 +208,6 @@ export const SendScreen: FunctionComponent = observer(() => {
               }
             }}
           />
-          {/* <Text
-              style={{
-                color: 'white',
-                textAlign: 'center',
-                fontWeight: '700',
-                fontSize: 16,
-                padding: 16
-              }}
-            >
-              Send
-            </Text>
-          </TouchableOpacity> */}
         </View>
       </View>
     </PageWithScrollView>
