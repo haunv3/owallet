@@ -102,7 +102,6 @@ export class EthereumAccount {
   ): Promise<boolean> {
     const denomHelper = new DenomHelper(currency.coinMinimalDenom);
     console.log(stdFee, 'STD FEE ETHEREUM!!!!!!!!!!!!!!!!!!!!!');
-    console.log(denomHelper.type, 'denomHelper.type!!!!!!!!!!!!!!!!!!!!!');
 
     if (signOptions.networkType === 'evm') {
       switch (denomHelper.type) {
@@ -142,52 +141,6 @@ export class EthereumAccount {
               }
             })
           );
-          // Do something with web3 stuff here
-          // Example: https://www.coinbase.com/cloud/discover/solutions/send-erc20-with-web3-library
-          // Move all of this part to the base with this.base.sendEvmMsgs function
-          // web3 can be create in the base later
-          // const provider = this.chainGetter.getChain(this.chainId).rest;
-          // const web3 = new Web3(provider);
-          // Just format the data we want in here (contract, data, txObj)
-          // const contract = new web3.eth.Contract(
-          //   // @ts-ignore
-          //   ERC20_ABI,
-          //   extraOptions.contract_addr
-          // );
-          // let data = contract.methods
-          //   .transfer(extraOptions.contract_addr, extraOptions.amount)
-          //   .encodeABI();
-
-          // let txObj = {
-          //   gas: web3.utils.toHex(extraOptions.gas),
-          //   to: extraOptions.contract_addr,
-          //   value: extraOptions.amount,
-          //   from: extraOptions.recipient,
-          //   data
-          // };
-          // This part will be handle in the background package to get the privateKey
-          // And it will return the txHash ?
-          // web3.eth.accounts.signTransaction(
-          //   txObj,
-          //   'privateKey',
-          //   (err, signedTx) => {
-          //     if (err) {
-          //       console.log(err);
-          //     } else {
-          //       console.log(signedTx);
-          //       return web3.eth.sendSignedTransaction(
-          //         signedTx.rawTransaction,
-          //         (err, res) => {
-          //           if (err) {
-          //             console.log(err);
-          //           } else {
-          //             console.log(res);
-          //           }
-          //         }
-          //       );
-          //     }
-          //   }
-          // );
           return true;
         case 'native':
           const actualAmount = (() => {
@@ -211,8 +164,6 @@ export class EthereumAccount {
               ]
             }
           };
-
-          console.log('msg ===>', msg);
 
           await this.base.sendEvmMsgs(
             'send',

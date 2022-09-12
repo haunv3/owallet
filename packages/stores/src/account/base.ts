@@ -435,19 +435,6 @@ export class AccountSetBase<MsgOpts, Queries> {
 
     try {
       if (msgs.type === 'erc20') {
-        // Need to do here:
-        // Move the send part from case erc20 to here
-        // Add some options which have all the information we need from erc20 to here to pass it into background
-        // Add some condition to know if it erc20 or native
-        // Move all the logic of send erc20 to the background to get the private key by clone the broadcastEvmMsgs function to redirect the way of code
-        // Maybe we can create a new signAndBroadcastERC20Ethereum function to separate the logic, avoid confusing
-        // const provider is the rpc endpoint
-        // Information we need for the transaction and sign stuff are all here, pass it into background
-        // So we can get the web3 in the background to use with all of logic and private key which already provided
-        // By that, we are basiclly done
-        // All we need now is the result here to get the txHash
-        // const result = await this.broadcastEvmMsgs(msgs, fee);
-        // txHash = result.txHash; // this is matter
         const { value } = msgs;
         const provider = this.chainGetter.getChain(this.chainId).rest;
         const web3 = new Web3(provider);
