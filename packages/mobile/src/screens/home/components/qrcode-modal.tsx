@@ -57,6 +57,7 @@ export const AddressQRCodeModal: FunctionComponent<{
             mode="light"
             size="large"
             loading={account.bech32Address === ''}
+            disabled={account.bech32Address === ''}
             onPress={() => {
               Share.share({
                 message: account.bech32Address

@@ -65,7 +65,23 @@ export const StakingDashboardScreen: FunctionComponent = observer(() => {
         >
           {chainStore.current.networkType === 'cosmos' ? (
             <MyRewardCard />
-          ) : null}
+          ) : (
+            <View style={{ alignItems: 'center' }}>
+              <Image
+                source={require('../../../assets/image/not_found.png')}
+                resizeMode="contain"
+                height={142}
+                width={142}
+              />
+              <Text
+                style={{
+                  ...typography.h4,
+                  fontWeight: '400',
+                  marginVertical: spacing['52']
+                }}
+              >{`No result found`}</Text>
+            </View>
+          )}
 
           {chainStore.current.networkType === 'cosmos' ? (
             <View
@@ -102,15 +118,17 @@ export const StakingDashboardScreen: FunctionComponent = observer(() => {
               bottom: 0
             }}
           >
-            <Image
-              style={{
-                width: 148,
-                height: 148
-              }}
-              source={require('../../../assets/image/stake_gift.png')}
-              resizeMode="contain"
-              fadeDuration={0}
-            />
+            {chainStore.current.networkType === 'cosmos' ? (
+              <Image
+                style={{
+                  width: 148,
+                  height: 148
+                }}
+                source={require('../../../assets/image/stake_gift.png')}
+                resizeMode="contain"
+                fadeDuration={0}
+              />
+            ) : null}
           </View>
         </View>
 

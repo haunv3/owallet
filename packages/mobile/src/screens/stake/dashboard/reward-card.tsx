@@ -27,7 +27,7 @@ export const MyRewardCard: FunctionComponent<{
     queries.cosmos.queryRewards.getQueryBech32Address(
       account.bech32Address
     ).stakableReward;
-
+  const stakingReward = queryReward.stakableReward;
   const apy = queries.cosmos.queryInflation.inflation;
 
   const style = useStyle();
@@ -114,6 +114,12 @@ export const MyRewardCard: FunctionComponent<{
                     {},
                     {},
                     {
+                      onFulfill: tx => {
+                        console.log(
+                          tx,
+                          'TX INFO ON SEND PAGE!!!!!!!!!!!!!!!!!!!!!'
+                        );
+                      },
                       onBroadcasted: txHash => {
                         analyticsStore.logEvent('Claim reward tx broadcasted', {
                           chainId: chainStore.current.chainId,
@@ -123,7 +129,8 @@ export const MyRewardCard: FunctionComponent<{
                           txHash: Buffer.from(txHash).toString('hex')
                         });
                       }
-                    }
+                    },
+                    stakingReward.currency.coinMinimalDenom
                   );
                 } catch (e) {
                   console.log({ errorClaim: e });

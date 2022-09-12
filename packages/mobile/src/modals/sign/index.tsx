@@ -56,15 +56,10 @@ export const SignModal: FunctionComponent<{
       amountConfig,
       gasConfig
     );
-    console.log(
-      'feeConfig',
-      feeConfig.fee?.toCoin().amount,
-      amountConfig.amount
-    );
+
     const memoConfig = useMemoConfig(chainStore, chainId);
 
     const signDocWapper = signInteractionStore.waitingData?.data.signDocWrapper;
-    console.log('.waitingData', signInteractionStore.waitingData);
 
     const signDocHelper = useSignDocHelper(feeConfig, memoConfig);
     amountConfig.setSignDocHelper(signDocHelper);
@@ -117,7 +112,6 @@ export const SignModal: FunctionComponent<{
 
     const _onPressApprove = async () => {
       crashlytics().log('sign - index - _onPressApprove');
-      console.log('on press sign');
       try {
         if (signDocHelper.signDocWrapper) {
           //
@@ -132,8 +126,6 @@ export const SignModal: FunctionComponent<{
     };
 
     const _onPressReject = () => {
-      crashlytics().log('sign - index - _onPressReject');
-      console.log('on press sign');
       try {
         if (signDocHelper.signDocWrapper) {
           //
@@ -261,7 +253,6 @@ export const SignModal: FunctionComponent<{
           }
           loading={signInteractionStore.isLoading}
           onPress={async () => {
-            console.log('on press sign');
             try {
               if (signDocHelper.signDocWrapper) {
                 await signInteractionStore.approveAndWaitEnd(

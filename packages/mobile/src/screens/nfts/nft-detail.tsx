@@ -140,8 +140,6 @@ export const NftDetailScreen: FunctionComponent = observer(props => {
     })();
   }, []);
 
-  console.log('item.url', item);
-
   return (
     <PageWithScrollViewInBottomTabView>
       <View style={styles.container}>

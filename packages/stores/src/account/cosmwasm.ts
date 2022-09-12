@@ -90,7 +90,7 @@ export class CosmwasmAccount {
           onBroadcasted?: (txHash: Uint8Array) => void;
           onFulfill?: (tx: any) => void;
         },
-    nftOptions?: {
+    extraOptions?: {
       type: string;
       contract_addr: string;
       token_id: string;
@@ -116,24 +116,24 @@ export class CosmwasmAccount {
             throw new Error('Currency is not cw20');
           }
 
-          if (nftOptions && Object.keys(nftOptions).length !== 0) {
+          if (extraOptions && Object.keys(extraOptions).length !== 0) {
             let contractAddress, transfer_nft_directly;
             contractAddress =
-              nftOptions.type === '721'
+              extraOptions.type === '721'
                 ? 'orai1r5je7ftryvymzukudqgh0dwrkyfyr8u07cjuhw'
                 : 'orai1m0cdln6klzlsk87jww9wwr7ksasa6cnava28j5';
             transfer_nft_directly =
-              nftOptions.type === '721'
+              extraOptions.type === '721'
                 ? {
-                    contract_addr: nftOptions.contract_addr,
-                    recipient: nftOptions.recipient,
-                    token_id: nftOptions.token_id
+                    contract_addr: extraOptions.contract_addr,
+                    recipient: extraOptions.recipient,
+                    token_id: extraOptions.token_id
                   }
                 : {
-                    contract_addr: nftOptions.contract_addr,
-                    amount: nftOptions.amount,
-                    to: nftOptions.to,
-                    token_id: nftOptions.token_id
+                    contract_addr: extraOptions.contract_addr,
+                    amount: extraOptions.amount,
+                    to: extraOptions.to,
+                    token_id: extraOptions.token_id
                   };
             await this.sendExecuteContractMsg(
               'send',

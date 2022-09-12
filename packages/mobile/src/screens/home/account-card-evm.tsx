@@ -72,15 +72,15 @@ export const AccountCardEVM: FunctionComponent<{
   // const stakable = queryStakable?.balance;
   let totalPrice;
   let total;
-  // if (account.evmosHexAddress) {
-  //   total = queries.evm.queryEvmBalance.getQueryBalance(
-  //     account.evmosHexAddress
-  //   )?.balance;
+  if (account.evmosHexAddress) {
+    total = queries.evm.queryEvmBalance.getQueryBalance(
+      account.evmosHexAddress
+    )?.balance;
 
-  //   if (total) {
-  //     totalPrice = priceStore?.calculatePrice(total, 'USD');
-  //   }
-  // }
+    if (total) {
+      totalPrice = priceStore?.calculatePrice(total, 'USD');
+    }
+  }
   // const data: [number, number] = [
   //   parseFloat(stakable.toDec().toString()),
   //   parseFloat(stakedSum.toDec().toString())
