@@ -101,6 +101,11 @@ export const SendScreen: FunctionComponent = observer(() => {
     sendConfigs.feeConfig.getError();
   const txStateIsValid = sendConfigError == null;
 
+  console.log(
+    'sendConfigs.amountConfig.sendCurrency',
+    sendConfigs.amountConfig.sendCurrency
+  );
+
   return (
     <PageWithScrollView>
       <View style={{ marginBottom: 99 }}>
@@ -176,6 +181,12 @@ export const SendScreen: FunctionComponent = observer(() => {
                       networkType: chainStore.current.networkType
                     },
                     {
+                      onFulfill: tx => {
+                        console.log(
+                          tx,
+                          'TX INFO ON SEND PAGE!!!!!!!!!!!!!!!!!!!!!'
+                        );
+                      },
                       onBroadcasted: txHash => {
                         analyticsStore.logEvent('Send token tx broadcasted', {
                           chainId: chainStore.current.chainId,
@@ -186,6 +197,21 @@ export const SendScreen: FunctionComponent = observer(() => {
                           txHash: Buffer.from(txHash).toString('hex')
                         });
                       }
+                    },
+                    // In case send erc20 in evm network
+                    {
+                      type: sendConfigs.amountConfig.sendCurrency.coinMinimalDenom.startsWith(
+                        'erc20'
+                      )
+                        ? 'erc20'
+                        : 'native',
+                      from: account.evmosHexAddress,
+                      contract_addr:
+                        sendConfigs.amountConfig.sendCurrency.coinMinimalDenom.split(
+                          ':'
+                        )[1],
+                      recipient: sendConfigs.recipientConfig.recipient,
+                      amount: sendConfigs.amountConfig.amount
                     }
                   );
                 } catch (e) {

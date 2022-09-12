@@ -21,6 +21,8 @@ import bech32, { fromWords } from 'bech32';
 import { ChainGetter } from '../common';
 import { QueriesSetBase, QueriesStore } from '../query';
 import { DenomHelper, toGenerator, fetchAdapter } from '@owallet/common';
+import Web3 from 'web3';
+import ERC20_ABI from '../query/evm/erc20.json';
 import {
   BroadcastMode,
   makeSignDoc,
@@ -127,10 +129,10 @@ export class AccountSetBase<MsgOpts, Queries> {
           onBroadcasted?: (txHash: Uint8Array) => void;
           onFulfill?: (tx: any) => void;
         },
-    nftOptions?: {
+    extraOptions?: {
       type: string;
       contract_addr: string;
-      token_id: string;
+      token_id?: string;
       recipient?: string;
       amount?: string;
       to?: string;
@@ -286,7 +288,6 @@ export class AccountSetBase<MsgOpts, Queries> {
     );
   }
 
-  // get here 11
   async sendMsgs(
     type: string | 'unknown',
     msgs:
@@ -302,10 +303,10 @@ export class AccountSetBase<MsgOpts, Queries> {
           onBroadcasted?: (txHash: Uint8Array) => void;
           onFulfill?: (tx: any) => void;
         },
-    nftOptions?: {
+    extraOptions?: {
       type: string;
       contract_addr: string;
-      token_id: string;
+      token_id?: string;
       recipient?: string;
       amount?: string;
       to?: string;
@@ -433,8 +434,48 @@ export class AccountSetBase<MsgOpts, Queries> {
     console.log('FEE in SEND EVM: ', fee);
 
     try {
-      const result = await this.broadcastEvmMsgs(msgs, fee);
-      txHash = result.txHash;
+      if (msgs.type === 'erc20') {
+        // Need to do here:
+        // Move the send part from case erc20 to here
+        // Add some options which have all the information we need from erc20 to here to pass it into background
+        // Add some condition to know if it erc20 or native
+        // Move all the logic of send erc20 to the background to get the private key by clone the broadcastEvmMsgs function to redirect the way of code
+        // Maybe we can create a new signAndBroadcastERC20Ethereum function to separate the logic, avoid confusing
+        // const provider is the rpc endpoint
+        // Information we need for the transaction and sign stuff are all here, pass it into background
+        // So we can get the web3 in the background to use with all of logic and private key which already provided
+        // By that, we are basiclly done
+        // All we need now is the result here to get the txHash
+        // const result = await this.broadcastEvmMsgs(msgs, fee);
+        // txHash = result.txHash; // this is matter
+        const { value } = msgs;
+        const provider = this.chainGetter.getChain(this.chainId).rest;
+        const web3 = new Web3(provider);
+        const contract = new web3.eth.Contract(
+          // @ts-ignore
+          ERC20_ABI,
+          value.contract_addr,
+          { from: value.from }
+        );
+        let data = contract.methods
+          .transfer(value.recipient, value.amount)
+          .encodeABI();
+
+        let txObj = {
+          gas: web3.utils.toHex(value.gas),
+          to: value.contract_addr,
+          value: '0x0', // Must be 0x0, maybe this field is not in use while send erc20 tokens
+          from: value.from,
+          data
+        };
+
+        const result = await this.broadcastErc20EvmMsgs(txObj, fee);
+
+        txHash = result.txHash;
+      } else {
+        const result = await this.broadcastEvmMsgs(msgs, fee);
+        txHash = result.txHash;
+      }
     } catch (e: any) {
       runInAction(() => {
         this._isSendingMsg = false;
@@ -578,13 +619,13 @@ export class AccountSetBase<MsgOpts, Queries> {
           onBroadcasted?: (txHash: Uint8Array) => void;
           onFulfill?: (tx: any) => void;
         },
-    nftOptions?: {
+    extraOptions?: {
       type: string;
+      from?: string;
       contract_addr: string;
-      token_id: string;
+      token_id?: string;
       recipient?: string;
       amount?: string;
-      to?: string;
     }
   ) {
     for (let i = 0; i < this.sendTokenFns.length; i++) {
@@ -599,7 +640,7 @@ export class AccountSetBase<MsgOpts, Queries> {
           stdFee,
           signOptions,
           onTxEvents,
-          nftOptions
+          extraOptions
         )
       ) {
         return;
@@ -791,6 +832,37 @@ export class AccountSetBase<MsgOpts, Queries> {
       const signResponse = await ethereum.signAndBroadcastEthereum(
         this.chainId,
         message
+      );
+
+      return {
+        txHash: signResponse.rawTxHex
+      };
+    } catch (error) {
+      console.log('Error on broadcastMsgs: ', error);
+    }
+  }
+
+  protected async broadcastErc20EvmMsgs(
+    msgs: object,
+    fee: StdFeeEthereum
+  ): Promise<{
+    txHash: string;
+  }> {
+    try {
+      if (this.walletStatus !== WalletStatus.Loaded) {
+        throw new Error(`Wallet is not loaded: ${this.walletStatus}`);
+      }
+
+      if (Object.values(msgs).length === 0) {
+        throw new Error('There is no msg to send');
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const ethereum = (await this.getEthereum())!;
+
+      const signResponse = await ethereum.signAndBroadcastEthereum(
+        this.chainId,
+        { ...msgs, type: 'erc20', gas: fee.gas, gasPrice: fee.gasPrice }
       );
 
       return {

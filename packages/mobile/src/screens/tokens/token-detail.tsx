@@ -317,7 +317,12 @@ export const TokenDetailScreen: FunctionComponent = observer(props => {
               address={account.bech32Address}
               key={index}
               onPress={() =>
-                smartNavigation.navigateSmart('Transactions.Detail', {})
+                smartNavigation.navigateSmart('Transactions.Detail', {
+                  item: {
+                    ...item,
+                    address: account.bech32Address
+                  }
+                })
               }
             />
           )}

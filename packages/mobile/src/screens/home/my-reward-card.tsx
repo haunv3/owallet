@@ -43,7 +43,10 @@ export const MyRewardCard: FunctionComponent<{
               {},
               {},
               {
-                onBroadcasted: (txHash) => {
+                onFulfill: tx => {
+                  console.log(tx, 'TX INFO ON SEND PAGE!!!!!!!!!!!!!!!!!!!!!');
+                },
+                onBroadcasted: txHash => {
                   analyticsStore.logEvent('Claim reward tx broadcasted', {
                     chainId: chainStore.current.chainId,
                     chainName: chainStore.current.chainName
@@ -52,7 +55,8 @@ export const MyRewardCard: FunctionComponent<{
                     txHash: Buffer.from(txHash).toString('hex')
                   });
                 }
-              }
+              },
+              stakingReward.currency.coinMinimalDenom
             );
           } catch (e) {
             if (e?.message === 'Request rejected') {
