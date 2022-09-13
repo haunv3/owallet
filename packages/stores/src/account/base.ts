@@ -802,7 +802,6 @@ export class AccountSetBase<MsgOpts, Queries> {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const ethereum = (await this.getEthereum())!;
       console.log('Amino Msgs: ', msgs);
-      console.log('Amino ethereum: ', ethereum);
 
       const message = {
         to: msgs.value.to_address,
