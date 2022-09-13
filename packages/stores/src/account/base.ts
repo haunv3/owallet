@@ -523,7 +523,7 @@ export class AccountSetBase<MsgOpts, Queries> {
             txHash
           ]);
           console.log(
-            '🚀 ~ file: base.ts ~ lin ~ transactionReceipt',
+            '🚀 ~ file: base.ts ~ line ~ transactionReceipt',
             transactionReceipt
           );
           retryCount += 1;
