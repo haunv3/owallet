@@ -9,7 +9,7 @@ import { Share, StyleSheet, View } from 'react-native';
 import { ChainSelectorModal } from '../../components/chain-selector';
 import { registerModal } from '../../modals/base';
 import { CardModal } from '../../modals/card';
-import { Copyable } from '../../components/copyable';
+import { AddressCopyable } from '../../components/address-copyable';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
@@ -20,7 +20,11 @@ import { AsyncKVStore } from '../../common';
 import { useFocusEffect } from '@react-navigation/native';
 import { checkValidDomain } from '../../utils/helper';
 
-export const CameraScreen: FunctionComponent = observer(() => {
+interface keyable {
+  [key: string]: any;
+}
+
+export const CameraScreen: FunctionComponent = observer((props) => {
   const { chainStore, keyRingStore } = useStore();
   const navigation = useNavigation();
   const smartNavigation = useSmartNavigation();
@@ -64,7 +68,6 @@ export const CameraScreen: FunctionComponent = observer(() => {
 
             try {
               if (checkValidDomain(data.toLowerCase())) {
-                console.log('data', data);
                 navigation.navigate('Browser', { url: data.toLowerCase() });
 
                 return;
@@ -88,10 +91,25 @@ export const CameraScreen: FunctionComponent = observer(() => {
                     chainInfo.bech32Config.bech32PrefixAccAddr === prefix
                 );
                 if (chainInfo) {
-                  smartNavigation.pushSmart('Send', {
-                    chainId: chainInfo.chainId,
-                    recipient: data
-                  });
+                  const routersParam: keyable =
+                    smartNavigation?.getState()?.routes;
+                  const isParamAddressBook = routersParam.find(
+                    (route) => route?.params?.screenCurrent === 'addressbook'
+                  );
+                  if (isParamAddressBook) {
+                    smartNavigation.navigateSmart('AddAddressBook', {
+                      chainId: chainInfo.chainId,
+                      recipient: data,
+                      addressBookObj: {
+                        name: isParamAddressBook.params.name
+                      }
+                    });
+                  } else {
+                    smartNavigation.pushSmart('Send', {
+                      chainId: chainInfo.chainId,
+                      recipient: data
+                    });
+                  }
                 } else {
                   smartNavigation.navigateSmart('Home', {});
                 }
@@ -144,9 +162,7 @@ export const AddressQRCodeModal: FunctionComponent<{
             alignItems: 'center'
           }}
         >
-          <Copyable
-            text={Bech32Address.shortenAddress(account.bech32Address, 22)}
-          />
+          <AddressCopyable address={account.bech32Address} maxCharacters={22} />
           <View
             style={{
               marginTop: 32,

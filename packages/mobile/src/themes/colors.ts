@@ -80,6 +80,7 @@ export const colors = {
   'gray-100': '#F2F6FA',
   'gray-150': '#5F5E77',
   'gray-300': '#8C93A7',
+  'gray-301': '#C7C7CC',
   'gray-400': '#AEAEB2',
   'gray-500': '#8E8E93',
   'gray-600': '#636366',
@@ -105,5 +106,9 @@ export const colors = {
   'splash-background': "#FBF8FF",
 
   //orange
-  'orange-800': '#EF6363'
+  'orange-800': '#EF6363',
+
+  //blue
+  'blue-300': '#8C93A7',
+  
 }

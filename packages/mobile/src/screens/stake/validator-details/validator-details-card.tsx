@@ -2,7 +2,7 @@ import React, { FunctionComponent, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../../../stores';
 import { BondStatus } from '@owallet/stores';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle, TouchableOpacity } from 'react-native';
 import { CText as Text } from '../../../components/text';
 import { CoinPretty, Dec, IntPretty } from '@owallet/unit';
 import { Button } from '../../../components/button';
@@ -15,10 +15,12 @@ import {
   ValidatorCommissionIcon,
   ValidatorVotingIcon
 } from '../../../components/icon';
+import { ValidatorThumbnails } from '@owallet/common';
+import { DelegatedCard } from './delegated-card';
 
 const renderIconValidator = (label: string, size?: number) => {
   switch (label) {
-    case 'Blocks':
+    case 'Website':
       return (
         <View
           style={{
@@ -28,7 +30,7 @@ const renderIconValidator = (label: string, size?: number) => {
           <ValidatorBlockIcon color={'#1E1E1E'} size={size} />
         </View>
       );
-    case 'APY':
+    case 'APR':
       return (
         <View
           style={{
@@ -64,7 +66,8 @@ const renderIconValidator = (label: string, size?: number) => {
 export const ValidatorDetailsCard: FunctionComponent<{
   containerStyle?: ViewStyle;
   validatorAddress: string;
-}> = observer(({ containerStyle, validatorAddress }) => {
+  apr?: number;
+}> = observer(({ containerStyle, validatorAddress, apr }) => {
   const { chainStore, queriesStore } = useStore();
   const queries = queriesStore.get(chainStore.current.chainId);
   const bondedValidators = queries.cosmos.queryValidators.getQueryStatus(
@@ -91,26 +94,21 @@ export const ValidatorDetailsCard: FunctionComponent<{
   const thumbnail =
     bondedValidators.getValidatorThumbnail(validatorAddress) ||
     unbondingValidators.getValidatorThumbnail(validatorAddress) ||
-    unbondedValidators.getValidatorThumbnail(validatorAddress);
+    unbondedValidators.getValidatorThumbnail(validatorAddress) ||
+    ValidatorThumbnails[validatorAddress];
 
   const renderTextDetail = (label: string) => {
     switch (label) {
-      case 'Blocks':
-        return (
-          <Text style={{ ...styles.textDetail }}>{`${115.002} blocks`}</Text>
-        );
-      case 'APY':
+      case 'Website':
         return (
           <Text style={{ ...styles.textDetail }}>
-            {queries.cosmos.queryInflation.inflation
-              .mul(
-                new Dec(1).sub(
-                  new Dec(validator.commission.commission_rates.rate)
-                )
-              )
-              .maxDecimals(2)
-              .trim(true)
-              .toString() + '%'}
+            {validator.description.website}
+          </Text>
+        );
+      case 'APR':
+        return (
+          <Text style={{ ...styles.textDetail }}>
+            {apr ? apr?.toFixed(2).toString() + '%' : '0' + '%'}
           </Text>
         );
       case 'Commission':
@@ -179,7 +177,7 @@ export const ValidatorDetailsCard: FunctionComponent<{
               justifyContent: 'space-between'
             }}
           >
-            {['Blocks', 'APY', 'Commission', 'Voting power'].map(
+            {['Website', 'APR', 'Commission', 'Voting power'].map(
               (label: string, index: number) => (
                 <View
                   style={{
@@ -222,25 +220,45 @@ export const ValidatorDetailsCard: FunctionComponent<{
               style={{
                 ...styles.textDetail,
                 textAlign: 'left',
-                fontWeight: '400',
-                marginBottom: spacing['28']
+                fontWeight: '400'
+                // marginBottom: spacing['28']
               }}
               selectable={true}
             >
               {validator.description.details}
             </Text>
           </View>
-          <Button
-            text="Stake now"
+          {/* <DelegatedCard
             containerStyle={{
-              backgroundColor: colors['purple-900']
+              backgroundColor: colors['white'],
+              width: '100%'
+            }}
+            validatorAddress={validatorAddress}
+          /> */}
+          <TouchableOpacity
+            style={{
+              marginBottom: 16,
+              backgroundColor: colors['purple-900'],
+              borderRadius: 8
             }}
             onPress={() => {
               smartNavigation.navigateSmart('Delegate', {
                 validatorAddress
               });
             }}
-          />
+          >
+            <Text
+              style={{
+                color: colors['white'],
+                textAlign: 'center',
+                fontWeight: '700',
+                fontSize: 16,
+                padding: 16
+              }}
+            >
+              Stake now
+            </Text>
+          </TouchableOpacity>
         </View>
       ) : null}
     </>

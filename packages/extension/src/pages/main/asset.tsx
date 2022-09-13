@@ -8,6 +8,7 @@ import styleAsset from './asset.module.scss';
 import { ToolTip } from '../../components/tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useLanguage } from '@owallet/common';
+import { useHistory } from 'react-router';
 
 const LazyDoughnut = React.lazy(async () => {
   const module = await import(
@@ -108,9 +109,7 @@ const LazyDoughnut = React.lazy(async () => {
 
 export const AssetStakedChartView: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, priceStore } = useStore();
-
   const intl = useIntl();
-
   const language = useLanguage();
 
   const fiatCurrency = language.fiatCurrency;
@@ -167,7 +166,7 @@ export const AssetStakedChartView: FunctionComponent = observer(() => {
               ? totalPrice.toString()
               : total.shrink(true).trim(true).maxDecimals(6).toString()}
           </div>
-          <div className={styleAsset.indicatorIcon}>
+          {/* <div className={styleAsset.indicatorIcon}>
             <React.Fragment>
               {balanceStakableQuery.isFetching ? (
                 <i className="fas fa-spinner fa-spin" />
@@ -187,115 +186,45 @@ export const AssetStakedChartView: FunctionComponent = observer(() => {
                 </ToolTip>
               ) : null}
             </React.Fragment>
-          </div>
+          </div> */}
         </div>
         <React.Suspense fallback={<div style={{ height: '150px' }} />}>
-          <LazyDoughnut
-            data={{
-              datasets: [
-                {
-                  data,
-                  backgroundColor: ['#5e72e4', '#11cdef'],
-                  borderWidth: [0, 0]
-                }
-              ],
-
-              labels: [
-                intl.formatMessage({
-                  id: 'main.account.chart.available-balance'
-                }),
-                intl.formatMessage({
-                  id: 'main.account.chart.staked-balance'
-                })
-              ]
-            }}
-            options={{
-              rotation: 0.5 * Math.PI,
-              cutoutPercentage: 85,
-              legend: {
-                display: false
-              },
-              tooltips: {
-                callbacks: {
-                  label: (item) => {
-                    let ratio = new Dec(0);
-                    // There are only two labels (stakable, staked (including unbondings)).
-                    if (item.index === 0) {
-                      if (!total.toDec().equals(new Dec(0))) {
-                        ratio = stakable
-                          .toDec()
-                          .quo(total.toDec())
-                          .mul(DecUtils.getTenExponentNInPrecisionRange(2));
-                      }
-
-                      return `${
-                        stakablePrice
-                          ? stakablePrice.toString()
-                          : stakable
-                              .separator('')
-                              .trim(true)
-                              .shrink(true)
-                              .maxDecimals(6)
-                              .toString()
-                      } (${ratio.toString(1)}%)`;
-                    } else if (item.index === 1) {
-                      if (!total.toDec().equals(new Dec(0))) {
-                        ratio = stakedSum
-                          .toDec()
-                          .quo(total.toDec())
-                          .mul(DecUtils.getTenExponentNInPrecisionRange(2));
-                      }
-
-                      return `${
-                        stakedSumPrice
-                          ? stakedSumPrice.toString()
-                          : stakedSum
-                              .separator('')
-                              .trim(true)
-                              .shrink(true)
-                              .maxDecimals(6)
-                              .toString()
-                      } (${ratio.toString(1)}%)`;
-                    }
-
-                    return 'Unexpected error';
-                  }
-                }
-              }
-            }}
+          <img
+            src={require('../../public/assets/img/total-balance.svg')}
+            alt="total-balance"
           />
         </React.Suspense>
       </div>
       <div style={{ marginTop: '12px', width: '100%' }}>
         <div className={styleAsset.legend}>
-          <div className={styleAsset.label} style={{ color: '#5e72e4' }}>
+          <div className={styleAsset.label} style={{ color: '#777E90' }}>
             <span className="badge-dot badge badge-secondary">
-              <i className="bg-primary" />
+              <i className="bg-gray" />
             </span>
             <FormattedMessage id="main.account.chart.available-balance" />
           </div>
-          <div style={{ minWidth: '16px' }} />
+          <div style={{ minWidth: '20px' }} />
           <div
             className={styleAsset.value}
             style={{
-              color: '#D6CCF4'
+              color: '#353945E5'
             }}
           >
             {stakable.shrink(true).maxDecimals(6).toString()}
           </div>
         </div>
         <div className={styleAsset.legend}>
-          <div className={styleAsset.label} style={{ color: '#11cdef' }}>
+          <div className={styleAsset.label} style={{ color: '#777E90' }}>
             <span className="badge-dot badge badge-secondary">
-              <i className="bg-info" />
+              <i className="bg-gray" />
             </span>
             <FormattedMessage id="main.account.chart.staked-balance" />
           </div>
-          <div style={{ minWidth: '16px' }} />
+          <div style={{ minWidth: '20px' }} />
           <div
             className={styleAsset.value}
             style={{
-              color: '#D6CCF4'
+              color: '#353945E5'
             }}
           >
             {stakedSum.shrink(true).maxDecimals(6).toString()}
@@ -309,8 +238,6 @@ export const AssetStakedChartView: FunctionComponent = observer(() => {
 export const AssetChartViewEvm: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, priceStore } = useStore();
 
-  const intl = useIntl();
-
   const language = useLanguage();
 
   const fiatCurrency = language.fiatCurrency;
@@ -319,10 +246,7 @@ export const AssetChartViewEvm: FunctionComponent = observer(() => {
 
   const queries = queriesStore.get(current.chainId);
 
-  const chainInfo = chainStore.getChain(chainStore.current.chainId);
-
   const accountInfo = accountStore.getAccount(current.chainId);
-
   // wait for account to be
   if (!accountInfo.evmosHexAddress) return null;
 
@@ -330,20 +254,69 @@ export const AssetChartViewEvm: FunctionComponent = observer(() => {
     accountInfo.evmosHexAddress
   ).balance;
 
+  let totalPrice;
+  let total;
+  if (accountInfo.evmosHexAddress) {
+    total = queries.evm.queryEvmBalance.getQueryBalance(
+      accountInfo.evmosHexAddress
+    )?.balance;
+    if (total) totalPrice = priceStore?.calculatePrice(total, fiatCurrency);
+  }
+
   return (
     <React.Fragment>
-      <div style={{ marginTop: '12px', width: '100%' }}>
-        <div
-          className={styleAsset.legend}
-          style={{ flexDirection: 'column', alignItems: 'center' }}
-        >
-          <div className={styleAsset.label}>
-            <img src={chainInfo.stakeCurrency.coinImageUrl} />
+      <div className={styleAsset.containerChart}>
+        <div className={styleAsset.centerText}>
+          <div className={styleAsset.big}>
+            <FormattedMessage id="main.account.chart.total-balance" />
           </div>
+          <div className={styleAsset.small}>
+            {totalPrice
+              ? totalPrice.toString()
+              : total?.trim(true).shrink(true).maxDecimals(6).toString()}
+          </div>
+          {/* <div className={styleAsset.indicatorIcon}>
+            <React.Fragment>
+              {balanceStakableQuery.isFetching ? (
+              <i className="fas fa-spinner fa-spin" />
+            ) : balanceStakableQuery.error ? (
+              <ToolTip
+                tooltip={
+                  balanceStakableQuery.error?.message ||
+                  balanceStakableQuery.error?.statusText
+                }
+                theme="dark"
+                trigger="hover"
+                options={{
+                  placement: 'top'
+                }}
+              >
+                <i className="fas fa-exclamation-triangle text-danger" />
+              </ToolTip>
+            ) : null}
+            </React.Fragment>
+          </div> */}
+        </div>
+        <React.Suspense fallback={<div style={{ height: '150px' }} />}>
+          <img
+            src={require('../../public/assets/img/total-balance.svg')}
+            alt="total-balance"
+          />
+        </React.Suspense>
+      </div>
+      <div style={{ marginTop: '12px', width: '100%' }}>
+        <div className={styleAsset.legend}>
+          <div className={styleAsset.label} style={{ color: '#777E90' }}>
+            <span className="badge-dot badge badge-secondary">
+              <i className="bg-gray" />
+            </span>
+            <FormattedMessage id="main.account.chart.available-balance" />
+          </div>
+          <div style={{ minWidth: '20px' }} />
           <div
             className={styleAsset.value}
             style={{
-              color: '#D6CCF4'
+              color: '#353945E5'
             }}
           >
             {balance?.trim(true).shrink(true).maxDecimals(6).toString()}

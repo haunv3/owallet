@@ -4,7 +4,7 @@ import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { CText as Text } from '../../../../components/text';
 import { RectButton } from '../../../../components/rect-button';
 import { colors, metrics, spacing, typography } from '../../../../themes';
-import { getTransactionValue } from '../../../../utils/helper';
+import { convertAmount, getTransactionValue } from '../../../../utils/helper';
 import moment from 'moment';
 
 interface TransactionItemProps {
@@ -32,6 +32,28 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
     address,
     logs: item.logs
   });
+
+  const amountDataCell = (amount: any, denom: string, title: string) => {
+    return (
+      <Text
+        style={{
+          ...styles.textAmount,
+          marginTop: spacing['8'],
+          textTransform: 'uppercase',
+          color:
+            amount == 0 || title === 'Received Token' || title === 'Reward'
+              ? colors['green-500']
+              : colors['red-500']
+        }}
+      >
+        {amount == 0 || title === 'Received Token' || title === 'Reward'
+          ? '+'
+          : '-'}
+        {amount} {denom}
+      </Text>
+    );
+  };
+
   const renderChildren = () => {
     return (
       <View
@@ -65,17 +87,7 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
           >
             {date}
           </Text>
-          <Text
-            style={{
-              ...styles.textAmount,
-              marginTop: spacing['8'],
-              color: amount.includes('-')
-                ? colors['red-500']
-                : colors['green-500']
-            }}
-          >
-            {amount} {denom}
-          </Text>
+          {amountDataCell(convertAmount(amount), denom, title)}
         </View>
       </View>
     );

@@ -5,6 +5,7 @@ import { useStyle } from '../../../styles';
 import { PasswordInputModal } from '../../../modals/password-input/modal';
 import { useStore } from '../../../stores';
 import { useNavigation } from '@react-navigation/native';
+import { colors } from '../../../themes';
 
 export const SettingRemoveAccountItem: FunctionComponent<{
   topBorder?: boolean;
@@ -18,7 +19,7 @@ export const SettingRemoveAccountItem: FunctionComponent<{
   const [isOpenModal, setIsOpenModal] = useState(false);
 
   return (
-    <>
+    <React.Fragment>
       <SettingItem
         label="Remove current wallet"
         onPress={() => {
@@ -32,7 +33,11 @@ export const SettingRemoveAccountItem: FunctionComponent<{
       <PasswordInputModal
         isOpen={isOpenModal}
         close={() => setIsOpenModal(false)}
-        title="Remove Account"
+        title="Remove wallet"
+        labelStyle={{ color: colors['orange-800'], fontWeight: '700' }}
+        paragraph="Please make sure you have saved the correct mnemonic before logging out"
+        textButtonRight="Remove"
+        buttonRightStyle={{ backgroundColor: colors['orange-800'] }}
         onEnterPassword={async (password) => {
           const index = keyRingStore.multiKeyStoreInfo.findIndex(
             (keyStore) => keyStore.selected
@@ -57,6 +62,6 @@ export const SettingRemoveAccountItem: FunctionComponent<{
           }
         }}
       />
-    </>
+    </React.Fragment>
   );
 });

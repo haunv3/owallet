@@ -29,6 +29,7 @@ export const RegisterIntroScreen: FunctionComponent = observer(() => {
       contentContainerStyle={{
         display: 'flex'
       }}
+      backgroundColor={colors['white']}
       style={{
         paddingLeft: 42,
         paddingRight: 42,
@@ -141,7 +142,7 @@ export const RegisterIntroScreen: FunctionComponent = observer(() => {
               padding: 16
             }}
           >
-            Import from Mnemonic
+            Import from Mnemonic / Private key 
           </Text>
       </TouchableOpacity>
     </PageWithScrollView>

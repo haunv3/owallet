@@ -1,9 +1,10 @@
-import React, { FunctionComponent, useMemo, useState } from 'react';
+import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 
 import classnames from 'classnames';
 import styleCoinInput from './coin-input.module.scss';
 
 import {
+  Button,
   ButtonDropdown,
   DropdownItem,
   DropdownMenu,
@@ -11,6 +12,7 @@ import {
   FormFeedback,
   FormGroup,
   Input,
+  InputGroup,
   Label
 } from 'reactstrap';
 import { observer } from 'mobx-react-lite';
@@ -34,27 +36,18 @@ export interface CoinInputProps {
 
   className?: string;
   label?: string;
+  placeholder?: string;
 
   disableAllBalance?: boolean;
 }
 
+const reduceStringAssets = (str) => {
+  return (str && str.split('(')[0]) || '';
+};
+
 export const CoinInput: FunctionComponent<CoinInputProps> = observer(
-  ({ amountConfig, className, label, disableAllBalance }) => {
+  ({ amountConfig, className, label, disableAllBalance, placeholder }) => {
     const intl = useIntl();
-
-    const { queriesStore } = useStore();
-    const queryBalances = queriesStore
-      .get(amountConfig.chainId)
-      .queryBalances.getQueryBech32Address(amountConfig.sender);
-
-    const queryBalance = queryBalances.balances.find(
-      (bal) =>
-        amountConfig.sendCurrency.coinMinimalDenom ===
-        bal.currency.coinMinimalDenom
-    );
-    const balance = queryBalance
-      ? queryBalance.balance
-      : new CoinPretty(amountConfig.sendCurrency, new Int(0));
 
     const [randomId] = useState(() => {
       const bytes = new Uint8Array(4);
@@ -92,11 +85,46 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
     }, [intl, error]);
 
     const [isOpenTokenSelector, setIsOpenTokenSelector] = useState(false);
+    const { queriesStore, chainStore, accountStore } = useStore();
+    const accountInfo = accountStore.getAccount(chainStore.current.chainId);
+    const queries = queriesStore.get(chainStore.current.chainId);
+    const queryBalances = queriesStore
+      .get(amountConfig.chainId)
+      .queryBalances.getQueryBech32Address(amountConfig.sender);
+    const [balance, setBalance] = useState(
+      new CoinPretty(amountConfig.sendCurrency, new Int(0))
+    );
+
+    // let balance = new CoinPretty(amountConfig.sendCurrency, new Int(0));
+    const tokenDenom = new CoinPretty(amountConfig.sendCurrency, new Int(0))
+      .currency.coinDenom;
+
+    useEffect(() => {
+      if (chainStore.current.networkType === 'evm') {
+        if (!accountInfo.evmosHexAddress) return null;
+
+        const evmBalance = queries.evm.queryEvmBalance.getQueryBalance(
+          accountInfo.evmosHexAddress
+        ).balance;
+        setBalance(evmBalance);
+      } else {
+        const queryBalance = queryBalances.balances.find(
+          (bal) =>
+            amountConfig.sendCurrency.coinMinimalDenom ===
+            bal.currency.coinMinimalDenom
+        );
+        setBalance(
+          queryBalance
+            ? queryBalance.balance
+            : new CoinPretty(amountConfig.sendCurrency, new Int(0))
+        );
+      }
+    }, [tokenDenom, chainStore.current.chainId]);
 
     const selectableCurrencies = amountConfig.sendableCurrencies
       .filter((cur) => {
         const bal = queryBalances.getBalanceFromCurrency(cur);
-        return !bal.toDec().isZero();
+        return !bal?.toDec()?.isZero();
       })
       .sort((a, b) => {
         return a.coinDenom < b.coinDenom ? -1 : 1;
@@ -159,10 +187,12 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
           {label ? (
             <Label
               for={`input-${randomId}`}
-              className="form-control-label"
-              style={{ width: '100%' }}
+              className={classnames(
+                'form-control-label',
+                styleCoinInput.labelBalance
+              )}
             >
-              {label}
+              <div>{label}</div>
               {!disableAllBalance ? (
                 <div
                   className={classnames(
@@ -178,37 +208,69 @@ export const CoinInput: FunctionComponent<CoinInputProps> = observer(
                     amountConfig.toggleIsMax();
                   }}
                 >
-                  {`Balance: ${balance.trim(true).maxDecimals(6).toString()}`}
+                  <span>{`Total: ${
+                    reduceStringAssets(
+                      balance?.trim(true)?.maxDecimals(6)?.toString()
+                    ) || 0
+                  }`}</span>
                 </div>
               ) : null}
             </Label>
           ) : null}
-          <Input
-            className={classnames(
-              'form-control-alternative',
-              styleCoinInput.input
-            )}
-            id={`input-${randomId}`}
-            type="number"
-            value={amountConfig.amount}
-            onChange={(e) => {
-              e.preventDefault();
+          <InputGroup className={styleCoinInput.inputGroup}>
+            <Input
+              className={classnames(
+                'form-control-alternative',
+                styleCoinInput.input
+              )}
+              id={`input-${randomId}`}
+              type="number"
+              value={amountConfig.amount}
+              onChange={(e) => {
+                e.preventDefault();
 
-              amountConfig.setAmount(e.target.value);
-            }}
-            step={new Dec(1)
-              .quo(
-                DecUtils.getTenExponentNInPrecisionRange(
-                  amountConfig.sendCurrency?.coinDecimals ?? 0
+                amountConfig.setAmount(e.target.value);
+              }}
+              step={new Dec(1)
+                .quo(
+                  DecUtils.getTenExponentNInPrecisionRange(
+                    amountConfig.sendCurrency?.coinDecimals ?? 0
+                  )
                 )
-              )
-              .toString(amountConfig.sendCurrency?.coinDecimals ?? 0)}
-            min={0}
-            disabled={amountConfig.isMax}
-            autoComplete="off"
-          />
+                .toString(amountConfig.sendCurrency?.coinDecimals ?? 0)}
+              min={0}
+              disabled={amountConfig.isMax}
+              autoComplete="off"
+              placeholder={placeholder}
+            />
+            <div
+              style={{ padding: 7.5, textAlign: 'center', cursor: 'pointer' }}
+              onClick={(e) => {
+                e.preventDefault();
+                amountConfig.toggleIsMax();
+              }}
+            >
+              <div
+                style={{
+                  width: 50,
+                  height: 28,
+                  backgroundColor: amountConfig.isMax ? '#7664E4' : '#f8fafc',
+                  borderRadius: 4
+                }}
+              >
+                <span
+                  style={{
+                    color: amountConfig.isMax ? 'white' : '#7664E4',
+                    fontSize: 14
+                  }}
+                >
+                  MAX
+                </span>
+              </div>
+            </div>
+          </InputGroup>
           {errorText != null ? (
-            <FormFeedback style={{ display: 'block' }}>
+            <FormFeedback style={{ display: 'block', position: 'sticky' }}>
               {errorText}
             </FormFeedback>
           ) : null}

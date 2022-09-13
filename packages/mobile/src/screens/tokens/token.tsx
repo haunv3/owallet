@@ -11,10 +11,17 @@ import { TokenItem } from './components/token-item';
 
 export const TokensScreen: FunctionComponent = observer(() => {
   const { chainStore, queriesStore, accountStore, priceStore } = useStore();
+  const account = accountStore.getAccount(chainStore.current.chainId);
+  // const queryBalances = queriesStore
+  //   .get(chainStore.current.chainId)
+  //   .queryBalances.getQueryBech32Address(account.bech32Address);
+
   const queryBalances = queriesStore
     .get(chainStore.current.chainId)
     .queryBalances.getQueryBech32Address(
-      accountStore.getAccount(chainStore.current.chainId).bech32Address
+      chainStore.current.networkType === 'evm'
+        ? account.evmosHexAddress
+        : account.bech32Address
     );
 
   const tokens = queryBalances.balances.concat(
@@ -24,56 +31,49 @@ export const TokensScreen: FunctionComponent = observer(() => {
 
   const unique = useMemo(() => {
     const uniqTokens = [];
-    tokens.map((token) =>
+    tokens.map(token =>
       uniqTokens.filter(
-        (ut) =>
-          ut.balance.currency.coinDenom == token.balance.currency.coinDenom
+        ut => ut.balance.currency.coinDenom == token.balance.currency.coinDenom
       ).length > 0
         ? null
         : uniqTokens.push(token)
     );
     return uniqTokens;
-  }, []);
+  }, [chainStore.current.chainId]);
 
   return (
-    <PageWithScrollViewInBottomTabView>
-      <View
+    <PageWithScrollViewInBottomTabView style={{ flex: 1, marginBottom: 70 }}>
+      <Text
         style={{
-          ...styles.container
+          ...styles.title
         }}
       >
-        <Text
-          style={{
-            ...styles.title
-          }}
-        >
-          {`My Tokens`}
-        </Text>
+        {`My Tokens`}
+      </Text>
 
-        <View
-          style={{
-            ...styles.containerTokens
-          }}
-        >
-          <FlatList
-            data={unique}
-            renderItem={({ item }) => {
-              const priceBalance = priceStore.calculatePrice(item.balance);
+      <View
+        style={{
+          ...styles.containerTokens
+        }}
+      >
+        <FlatList
+          data={unique}
+          renderItem={({ item }) => {
+            const priceBalance = priceStore.calculatePrice(item.balance);
 
-              return (
-                <TokenItem
-                  key={item.currency.coinMinimalDenom}
-                  chainInfo={{
-                    stakeCurrency: chainStore.current.stakeCurrency
-                  }}
-                  balance={item.balance}
-                  priceBalance={priceBalance}
-                />
-              );
-            }}
-            keyExtractor={_keyExtract}
-          />
-        </View>
+            return (
+              <TokenItem
+                key={item.currency.coinMinimalDenom}
+                chainInfo={{
+                  stakeCurrency: chainStore.current.stakeCurrency
+                }}
+                balance={item.balance}
+                priceBalance={priceBalance}
+              />
+            );
+          }}
+          keyExtractor={_keyExtract}
+        />
       </View>
     </PageWithScrollViewInBottomTabView>
   );

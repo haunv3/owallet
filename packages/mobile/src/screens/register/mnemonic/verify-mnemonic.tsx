@@ -20,8 +20,9 @@ import {
 import { colors, typography } from '../../../themes';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { LoadingSpinner } from '../../../components/spinner';
+import { OWalletLogo } from '../owallet-logo';
 
-export const VerifyMnemonicScreen: FunctionComponent = observer(() => {
+export const VerifyMnemonicScreen: FunctionComponent = observer((props) => {
   const route = useRoute<
     RouteProp<
       Record<
@@ -81,21 +82,44 @@ export const VerifyMnemonicScreen: FunctionComponent = observer(() => {
       contentContainerStyle={{
         display: 'flex'
       }}
+      backgroundColor={colors['white']}
       style={{
         paddingLeft: 20,
         paddingRight: 20
       }}
     >
-      <Text
+      <View
         style={{
-          ...typography['h5'],
-          color: colors['text-black-medium'],
-          marginTop: 32,
-          marginBottom: 4,
-          textAlign: 'center'
+          height: 72,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}
       >
-        Backup your mnemonic seed securely.
+        <Text
+          style={{
+            fontSize: 24,
+            lineHeight: 34,
+            fontWeight: '700',
+            color: colors['gray-900']
+          }}
+        >
+          Create new wallet
+        </Text>
+        <View>
+          <OWalletLogo size={72} />
+        </View>
+      </View>
+      <Text
+        style={{
+          ...typography['h7'],
+          color: colors['text-black-medium'],
+          marginTop: 32,
+          marginBottom: 4
+        }}
+      >
+        Confirm your mnemonic
       </Text>
       <WordsCard
         wordSet={wordSet.map((word, i) => {
@@ -150,7 +174,6 @@ export const VerifyMnemonicScreen: FunctionComponent = observer(() => {
         }}
       />
       <TouchableOpacity
-        //  loading={isCreating}
         disabled={wordSet.join(' ') !== newMnemonicConfig.mnemonic}
         onPress={async () => {
           if (isCreating) return;
@@ -165,7 +188,7 @@ export const VerifyMnemonicScreen: FunctionComponent = observer(() => {
             registerType: 'seed',
             accountType: 'mnemonic'
           });
-          if (checkRouter(route.name, 'RegisterVerifyMnemonicMain')) {
+          if (checkRouter(props?.route?.name, 'RegisterVerifyMnemonicMain')) {
             navigate('RegisterEnd', {
               password: newMnemonicConfig.password,
               type: 'new'
@@ -188,7 +211,10 @@ export const VerifyMnemonicScreen: FunctionComponent = observer(() => {
         style={{
           marginBottom: 24,
           marginTop: 32,
-          backgroundColor: colors['purple-900'],
+          backgroundColor:
+            wordSet.join(' ') !== newMnemonicConfig.mnemonic
+              ? colors['gray-301']
+              : colors['purple-700'],
           borderRadius: 8
         }}
       >
@@ -210,6 +236,19 @@ export const VerifyMnemonicScreen: FunctionComponent = observer(() => {
           </Text>
         )}
       </TouchableOpacity>
+      <Text
+        style={{
+          color: colors['purple-900'],
+          textAlign: 'center',
+          fontWeight: '700',
+          fontSize: 16
+        }}
+        onPress={() => {
+          smartNavigation.goBack();
+        }}
+      >
+        Go back
+      </Text>
       {/* Mock element for bottom padding */}
       <View
         style={{
@@ -228,21 +267,25 @@ const WordButton: FunctionComponent<{
   return (
     <RectButton
       style={{
-        backgroundColor: used ? colors['primary-100'] : colors['purple-700'],
+        backgroundColor: used ? colors['gray-10'] : colors['white'],
         paddingTop: 4,
         paddingBottom: 4,
         paddingLeft: 12,
         paddingRight: 12,
         marginRight: 12,
         marginBottom: 12,
-        borderRadius: 8
+        borderRadius: 8,
+        borderWidth: used ? 0 : 1,
+        borderColor: used ? colors['gray-10'] : colors['purple-900']
       }}
       onPress={onPress}
     >
       <Text
         style={{
           ...typography['subtitle2'],
-          color: colors['white']
+          color: colors['purple-900'],
+          fontSize: 14,
+          fontWeight: '700'
         }}
       >
         {word}
@@ -265,8 +308,8 @@ const WordsCard: FunctionComponent<{
         marginBottom: 16,
         paddingTop: 10,
         paddingBottom: 10,
-        paddingLeft: 28,
-        paddingRight: 28,
+        paddingLeft: 24,
+        paddingRight: 24,
         borderColor: colors['purple-100'],
         borderWidth: 1,
         borderRadius: 8,

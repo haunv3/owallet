@@ -16,7 +16,7 @@ export const SettingViewPrivateDataItem: FunctionComponent<{
   const [isOpenModal, setIsOpenModal] = useState(false);
 
   return (
-    <>
+    <React.Fragment>
       <SettingItem
         label={'Mnemonic'}
         onPress={() => {
@@ -27,11 +27,12 @@ export const SettingViewPrivateDataItem: FunctionComponent<{
       />
       <PasswordInputModal
         isOpen={isOpenModal}
+        paragraph={"Do not reveal your mnemonic to anyone"}
         close={() => setIsOpenModal(false)}
         title={getPrivateDataTitle(keyRingStore.keyRingType, true)}
-        onEnterPassword={async (password) => {
+        onEnterPassword={async password => {
           const index = keyRingStore.multiKeyStoreInfo.findIndex(
-            (keyStore) => keyStore.selected
+            keyStore => keyStore.selected
           );
 
           if (index >= 0) {
@@ -43,6 +44,6 @@ export const SettingViewPrivateDataItem: FunctionComponent<{
           }
         }}
       />
-    </>
+    </React.Fragment>
   );
 });

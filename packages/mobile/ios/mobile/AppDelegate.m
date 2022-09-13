@@ -14,7 +14,7 @@
 
 #import <AppCenterReactNative.h>
 #import <AppCenterReactNativeAnalytics.h>
-
+#import <Firebase.h>
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
 #import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
@@ -22,6 +22,7 @@
 #import <FlipperKitNetworkPlugin/FlipperKitNetworkPlugin.h>
 #import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
 #import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
+
 
 static void InitializeFlipper(UIApplication *application) {
   FlipperClient *client = [FlipperClient sharedClient];
@@ -46,6 +47,9 @@ static void InitializeFlipper(UIApplication *application) {
 {
   [AppCenterReactNative register];
   [AppCenterReactNativeAnalytics registerWithInitiallyEnabled:true];
+  if ([FIRApp defaultApp] == nil) {
+    [FIRApp configure];
+  }
 
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);

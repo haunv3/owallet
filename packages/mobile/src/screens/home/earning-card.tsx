@@ -15,8 +15,8 @@ import { useSmartNavigation } from '../../navigation.provider';
 import { useStore } from '../../stores';
 import { Dec } from '@owallet/unit';
 import { LoadingSpinner } from '../../components/spinner';
-import LinearGradient from 'react-native-linear-gradient';
 import { navigate } from '../../router/root';
+import crashlytics from '@react-native-firebase/crashlytics';
 
 export const EarningCard: FunctionComponent<{
   containerStyle?: ViewStyle;
@@ -38,22 +38,60 @@ export const EarningCard: FunctionComponent<{
 
   const stakingReward = queryReward.stakableReward;
   const totalStakingReward = priceStore.calculatePrice(stakingReward);
+
+  const _onPressClaim = async () => {
+    crashlytics().log('earning_card _onPressClaim');
+    try {
+      await account.cosmos.sendWithdrawDelegationRewardMsgs(
+        queryReward.getDescendingPendingRewardValidatorAddresses(8),
+        '',
+        {},
+        {},
+        {
+          onBroadcasted: txHash => {
+            analyticsStore.logEvent('Claim reward tx broadcasted', {
+              chainId: chainStore.current.chainId,
+              chainName: chainStore.current.chainName
+            });
+            smartNavigation.pushSmart('TxPendingResult', {
+              txHash: Buffer.from(txHash).toString('hex')
+            });
+          }
+        },
+        stakingReward.currency.coinMinimalDenom
+      );
+    } catch (e) {
+      crashlytics().recordError(e);
+      console.error({ errorClaim: e });
+
+      if (e?.message === 'Request rejected') {
+        return;
+      }
+      if (
+        e?.message.includes(
+          'Cannot read properties of undefined' || 'undefined is not an object'
+        )
+      ) {
+        return;
+      }
+      if (smartNavigation.canGoBack) {
+        smartNavigation.goBack();
+      } else {
+        smartNavigation.navigateSmart('Home', {});
+      }
+    }
+  };
+
   return (
     <View style={containerStyle}>
       <Card style={styles.card}>
-        <LinearGradient
-          colors={['#161532', '#5E499A']}
-          style={{
-            ...styles['flex-center'],
-            paddingTop: spacing['24']
-          }}
-        >
+        <View style={styles.cardBody}>
           <Text style={{ ...styles['text-earn'] }}>Earnings</Text>
           <Image
             style={{
-              width: 100,
-              height: 100,
-              marginTop: 30
+              width: 120,
+              height: 90,
+              marginTop: spacing['24']
             }}
             source={require('../../assets/image/money.png')}
             resizeMode="contain"
@@ -78,49 +116,27 @@ export const EarningCard: FunctionComponent<{
           </Text>
 
           <TouchableOpacity
-            style={styles['btn-claim']}
+            style={{
+              ...styles['btn-claim'],
+              borderColor:
+                !account.isReadyToSendMsgs ||
+                stakingReward.toDec().equals(new Dec(0)) ||
+                queryReward.pendingRewardValidatorAddresses.length === 0
+                  ? colors['gray-300']
+                  : colors['purple-700'],
+              backgroundColor:
+                !account.isReadyToSendMsgs ||
+                stakingReward.toDec().equals(new Dec(0)) ||
+                queryReward.pendingRewardValidatorAddresses.length === 0
+                  ? colors['gray-300']
+                  : colors['purple-700']
+            }}
             disabled={
               !account.isReadyToSendMsgs ||
               stakingReward.toDec().equals(new Dec(0)) ||
               queryReward.pendingRewardValidatorAddresses.length === 0
             }
-            onPress={async () => {
-              try {
-                await account.cosmos.sendWithdrawDelegationRewardMsgs(
-                  queryReward.getDescendingPendingRewardValidatorAddresses(8),
-                  '',
-                  {},
-                  {},
-                  {
-                    onBroadcasted: (txHash) => {
-                      analyticsStore.logEvent('Claim reward tx broadcasted', {
-                        chainId: chainStore.current.chainId,
-                        chainName: chainStore.current.chainName
-                      });
-                      smartNavigation.pushSmart('TxPendingResult', {
-                        txHash: Buffer.from(txHash).toString('hex')
-                      });
-                    }
-                  }
-                );
-              } catch (e) {
-                console.log({ errorClaim: e });
-
-                if (e?.message === 'Request rejected') {
-                  return;
-                }
-                if (
-                  e?.message.includes('Cannot read properties of undefined')
-                ) {
-                  return;
-                }
-                if (smartNavigation.canGoBack) {
-                  smartNavigation.goBack();
-                } else {
-                  smartNavigation.navigateSmart('Home', {});
-                }
-              }
-            }}
+            onPress={_onPressClaim}
           >
             <View
               style={{
@@ -154,7 +170,9 @@ export const EarningCard: FunctionComponent<{
           </TouchableOpacity>
 
           <View style={styles['view-box-staking']}>
-            <Text style={{ marginBottom: 20 }}>Total staked</Text>
+            <Text style={{ marginBottom: 20, color: colors['gray-300'] }}>
+              Total staked
+            </Text>
             <View
               style={{
                 marginBottom: 20,
@@ -186,7 +204,7 @@ export const EarningCard: FunctionComponent<{
                       fontSize: 16,
                       lineHeight: 22,
                       color: colors['gray-900'],
-                      fontWeight: '600'
+                      fontWeight: '700'
                     }}
                   >
                     {delegated
@@ -200,7 +218,7 @@ export const EarningCard: FunctionComponent<{
                     style={{
                       fontSize: 14,
                       lineHeight: 20,
-                      fontWeight: '600',
+                      fontWeight: '700',
                       color: colors['gray-300']
                     }}
                   >
@@ -214,7 +232,7 @@ export const EarningCard: FunctionComponent<{
                 onPress={() => {
                   smartNavigation.navigateSmart('Staking.Dashboard', {});
                 }}
-                color={colors['black']}
+                color={colors['gray-150']}
                 size={24}
               />
             </View>
@@ -222,8 +240,6 @@ export const EarningCard: FunctionComponent<{
               <TouchableOpacity
                 style={styles['btn-manage']}
                 onPress={() => {
-                  console.log('push StackActions');
-
                   navigate('MainTab', { screen: 'Invest' });
                   // smartNavigation.navigateSmart('Staking.Dashboard', {});
                 }}
@@ -236,7 +252,7 @@ export const EarningCard: FunctionComponent<{
               </TouchableOpacity>
             </View>
           </View>
-        </LinearGradient>
+        </View>
       </Card>
     </View>
   );
@@ -248,7 +264,12 @@ const styles = StyleSheet.create({
     marginTop: spacing['32'],
     borderTopLeftRadius: spacing['24'],
     borderTopRightRadius: spacing['24'],
-    backgroundColor: '#5E499A' //linear gradient
+    backgroundColor: colors['white'],
+    padding: spacing['24']
+  },
+  cardBody: {
+    backgroundColor: colors['white'],
+    alignItems: 'center'
   },
   'flex-center': {
     display: 'flex',
@@ -260,13 +281,13 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 16,
     lineHeight: 22,
-    color: colors['white']
+    color: colors['black']
   },
   'text-amount': {
     fontWeight: '900',
     fontSize: 24,
     lineHeight: 34,
-    color: colors['white']
+    color: colors['black']
   },
   'text-rewards': {
     ...typography['h7'],
@@ -279,34 +300,38 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
     lineHeight: 22,
-    color: '#AE94DE'
+    color: colors['gray-300']
   },
   'btn-claim': {
     backgroundColor: colors['purple-900'],
     borderWidth: 0.5,
     marginTop: 16,
     width: metrics.screenWidth - 48,
-    borderRadius: spacing['8'],
-    borderColor: colors['purple-900']
+    borderRadius: spacing['12']
   },
   'btn-manage': {
     backgroundColor: '#F3F1F5',
     borderWidth: 0.5,
     padding: 10,
     width: metrics.screenWidth - 80,
-    borderRadius: spacing['8'],
+    borderRadius: spacing['12'],
     borderColor: '#F3F1F5'
   },
   'view-box-staking': {
     height: 176,
     marginTop: 24,
     backgroundColor: colors['white'],
-    borderWidth: 0.5,
     width: metrics.screenWidth - 48,
-    borderRadius: spacing['8'],
-    borderColor: colors['purple-900'],
+    borderRadius: spacing['12'],
     padding: 16,
     display: 'flex',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
+    shadowColor: '#18274B',
+    shadowOffset: {
+      width: 0,
+      height: 12
+    },
+    shadowOpacity: 0.12,
+    shadowRadius: 16.0
   }
 });

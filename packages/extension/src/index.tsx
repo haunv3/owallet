@@ -44,6 +44,7 @@ import { ClearPage } from './pages/setting/clear';
 import { ExportPage } from './pages/setting/export';
 import { LedgerGrantPage } from './pages/ledger';
 import { AddTokenPage } from './pages/setting/token/add';
+import { AddEvmTokenPage } from './pages/setting/token-evm/add';
 import { ManageTokenPage } from './pages/setting/token/manage';
 
 // import * as BackgroundTxResult from "../../background/tx/foreground";
@@ -54,12 +55,17 @@ import {
 } from '@owallet/common';
 
 import manifest from './manifest.json';
-import { OWallet } from '@owallet/provider';
+import { Ethereum, OWallet } from '@owallet/provider';
 import { InExtensionMessageRequester } from '@owallet/router-extension';
 import { ExportToMobilePage } from './pages/setting/export-to-mobile';
 import { LogPageViewWrapper } from './components/analytics';
 import { ValidatorListPage } from './pages/stake/validator-list';
 import { IntlProvider } from 'react-intl';
+import { SignEthereumPage } from './pages/sign/sign-ethereum';
+import { SendEvmPage } from './pages/send-evm';
+import './ledger';
+import { TokenPage } from './pages/token';
+import { Menu } from './pages/main/menu';
 
 const owallet = new OWallet(
   manifest.version,
@@ -67,14 +73,26 @@ const owallet = new OWallet(
   new InExtensionMessageRequester()
 );
 
+const ethereum = new Ethereum(
+  manifest.version,
+  'core',
+  '',
+  new InExtensionMessageRequester()
+);
+
 //@ts-ignore
 window.owallet = owallet;
+//@ts-ignore
+window.ethereum = ethereum;
 
 // Make sure that icon file will be included in bundle
 require('./public/assets/orai_wallet_logo.png');
 require('./public/assets/icon/icon-16.png');
 require('./public/assets/icon/icon-48.png');
 require('./public/assets/icon/icon-128.png');
+// require('./public/assets/icon/icon-orai-16.png');
+// require('./public/assets/icon/icon-orai-48.png');
+// require('./public/assets/icon/icon-orai-128.png');
 
 configure({
   enforceActions: 'always' // Make mobx to strict mode.
@@ -116,7 +134,7 @@ const StateRenderer: FunctionComponent = observer(() => {
       <div style={{ height: '100%' }}>
         <Banner
           icon={require('./public/assets/orai_wallet_logo.png')}
-          logo={require('./public/assets/logo-temp.png')}
+          logo={require('./public/assets/logo.svg')}
           subtitle="Cosmos x EVM in one Wallet"
         />
       </div>
@@ -126,7 +144,7 @@ const StateRenderer: FunctionComponent = observer(() => {
       <div style={{ height: '100%' }}>
         <Banner
           icon={require('./public/assets/orai_wallet_logo.png')}
-          logo={require('./public/assets/logo-temp.png')}
+          logo={require('./public/assets/logo.svg')}
           subtitle="Cosmos x EVM in one Wallet"
         />
       </div>
@@ -172,6 +190,8 @@ ReactDOM.render(
                   <Route exact path="/" component={StateRenderer} />
                   <Route exact path="/unlock" component={LockPage} />
                   <Route exact path="/access" component={AccessPage} />
+                  <Route exact path="/token" component={TokenPage} />
+                  <Route exact path="/menu" component={Menu} />
                   <Route
                     exact
                     path="/access/viewing-key"
@@ -179,6 +199,7 @@ ReactDOM.render(
                   />
                   <Route exact path="/register" component={RegisterPage} />
                   <Route exact path="/send" component={SendPage} />
+                  <Route exact path="/send-evm" component={SendEvmPage} />
                   <Route
                     exact
                     path="/ibc-transfer"
@@ -248,6 +269,11 @@ ReactDOM.render(
                   />
                   <Route
                     exact
+                    path="/setting/token-evm/add"
+                    component={AddEvmTokenPage}
+                  />
+                  <Route
+                    exact
                     path="/setting/token/manage"
                     component={ManageTokenPage}
                   />
@@ -257,6 +283,7 @@ ReactDOM.render(
                     component={ValidatorListPage}
                   />
                   <Route path="/sign" component={SignPage} />
+                  <Route path="/sign-ethereum" component={SignEthereumPage} />
                   <Route path="/suggest-chain" component={ChainSuggestedPage} />
                 </LogPageViewWrapper>
               </HashRouter>

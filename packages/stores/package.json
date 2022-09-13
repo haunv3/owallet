@@ -2,22 +2,19 @@
   "name": "@owallet/stores",
   "version": "0.9.16",
   "main": "build/index.js",
-  "author": "chainapsis",
+  "author": "oraichain labs",
   "license": "Apache-2.0",
   "private": false,
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "clean": "rm -rf node_modules; rm -rf build",
+    "clean": "rimraf node_modules build",
     "build": "tsc",
     "dev": "tsc -w",
     "test": "jest --passWithNoTests",
     "lint-test": "eslint \"src/**/*\" && prettier --check \"src/**/*\"",
     "lint-fix": "eslint --fix \"src/**/*\" && prettier --write \"src/**/*\""
-  },
-  "devDependencies": {
-    "@owallet/provider-mock": "^0.9.16"
   },
   "dependencies": {
     "@cosmjs/encoding": "^0.24.0-alpha.25",

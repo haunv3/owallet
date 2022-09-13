@@ -10,6 +10,8 @@ import {
 import { Result } from './types';
 import { ObservableEvmContractChainQuery } from './contract-query';
 import { evmosToEth } from '@hanchon/ethermint-address-converter';
+import { AppCurrency, ERC20Currency } from '@owallet/types';
+import { MyBigInt } from '../../common/utils/';
 
 export class ObservableQueryErc20Balance extends ObservableEvmContractChainQuery<Result> {
   constructor(
@@ -80,26 +82,39 @@ export class ObservableQueryErc20BalanceInner extends ObservableQueryBalanceInne
 
   @computed
   get balance(): CoinPretty {
-    const denom = this.denomHelper.denom;
+    try {
+      const denom = this.denomHelper.denom;
 
-    const chainInfo = this.chainGetter.getChain(this.chainId);
-    const currency = chainInfo.currencies.find(
-      (cur) => cur.coinMinimalDenom === denom
-    );
+      const chainInfo = this.chainGetter.getChain(this.chainId);
+      const currency = chainInfo.currencies.find(
+        cur => cur.coinMinimalDenom === denom
+      );
 
-    // TODO: Infer the currency according to its denom (such if denom is `uatom` -> `Atom` with decimal 6)?
-    if (!currency) {
-      throw new Error(`Unknown currency: ${denom}`);
+      console.log(currency, 'CURRENCY QUERY');
+
+      // TODO: Infer the currency according to its denom (such if denom is `uatom` -> `Atom` with decimal 6)?
+      if (!currency) {
+        throw new Error(`Unknown currency: ${denom}`);
+      }
+
+      if (!this.queryErc20Balance.response?.data) {
+        return new CoinPretty(currency, new Int(0)).ready(false);
+      }
+
+      console.log(
+        this.queryErc20Balance.response?.data?.result,
+        'RESULT QUERY ERC20 BALANCE!!!!!!!!'
+      );
+
+      return new CoinPretty(
+        currency,
+        new Int(
+          new MyBigInt(this.queryErc20Balance.response.data.result).toString()
+        )
+      );
+    } catch (error) {
+      console.log('Error when query erc20 balance: ', error);
     }
-
-    if (!this.queryErc20Balance.response?.data) {
-      return new CoinPretty(currency, new Int(0)).ready(false);
-    }
-
-    return new CoinPretty(
-      currency,
-      new Int(BigInt(this.queryErc20Balance.response.data.result).toString())
-    );
   }
 }
 
@@ -112,17 +127,26 @@ export class ObservableQueryErc20BalanceRegistry implements BalanceRegistry {
     chainId: string,
     chainGetter: ChainGetter,
     bech32Address: string,
-    minimalDenom: string
+    minimalDenom: string,
+    currency?: ERC20Currency
   ): ObservableQueryBalanceInner | undefined {
-    const denomHelper = new DenomHelper(minimalDenom);
-    if (bech32Address && denomHelper.type === 'erc20') {
-      return new ObservableQueryErc20BalanceInner(
-        this.kvStore,
-        chainId,
-        chainGetter,
-        denomHelper,
-        evmosToEth(bech32Address)
-      );
+    try {
+      const denomHelper = new DenomHelper(minimalDenom);
+      if (
+        bech32Address &&
+        (denomHelper.type === 'erc20' || currency?.type === 'erc20')
+      ) {
+        const result = new ObservableQueryErc20BalanceInner(
+          this.kvStore,
+          chainId,
+          chainGetter,
+          denomHelper,
+          bech32Address
+        );
+        return result;
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 }

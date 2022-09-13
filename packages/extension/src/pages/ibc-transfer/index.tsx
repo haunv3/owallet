@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { HeaderLayout } from '../../layouts';
+import { HeaderLayout, LayoutSpace } from '../../layouts';
 import { useHistory } from 'react-router';
 
 import style from './style.module.scss';
@@ -56,13 +56,14 @@ export const IBCTransferPage: FunctionComponent = observer(() => {
     (toChainId && chainStore.getChain(toChainId).chainName) || '';
 
   return (
-    <HeaderLayout
-      showChainName={true}
-      canChangeChainInfo={false}
-      onBackButton={() => {
-        history.goBack();
-      }}
-    >
+    // <HeaderLayout
+    //   showChainName={true}
+    //   canChangeChainInfo={false}
+    //   onBackButton={() => {
+    //     history.goBack();
+    //   }}
+    // >
+    <>
       {phase === 'channel' ? (
         <IBCTransferPageChannel
           channelConfig={ibcTransferConfigs.channelConfig}
@@ -123,7 +124,8 @@ export const IBCTransferPage: FunctionComponent = observer(() => {
           }}
         />
       ) : null}
-    </HeaderLayout>
+      {/* </HeaderLayout> */}
+    </>
   );
 });
 
@@ -174,7 +176,7 @@ export const IBCTransferPageChannel: FunctionComponent<{
         </Alert>
         <Button
           type="submit"
-          color="primary"
+          color=""
           block
           disabled={!isValid}
           onClick={(e) => {
@@ -182,6 +184,7 @@ export const IBCTransferPageChannel: FunctionComponent<{
 
             onNext();
           }}
+          className={style.nextBtn}
         >
           <FormattedMessage id="ibc.transfer.next" />
         </Button>

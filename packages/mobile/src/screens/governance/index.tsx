@@ -36,7 +36,7 @@ export const GovernanceScreen: FunctionComponent = observer(() => {
         section: { data: unknown[] };
       }) => {
         return (
-          <>
+          <React.Fragment>
             <Card
               style={style.flatten(
                 [],
@@ -49,7 +49,7 @@ export const GovernanceScreen: FunctionComponent = observer(() => {
               <GovernanceCardBody proposalId={item.id} />
               {index === section.data.length - 1 ? null : <CardDivider />}
             </Card>
-          </>
+          </React.Fragment>
         );
       }}
     />

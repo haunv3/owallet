@@ -21,7 +21,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
-  ImageBackground
+  ImageBackground,
+  StatusBar
 } from 'react-native';
 import { CText as Text } from '../../components/text';
 import { colors, metrics, spacing, typography } from '../../themes';
@@ -57,6 +58,13 @@ export const SettingScreen: FunctionComponent = observer(() => {
 
   return (
     <PageWithScrollViewInBottomTabView>
+      <StatusBar
+        animated={true}
+        backgroundColor="white"
+        barStyle={Platform.OS == 'ios' ? 'light-content' : 'dark-content'}
+        showHideTransition={'fade'}
+        hidden={false}
+      />
       <ImageBackground
         style={{
           ...styles.containerScreen
@@ -103,7 +111,9 @@ export const SettingScreen: FunctionComponent = observer(() => {
                   fontWeight: 'bold'
                 }}
               >
-                {selected ? 'OWallet Account' : 'No Account'}
+                {selected
+                  ? selected.meta?.name || 'Keplr Account'
+                  : 'No Account'}
               </Text>
             </View>
             <DownArrowIcon color={colors['black']} height={12} />

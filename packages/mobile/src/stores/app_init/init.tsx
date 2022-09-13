@@ -9,7 +9,7 @@ export class AppInit {
 
   constructor() {
     makeObservable(this);
-    this.initApp = { status: false };
+    this.initApp = { status: true };
   }
 
   @computed
@@ -19,7 +19,7 @@ export class AppInit {
 
   @action
   updateInitApp() {
-    this.initApp = { status: true };
+    this.initApp = { status: false };
   }
 }
 

@@ -24,8 +24,7 @@ export const ImportLedgerIntro: FunctionComponent<{
   const { analyticsStore } = useStore();
   return (
     <Button
-      color="primary"
-      outline
+      color=""
       block
       onClick={(e) => {
         e.preventDefault();
@@ -35,6 +34,7 @@ export const ImportLedgerIntro: FunctionComponent<{
           registerType: 'ledger'
         });
       }}
+      className={style.importWalletBtn}
     >
       <FormattedMessage id="register.ledger.title" />
     </Button>
@@ -68,17 +68,20 @@ export const ImportLedgerPage: FunctionComponent<{
       <Form
         className={style.formContainer}
         onSubmit={handleSubmit(async (data: FormData) => {
+          console.log("REACH SUBMIT!!!!!!!!")
           try {
-            await registerConfig.createLedger(
+            const result = await registerConfig.createLedger(
               data.name,
               data.password,
               bip44Option.bip44HDPath
             );
+            console.log(result,'result create ledger ====')
             analyticsStore.setUserProperties({
               registerType: 'ledger',
               accountType: 'ledger'
             });
           } catch (e) {
+            console.log('ERROR ON HANDLE SUBMIT CREATE LEDGER', e)
             alert(e.message ? e.message : e.toString());
             registerConfig.clear();
           }
@@ -88,6 +91,9 @@ export const ImportLedgerPage: FunctionComponent<{
           label={intl.formatMessage({
             id: 'register.name'
           })}
+          styleInputGroup={{
+            border: '1px solid rgba(8, 4, 28, 0.12)'
+          }}
           type="text"
           name="name"
           ref={register({
@@ -103,6 +109,9 @@ export const ImportLedgerPage: FunctionComponent<{
               label={intl.formatMessage({
                 id: 'register.create.input.password'
               })}
+              styleInputGroup={{
+                border: '1px solid rgba(8, 4, 28, 0.12)'
+              }}
               name="password"
               ref={register({
                 required: intl.formatMessage({
@@ -122,6 +131,10 @@ export const ImportLedgerPage: FunctionComponent<{
               label={intl.formatMessage({
                 id: 'register.create.input.confirm-password'
               })}
+              styleInputGroup={{
+                border: '1px solid rgba(8, 4, 28, 0.12)'
+              }}
+              style={{ position: 'relative'}}
               name="confirmPassword"
               ref={register({
                 required: intl.formatMessage({
@@ -141,10 +154,11 @@ export const ImportLedgerPage: FunctionComponent<{
         ) : null}
         <AdvancedBIP44Option bip44Option={bip44Option} />
         <Button
-          color="primary"
+          color=""
           type="submit"
           block
           data-loading={registerConfig.isLoading}
+          className={style.nextBtn}
         >
           <FormattedMessage id="register.create.button.next" />
         </Button>

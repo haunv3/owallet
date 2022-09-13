@@ -37,7 +37,7 @@ export const BackButton: FunctionComponent<{ onClick: () => void }> = ({
 }) => {
   return (
     <div className={style.backButton}>
-      <Button color="link" onClick={onClick}>
+      <Button color="link" onClick={onClick} style={{ color: '#8f63ec' }}>
         <i className="fas fa-angle-left" style={{ marginRight: '8px' }} />
         <FormattedMessage id="register.button.back" />
       </Button>
@@ -55,7 +55,7 @@ export const RegisterPage: FunctionComponent = observer(() => {
   }, []);
 
   const { keyRingStore } = useStore();
-
+  
   const registerConfig = useRegisterConfig(keyRingStore, [
     ...(AdditionalSignInPrepend ?? []),
     {
@@ -74,22 +74,25 @@ export const RegisterPage: FunctionComponent = observer(() => {
       page: ImportLedgerPage
     }
   ]);
-
   return (
     <EmptyLayout
       className={style.container}
-      style={{ height: '100%', padding: 0}}
+      style={{ 
+        justifyContent: registerConfig.isIntro || registerConfig.isFinalized ? 'center' : 'start'
+      }}
     >
       <div className={style.logoContainer}>
-        <img
-          className={style.icon}
-          src={require('../../public/assets/orai_wallet_logo.png')}
-          alt="logo"
-        />
+        <div>
+          <img
+            className={style.icon}
+            src={require('../../public/assets/orai_wallet_logo.png')}
+            alt="logo"
+          />
+        </div>
         <div className={style.logoInnerContainer}>
           <img
             className={style.logo}
-            src={require('../../public/assets/logo-temp.png')}
+            src={require('../../public/assets/logo.svg')}
             alt="logo"
           />
           <div className={style.paragraph}>Cosmos x EVM in one Wallet</div>

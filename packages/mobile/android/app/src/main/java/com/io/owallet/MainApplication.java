@@ -12,7 +12,6 @@ import com.facebook.react.ReactPackage;
 import com.facebook.soloader.SoLoader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
 import java.util.Arrays;
 
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
@@ -40,6 +39,8 @@ public class MainApplication extends Application implements ReactApplication {
           // Add unimodules
           List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
             new ModuleRegistryAdapter(mModuleRegistryProvider)
+            //remove ReactNativeFirebaseMessagingPackage with rn > 0.60 https://github.com/invertase/react-native-firebase/issues/2417
+           // new ReactNativeFirebaseMessagingPackage()
           );
           packages.addAll(unimodules);
           return packages;
@@ -65,7 +66,7 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();    
     SoLoader.init(this, /* native exopackage */ false);
-    initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    // initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
 
   /**
@@ -75,27 +76,27 @@ public class MainApplication extends Application implements ReactApplication {
    * @param context
    * @param reactInstanceManager
    */
-  private static void initializeFlipper(
-      Context context, ReactInstanceManager reactInstanceManager) {
-    if (BuildConfig.DEBUG) {
-      try {
-        /*
-         We use reflection here to pick up the class that initializes Flipper,
-        since Flipper library is not available in release mode
-        */
-        Class<?> aClass = Class.forName("com.io.owallet.ReactNativeFlipper");
-        aClass
-            .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
-            .invoke(null, context, reactInstanceManager);
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-      } catch (NoSuchMethodException e) {
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      } catch (InvocationTargetException e) {
-        e.printStackTrace();
-      }
-    }
-  }
+  // private static void initializeFlipper(
+  //     Context context, ReactInstanceManager reactInstanceManager) {
+  //   if (BuildConfig.DEBUG) {
+  //     try {
+  //       /*
+  //        We use reflection here to pick up the class that initializes Flipper,
+  //       since Flipper library is not available in release mode
+  //       */
+  //       Class<?> aClass = Class.forName("com.io.owallet.ReactNativeFlipper");
+  //       aClass
+  //           .getMethod("initializeFlipper", Context.class, ReactInstanceManager.class)
+  //           .invoke(null, context, reactInstanceManager);
+  //     } catch (ClassNotFoundException e) {
+  //       e.printStackTrace();
+  //     } catch (NoSuchMethodException e) {
+  //       e.printStackTrace();
+  //     } catch (IllegalAccessException e) {
+  //       e.printStackTrace();
+  //     } catch (InvocationTargetException e) {
+  //       e.printStackTrace();
+  //     }
+  //   }
+  // }
 }

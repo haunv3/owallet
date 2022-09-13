@@ -6,8 +6,14 @@ import { _keyExtract } from '../../../utils/helper';
 import FastImage from 'react-native-fast-image';
 import { VectorCharacter } from '../../../components/vector-character';
 import { CText as Text } from '../../../components/text';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-export const NetworkModal = ({ profileColor, chainStore, modalStore }) => { 
+export const NetworkModal = ({
+  profileColor,
+  chainStore,
+  modalStore,
+  smartNavigation
+}) => {
   const _renderItem = ({ item }) => {
     return (
       <RectButton
@@ -35,7 +41,7 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
               borderRadius: spacing['12'],
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: profileColor?.(item) ?? 'purple'
+              backgroundColor: profileColor?.(item) ?? colors['purple-400']
             }}
           >
             {item.raw.chainSymbolImageUrl ? (
@@ -53,7 +59,7 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
               <VectorCharacter
                 char={item.chainName[0]}
                 height={15}
-                color={colors['black']}
+                color={colors['white']}
               />
             )}
           </View>
@@ -74,14 +80,14 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
             >
               {item.chainName}
             </Text>
-            <Text
+            {/* <Text
               style={{
                 ...typography.h7,
                 color: colors['gray-300'],
                 fontWeight: '900',
                 fontSize: 12
               }}
-            >{`$${item.price || 0}`}</Text>
+            >{`$${item.price || 0}`}</Text> */}
           </View>
         </View>
 
@@ -94,7 +100,7 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
               backgroundColor:
                 item.chainId === chainStore.current.chainId
                   ? colors['purple-900']
-                  : colors['gray-400'],
+                  : colors['gray-100'],
               justifyContent: 'center',
               alignItems: 'center'
             }}
@@ -114,7 +120,6 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
   };
 
   return (
-    // container
     <View
       style={{
         alignItems: 'center'
@@ -134,6 +139,15 @@ export const NetworkModal = ({ profileColor, chainStore, modalStore }) => {
         >
           {`Select networks`}
         </Text>
+
+        {/* <TouchableOpacity
+          onPress={() => {
+            smartNavigation.navigateSmart('Network.select', {});
+            modalStore.close();
+          }}
+        >
+          <Text>+</Text>
+        </TouchableOpacity> */}
       </View>
 
       <View

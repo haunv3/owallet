@@ -20,7 +20,7 @@ import { ChainStore } from './chain';
 import { DeepLinkStore, BrowserStore, browserStore } from './browser';
 import { AppInit, appInit } from './app_init';
 import EventEmitter from 'eventemitter3';
-import { OWallet } from '@owallet/provider';
+import { OWallet, Ethereum } from '@owallet/provider';
 import { KeychainStore } from './keychain';
 import { FeeType } from '@owallet/hooks';
 import {
@@ -36,6 +36,10 @@ import { FiatCurrency } from '@owallet/types';
 import { ModalStore } from './modal';
 
 import { version } from '../../package.json';
+import {
+  embedChainInfosStore,
+  EmbedChainInfosStore
+} from './chain/embedchaininfos';
 
 export class RootStore {
   public readonly uiConfigStore: UIConfigStore;
@@ -82,6 +86,7 @@ export class RootStore {
   public readonly browserStore: BrowserStore;
   public readonly modalStore: ModalStore;
   public readonly appInitStore: AppInit;
+  public readonly embedChainInfosStore: EmbedChainInfosStore;
 
   constructor() {
     const router = new RNRouterUI(RNEnv.produceEnv);
@@ -126,8 +131,7 @@ export class RootStore {
     this.queriesStore = new QueriesStore(
       // Fix prefix key because there was a problem with storage being corrupted.
       // In the case of storage where the prefix key is "store_queries" or "store_queries_fix", we should not use it because it is already corrupted in some users.
-      // https://github.com/chainapsis/owallet-wallet/issues/275
-      // https://github.com/chainapsis/owallet-wallet/issues/278
+
       new AsyncKVStore('store_queries_fix2'),
       this.chainStore,
       async () => {
@@ -159,9 +163,17 @@ export class RootStore {
               'core',
               new RNMessageRequesterInternal()
             );
+          },
+          getEthereum: async () => {
+            return new Ethereum(
+              version,
+              'core',
+              '0xa2c2a',
+              new RNMessageRequesterInternal()
+            );
           }
         },
-        chainOpts: this.chainStore.chainInfos.map((chainInfo) => {
+        chainOpts: this.chainStore.chainInfos.map(chainInfo => {
           if (chainInfo.chainId.startsWith('osmosis')) {
             return {
               chainId: chainInfo.chainId,
@@ -257,6 +269,7 @@ export class RootStore {
     this.deepLinkUriStore = new DeepLinkStore();
     this.browserStore = browserStore;
     this.appInitStore = appInit;
+    this.embedChainInfosStore = embedChainInfosStore;
     this.modalStore = new ModalStore();
   }
 }

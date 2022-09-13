@@ -5,7 +5,7 @@ import { View, ViewStyle, Image } from 'react-native';
 import { CText as Text } from '../../components/text';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useStore } from '../../stores';
-import { Copyable } from '../../components/copyable';
+import { AddressCopyable } from '../../components/address-copyable';
 import { LoadingSpinner } from '../../components/spinner';
 import { useSmartNavigation } from '../../navigation.provider';
 import { NetworkErrorView } from './network-error-view';
@@ -23,14 +23,30 @@ import { NamespaceModal, AddressQRCodeModal } from './components';
 import { Hash } from '@owallet/crypto';
 import LinearGradient from 'react-native-linear-gradient';
 import MyWalletModal from './components/my-wallet-modal/my-wallet-modal';
-import { Bech32Address } from '@owallet/cosmos';
-import { Dec } from '@owallet/unit';
 
 export const AccountCard: FunctionComponent<{
   containerStyle?: ViewStyle;
 }> = observer(({ containerStyle }) => {
   const { chainStore, accountStore, queriesStore, priceStore, modalStore } =
     useStore();
+
+  const deterministicNumber = useCallback(chainInfo => {
+    const bytes = Hash.sha256(
+      Buffer.from(chainInfo.stakeCurrency.coinMinimalDenom)
+    );
+    return (
+      (bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)) >>> 0
+    );
+  }, []);
+
+  const profileColor = useCallback(
+    chainInfo => {
+      const colors = ['red', 'green', 'purple', 'orange'];
+
+      return colors[deterministicNumber(chainInfo) % colors.length];
+    },
+    [deterministicNumber]
+  );
 
   const smartNavigation = useSmartNavigation();
   const navigation = useNavigation();
@@ -41,7 +57,11 @@ export const AccountCard: FunctionComponent<{
   const queryStakable = queries.queryBalances.getQueryBech32Address(
     account.bech32Address
   ).stakable;
-  const stakable = queryStakable?.balance;
+
+  console.log('queryStakable', queryStakable);
+  console.log('queryStakable balance', queryStakable.balance);
+
+  const stakable = queryStakable.balance;
   const queryDelegated = queries.cosmos.queryDelegations.getQueryBech32Address(
     account.bech32Address
   );
@@ -64,7 +84,7 @@ export const AccountCard: FunctionComponent<{
     parseFloat(stakedSum.toDec().toString())
   ];
   const safeAreaInsets = useSafeAreaInsets();
-  const onPressBtnMain = (name) => {
+  const onPressBtnMain = name => {
     if (name === 'Buy') {
       navigate('MainTab', { screen: 'Browser', path: 'https://oraidex.io' });
     }
@@ -111,7 +131,7 @@ export const AccountCard: FunctionComponent<{
     return (
       <TouchableOpacity
         style={{
-          backgroundColor: colors['purple-900'],
+          backgroundColor: colors['purple-700'],
           borderRadius: spacing['8'],
           marginLeft: 8,
           marginRight: 8
@@ -166,7 +186,7 @@ export const AccountCard: FunctionComponent<{
           }}
         >
           <LinearGradient
-            colors={['#161532', '#5E499A']}
+            colors={['#3B2368', '#7D52D1']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={{
@@ -184,7 +204,7 @@ export const AccountCard: FunctionComponent<{
               <Text
                 style={{
                   textAlign: 'center',
-                  color: '#AEAEB2',
+                  color: colors['purple-400'],
                   fontSize: 14,
                   lineHeight: 20
                 }}
@@ -274,14 +294,12 @@ export const AccountCard: FunctionComponent<{
                 </Text>
               </View>
 
-              <Copyable
-                text={Bech32Address.shortenAddress(account.bech32Address, 22)}
+              <AddressCopyable
+                address={account.bech32Address}
+                maxCharacters={22}
               />
             </View>
-            <TouchableOpacity
-              onPress={_onPressMyWallet}
-              disabled={stakable.toDec().lte(new Dec(0))}
-            >
+            <TouchableOpacity onPress={_onPressMyWallet}>
               <DownArrowIcon height={28} color={colors['gray-150']} />
             </TouchableOpacity>
           </View>
@@ -301,8 +319,8 @@ export const AccountCard: FunctionComponent<{
       </CardBody>
 
       <NetworkErrorView />
-
-      <CardBody>
+      <View style={{ height: 20 }} />
+      {/* <CardBody>
         <View
           style={{
             height: 75,
@@ -374,7 +392,7 @@ export const AccountCard: FunctionComponent<{
             </TouchableOpacity>
           </View>
         </View>
-      </CardBody>
+      </CardBody> */}
     </Card>
   );
 });

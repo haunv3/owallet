@@ -35,12 +35,12 @@ const styles = StyleSheet.create({
     paddingTop: spacing['16'],
     paddingHorizontal: spacing['8'],
     backgroundColor: colors['white'],
-    shadowColor: '#18274B1F',
+    shadowColor: '#18274B',
     shadowOffset: {
       width: 0,
       height: 12
     },
-    shadowOpacity: 1,
+    shadowOpacity: 0.12,
     shadowRadius: 16.0
   },
   iconSendToken: {
@@ -59,18 +59,18 @@ const tokenTransferInfo = [
     type: 'send',
     titleLine2: 'within network'
   },
-  {
-    icon: <SendCrossChainIcon />,
-    titleLine1: 'Send cross-chain',
-    type: 'send_cross',
-    titleLine2: '(IBC Transfer)'
-  },
-  {
-    icon: <SendBridgeIcon />,
-    titleLine1: 'Bridge',
-    type: 'bridge',
-    titleLine2: ''
-  },
+  // {
+  //   icon: <SendCrossChainIcon />,
+  //   titleLine1: 'Send cross-chain',
+  //   type: 'send_cross',
+  //   titleLine2: '(IBC Transfer)'
+  // },
+  // {
+  //   icon: <SendBridgeIcon />,
+  //   titleLine1: 'Bridge',
+  //   type: 'bridge',
+  //   titleLine2: ''
+  // },
   {
     icon: <SendQRCodeIcon />,
     titleLine1: 'Send',
@@ -90,7 +90,11 @@ const TransferTokensOptions: FunctionComponent = () => {
           currency: chainStore.current.stakeCurrency.coinMinimalDenom
         });
         break;
-
+      case 'send_qr':
+        smartNavigation.navigateSmart('Camera', {
+          currency: chainStore.current.stakeCurrency.coinMinimalDenom
+        });
+        break;
       default:
         alert('Coming soon!');
         break;
@@ -101,7 +105,7 @@ const TransferTokensOptions: FunctionComponent = () => {
     <>
       <View style={styles.sendTokenCardbody}>
         {tokenTransferInfo.map((val, i) => (
-          <View style={styles.sendTokenCardContent} key={i}>
+          <View style={styles.sendTokenCardContent} key={i} >
             <TouchableOpacity
               style={styles.sendTokenCardText}
               onPress={() => onPress(val.type)}

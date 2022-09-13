@@ -1,7 +1,7 @@
-// implement window crypto
-window.crypto = require('./polyfill/crypto').webcrypto;
+import './polyfill/crypto';
 
 // crypto is now globally defined
+
 if (typeof __dirname === 'undefined') global.__dirname = '/';
 if (typeof __filename === 'undefined') global.__filename = '';
 if (typeof process === 'undefined') {
@@ -23,18 +23,18 @@ if (typeof Buffer === 'undefined') global.Buffer = require('buffer').Buffer;
 if (!global.atob || !global.btoa) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const Buffer = require('buffer').Buffer;
-  global.atob = (data) => {
+  global.atob = data => {
     return Buffer.from(data, 'base64').toString();
   };
 
-  global.btoa = (data) => {
+  global.btoa = data => {
     return Buffer.from(data).toString('base64');
   };
 }
 
 const isDev = typeof __DEV__ === 'boolean' && __DEV__;
 env = process.env ?? {};
-import { INJECTED_PROVIDER_URL } from '@env';
+import { INJECTED_PROVIDER_URL } from 'react-native-dotenv';
 env['NODE_ENV'] = isDev ? 'development' : 'production';
 env['INJECTED_PROVIDER_URL'] = INJECTED_PROVIDER_URL;
 process.env = env;
@@ -55,6 +55,6 @@ window.removeEventListener = (type, fn) => {
   eventListener.removeListener(type, fn);
 };
 
-window.dispatchEvent = (event) => {
+window.dispatchEvent = event => {
   eventListener.emit(event.type);
 };

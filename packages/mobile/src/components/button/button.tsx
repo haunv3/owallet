@@ -4,6 +4,7 @@ import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
 import { CText as Text } from '../text';
 import { LoadingSpinner } from '../spinner';
 import { RectButton } from '../rect-button';
+import { colors } from '../../themes';
 
 export const Button: FunctionComponent<{
   color?: 'primary' | 'secondary' | 'danger' ;
@@ -172,7 +173,7 @@ export const Button: FunctionComponent<{
         enabled={!loading && !disabled}
         rippleColor={rippleColor}
         underlayColor={underlayColor}
-        activeOpacity={1}
+        activeOpacity={0.1}
       >
         <View
           style={style.flatten(
@@ -213,11 +214,12 @@ export const Button: FunctionComponent<{
               color={
                 mode === 'fill' || (mode === 'light' && disabled)
                   ? style.get('color-white').color
-                  : style.get(
-                      `color-button-${color}${
-                        disabled ? '-disabled' : ''
-                      }` as any
-                    ).color
+                  : colors['purple-700']
+                  //  style.get(
+                  //     `color-button-${color}${
+                  //       disabled ? '-disabled' : ''
+                  //     }` as any
+                  //   ).color
               }
               size={20}
             />

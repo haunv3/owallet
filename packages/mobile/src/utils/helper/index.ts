@@ -1,6 +1,6 @@
 import { navigate } from '../../router/root';
 import isValidDomain from 'is-valid-domain';
-import find from 'lodash/find';
+import { find } from 'lodash';
 import moment from 'moment';
 const SCHEME_IOS = 'owallet://open_url?url=';
 const SCHEME_ANDROID = 'app.owallet.oauth://google/open_url?url=';
@@ -170,4 +170,26 @@ export const getUnbondInfo = (events = []) => {
     date,
     value: unbondValue?.value
   };
+};
+
+export const convertAmount = (amount: any) => {
+  switch (typeof amount) {
+    case 'string':
+    case 'number':
+      return Number(amount) / Math.pow(10, 6);
+    default:
+      return 0;
+  }
+};
+
+export const getDomainFromUrl = url => {
+  if (!url) {
+    return '';
+  }
+  return `${url?.match?.(
+    // eslint-disable-next-line no-useless-escape
+    /^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/gim
+  )}`
+    .replace('https://', '')
+    .replace('http://', '');
 };

@@ -207,7 +207,7 @@ export function renderMsgSend(
             justifyContent: 'space-between'
           }}
         >
-          <Text style={{ ...styles.textInfo }}>To </Text>
+          <Text style={{ ...styles.textInfo }}>Send to </Text>
           <Text style={{ fontWeight: 'bold' }}>
             {hyphen(Bech32Address.shortenAddress(toAddress, 20))}
           </Text>
@@ -277,7 +277,7 @@ export function renderMsgTransfer(
             justifyContent: 'space-between'
           }}
         >
-          <Text style={{ ...styles.textInfo }}>To </Text>
+          <Text style={{ ...styles.textInfo }}>Transfer IBC to </Text>
           <Text style={{ fontWeight: 'bold' }}>
             {hyphen(Bech32Address.shortenAddress(receiver, 20))}
           </Text>
@@ -318,20 +318,56 @@ export function renderMsgBeginRedelegate(
   return {
     title: 'Switch Validator',
     content: (
-      <Text>
-        <Text>{'Switch validator '}</Text>
-        <Text style={{ fontWeight: 'bold' }}>
-          {hyphen(`${amount.amount} ${amount.denom}`)}
-        </Text>
-        <Text>{' from '}</Text>
-        <Text style={{ fontWeight: 'bold' }}>
-          {hyphen(Bech32Address.shortenAddress(validatorSrcAddress, 24))}
-        </Text>
-        <Text>{' to '}</Text>
-        <Text style={{ fontWeight: 'bold' }}>
-          {hyphen(Bech32Address.shortenAddress(validatorDstAddress, 24))}
-        </Text>
-      </Text>
+      <View style={{}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          <Text style={{ ...styles.textInfo }}>From </Text>
+          <Text style={{ fontWeight: 'bold' }}>
+            {hyphen(Bech32Address.shortenAddress(validatorSrcAddress, 24))}
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          <Text style={{ ...styles.textInfo }}>To </Text>
+          <Text style={{ fontWeight: 'bold' }}>
+            {hyphen(Bech32Address.shortenAddress(validatorDstAddress, 24))}
+          </Text>
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between'
+          }}
+        >
+          <Text style={{ ...styles.textInfo }}>Amount </Text>
+          <Text style={{ fontWeight: 'bold' }}>
+            {hyphen(`${amount.amount} ${amount.denom}`)}
+          </Text>
+        </View>
+        {/* <Text>{' will receive '}</Text> */}
+      </View>
+      // <Text>
+      //   <Text>{'Switch validator '}</Text>
+      //   <Text style={{ fontWeight: 'bold' }}>
+      //     {hyphen(`${amount.amount} ${amount.denom}`)}
+      //   </Text>
+      //   <Text>{' from '}</Text>
+      //   <Text style={{ fontWeight: 'bold' }}>
+      //     {hyphen(Bech32Address.shortenAddress(validatorSrcAddress, 24))}
+      //   </Text>
+      //   <Text>{' to '}</Text>
+      //   <Text style={{ fontWeight: 'bold' }}>
+      //     {hyphen(Bech32Address.shortenAddress(validatorDstAddress, 24))}
+      //   </Text>
+      // </Text>
     )
   };
 }
@@ -361,7 +397,7 @@ export function renderMsgUndelegate(
             justifyContent: 'space-between'
           }}
         >
-          <Text style={{ ...styles.textInfo }}>To </Text>
+          <Text style={{ ...styles.textInfo }}>Unstake </Text>
           <Text style={{ fontWeight: 'bold' }}>
             {hyphen(Bech32Address.shortenAddress(validatorAddress, 24))}
           </Text>
@@ -425,7 +461,7 @@ export function renderMsgDelegate(
             justifyContent: 'space-between'
           }}
         >
-          <Text style={{ ...styles.textInfo }}>To </Text>
+          <Text style={{ ...styles.textInfo }}>Stake to</Text>
           <Text style={{ fontWeight: 'bold' }}>
             {hyphen(Bech32Address.shortenAddress(validatorAddress, 24))}
           </Text>
@@ -470,7 +506,7 @@ export function renderMsgWithdrawDelegatorReward(validatorAddress: string) {
             justifyContent: 'space-between'
           }}
         >
-          <Text style={{ ...styles.textInfo }}>To </Text>
+          <Text style={{ ...styles.textInfo }}>Claim From </Text>
           <Text style={{ fontWeight: 'bold' }}>
             {hyphen(Bech32Address.shortenAddress(validatorAddress, 20))}
           </Text>
@@ -594,14 +630,14 @@ export function renderMsgExecuteContract(
           ) : undefined}
         </Text>
         {isSecretWasm && (
-          <>
+          <React.Fragment>
             <Badge
               color="primary"
               style={{ marginTop: '6px', marginBottom: '6px' }}
             >
               <FormattedMessage id="sign.list.message.wasm/MsgExecuteContract.content.badge.secret-wasm" />
             </Badge>
-          </>
+          </React.Fragment>
         )}
         <WasmExecutionMsgView msg={msg} />
       </Text>
@@ -628,6 +664,9 @@ export const WasmExecutionMsgView: FunctionComponent<{
 
   useEffect(() => {
     // If msg is string, it will be the message for secret-wasm.
+    // So, try to decrypt.
+    // But, if this msg is not encrypted via OWallet, OWallet cannot decrypt it.
+    // TODO: Handle the error case. If an error occurs, rather than rejecting the signing, it informs the user that OWallet cannot decrypt it and allows the user to choose.
     if (typeof msg === 'string') {
       (async () => {
         try {
@@ -636,14 +675,16 @@ export const WasmExecutionMsgView: FunctionComponent<{
           const nonce = cipherText.slice(0, 32);
           cipherText = cipherText.slice(64);
 
-          const keplr = await accountStore
+          const owallet = await accountStore
             .getAccount(chainStore.current.chainId)
             .getOWallet();
-          if (!keplr) {
-            throw new Error("Can't get the keplr API");
+          if (!owallet) {
+            throw new Error("Can't get the owallet API");
           }
 
-          const enigmaUtils = keplr.getEnigmaUtils(chainStore.current.chainId);
+          const enigmaUtils = owallet.getEnigmaUtils(
+            chainStore.current.chainId
+          );
           let plainText = Buffer.from(
             await enigmaUtils.decrypt(cipherText, nonce)
           );
@@ -656,7 +697,7 @@ export const WasmExecutionMsgView: FunctionComponent<{
           setWarningMsg('');
         } catch {
           setWarningMsg(
-            'Failed to decrypt Secret message. This may be due to viewing key not matching the transaction viewing key.'
+            'Failed to decrypt Secret message. This may be due to OWallet viewing key not matching the transaction viewing key.'
           );
         }
       })();
@@ -714,7 +755,7 @@ export function clearDecimals(dec: string): string {
 
 const styles = StyleSheet.create({
   textInfo: {
-    ...typography.h6,
+    ...typography.h5,
     fontWeight: '400',
     color: colors['text-black-medium']
   }

@@ -1,4 +1,6 @@
 @import '../../../styles/var';
+@import "../../../../../../node_modules/argon-dashboard-react/src/assets/scss/argon-dashboard/custom/functions";
+@import "../../../../../../node_modules/argon-dashboard-react/src/assets/scss/argon-dashboard/custom/variables";
 
 .chain-selector {
   width: 100%;
@@ -6,24 +8,25 @@
   background-color: $background-color-lighter;
   border-radius: 8px;
   button {
-    width: 100%;    
+    width: 100%;
     text-align: left;
     font-weight: normal;
 
     .channel {
       float: right;
-
       letter-spacing: 0.14px;
       color: $color;
+      &:hover {
+        color: white;
+      }
     }
   }
 
   :global(.dropdown-toggle) {
     box-shadow: 0 1px 3px rgba(50, 50, 93, 0.15), 0 1px 0 rgba(0, 0, 0, 0.02) !important;
-
     &::after {
       border-radius: 2px;
-      content: " ";
+      content: ' ';
       display: block;
       height: 0.625em;
       margin-top: -0.4375em;
@@ -43,6 +46,61 @@
 
   :global(.dropdown-menu.show) {
     width: 100%;
-    top: $header-height!important;
+    // top: $header-height !important;
+  }
+}
+
+.save-btn {
+  background: linear-gradient(90deg, $primary-color 0%, $second-color 100%);
+  color: $color-darker;
+
+  &:hover {
+    color: $color-darker;
+  }
+}
+
+.new-ibc-btn {
+  display: flex;
+  align-items: center;
+}
+
+:global(.dropdown-menu.show) {
+  width: 100%;
+  background-color: $background-color-lighter;
+  position: absolute !important;
+  left: 0 !important;
+  top: 46px !important;
+  transform: none !important;
+}
+
+:global(.dropdown-menu .dropdown-item:hover) {
+  &:hover {
+    color: $color-white !important;
+  }
+}
+
+:global(.dropdown-item:active) {
+  &:active {
+    color: $color;
+  }
+}
+
+.addChain {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.textAddChain {
+  font-size: 12px;
+  font-weight: 600;
+  color: $color-accent-1;
+}
+
+
+.input-group {
+  box-shadow: 0 1px 3px rgb(50 50 93 / 15%), 0 1px 0 rgb(0 0 0 / 2%);
+  &:focus-within {
+    box-shadow: $input-focus-alternative-box-shadow !important;
   }
 }

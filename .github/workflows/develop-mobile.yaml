@@ -29,6 +29,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -40,15 +44,15 @@ jobs:
             ./node_modules/
           key: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-      
+            ${{ runner.os }}-yarn-   
       - name: Install Dependencies
         if: steps.yarn-cache.outputs.cache-hit != 'true'
-        run: yarn --ignore-platform --ignore-scripts
-      - name: Build Libs
-        run: yarn build:libs      
-      - name: Install mobile packages
+        run: yarn --ignore-platform --ignore-scripts      
+      - name: Install mobile packages        
         working-directory: packages/mobile
         run: yarn --silent
+      - name: Build Libs
+        run: yarn build:libs      
       - name: Build provider
         working-directory: packages/mobile
         run: yarn build:provider
@@ -59,11 +63,11 @@ jobs:
         run: |
           yarn firebase use oraichain-mainnet --token ${{ secrets.FIREBASE_TOKEN }}          
           yarn firebase deploy --only hosting:owallet-provider --token ${{ secrets.FIREBASE_TOKEN }} -m "${{ github.event.head_commit.message }}"
-      - name: deploy on AppCenter
-        working-directory: packages/mobile
-        run: |
-          yarn code-push-android --token ${{ secrets.CODEPUSH_TOKEN }}
-          yarn code-push-ios --token ${{ secrets.CODEPUSH_TOKEN }}
+      # - name: deploy on AppCenter
+      #   working-directory: packages/mobile
+      #   run: |
+      #     yarn code-push-android --token ${{ secrets.CODEPUSH_TOKEN }} --description "${{ github.event.head_commit.message }}"
+      #     yarn code-push-ios --token ${{ secrets.CODEPUSH_TOKEN }} --description "${{ github.event.head_commit.message }}"
       - name: Send discord message
         uses: appleboy/discord-action@master
         with:

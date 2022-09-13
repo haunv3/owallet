@@ -3,7 +3,6 @@ import { PageWithScrollView } from '../../../components/page';
 import { observer } from 'mobx-react-lite';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RegisterConfig } from '@owallet/hooks';
-import { isPrivateKey, trimWordsStr } from '@owallet/common';
 import { useSmartNavigation } from '../../../navigation.provider';
 import { Controller, useForm } from 'react-hook-form';
 import { TextInput } from '../../../components/input';
@@ -21,7 +20,33 @@ import {
 import { OWalletLogo } from '../owallet-logo';
 import { colors, typography } from '../../../themes';
 import { LoadingSpinner } from '../../../components/spinner';
-import * as bip39 from 'bip39';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const bip39 = require('bip39');
+
+function isPrivateKey(str: string): boolean {
+  if (str.startsWith('0x')) {
+    return true;
+  }
+
+  if (str.length === 64) {
+    try {
+      return Buffer.from(str, 'hex').length === 32;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+function trimWordsStr(str: string): string {
+  str = str.trim();
+  // Split on the whitespace or new line.
+  const splited = str.split(/\s+/);
+  const words = splited
+    .map(word => word.trim())
+    .filter(word => word.trim().length > 0);
+  return words.join(' ');
+}
 
 interface FormData {
   mnemonic: string;
@@ -30,7 +55,7 @@ interface FormData {
   confirmPassword: string;
 }
 
-export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
+export const RecoverMnemonicScreen: FunctionComponent = observer(props => {
   const route = useRoute<
     RouteProp<
       Record<
@@ -67,7 +92,6 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
     setIsCreating(true);
 
     const mnemonic = trimWordsStr(getValues('mnemonic'));
-
     if (!isPrivateKey(mnemonic)) {
       await registerConfig.createMnemonic(
         getValues('name'),
@@ -91,7 +115,7 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
         accountType: 'privateKey'
       });
     }
-    if (checkRouter(route.name, 'RegisterRecoverMnemonicMain')) {
+    if (checkRouter(props?.route?.name, 'RegisterRecoverMnemonicMain')) {
       navigate('RegisterEnd', {
         password: getValues('password'),
         type: 'recover'
@@ -286,7 +310,7 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
       />
 
       {mode === 'create' ? (
-        <>
+        <React.Fragment>
           <Controller
             control={control}
             rules={{
@@ -302,6 +326,7 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
                 <TextInput
                   label="New password"
                   returnKeyType="next"
+                  secureTextEntry={true}
                   onSubmitEditing={() => {
                     setFocus('confirmPassword');
                   }}
@@ -387,7 +412,7 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
             name="confirmPassword"
             defaultValue=""
           />
-        </>
+        </React.Fragment>
       ) : null}
       {/* <View style={{ alignItems: 'flex-start' }}> */}
       <BIP44AdvancedButton bip44Option={bip44Option} />
@@ -424,7 +449,7 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
       <View
         style={{
           paddingBottom: checkRouterPaddingBottomBar(
-            route.name,
+            props?.route?.name,
             'RegisterRecoverMnemonicMain'
           )
         }}
@@ -437,7 +462,9 @@ export const RecoverMnemonicScreen: FunctionComponent = observer(() => {
             fontSize: 16
           }}
           onPress={() => {
-            if (checkRouter(route.name, 'RegisterRecoverMnemonicMain')) {
+            if (
+              checkRouter(props?.route?.name, 'RegisterRecoverMnemonicMain')
+            ) {
               smartNavigation.goBack();
             } else {
               smartNavigation.navigateSmart('Register.Intro', {});

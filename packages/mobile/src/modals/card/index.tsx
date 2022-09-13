@@ -1,9 +1,8 @@
 import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import {
-  Keyboard,
   KeyboardEvent,
-  Platform,
   StyleSheet,
+  TextStyle,
   View,
   ViewStyle
 } from 'react-native';
@@ -40,12 +39,14 @@ export const CardModal: FunctionComponent<{
   childrenContainerStyle?: ViewStyle;
 
   disableGesture?: boolean;
+  labelStyle?: TextStyle;
 }> = ({
   title,
   right,
   children,
   childrenContainerStyle,
-  disableGesture = false
+  disableGesture = false,
+  labelStyle
 }) => {
   const style = useStyle();
   const safeAreaInsets = useSafeAreaInsets();
@@ -412,7 +413,7 @@ export const CardModal: FunctionComponent<{
             ) : null}
           </View>
           {title ? (
-            <>
+            <React.Fragment>
               <View
                 style={style.flatten([
                   'flex-row',
@@ -420,7 +421,12 @@ export const CardModal: FunctionComponent<{
                   'margin-bottom-16'
                 ])}
               >
-                <Text style={style.flatten(['h4', 'color-text-black-high'])}>
+                <Text
+                  style={{
+                    ...style.flatten(['h4', 'color-text-black-high']),
+                    ...labelStyle
+                  }}
+                >
                   {title}
                 </Text>
                 {right}
@@ -431,7 +437,7 @@ export const CardModal: FunctionComponent<{
                   'background-color-border-white'
                 ])}
               />
-            </>
+            </React.Fragment>
           ) : null}
         </Animated.View>
       </PanGestureHandler>

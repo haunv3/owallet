@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from 'react';
+import React, { CSSProperties, forwardRef, useState } from 'react';
 
 import classnames from 'classnames';
 
@@ -23,6 +23,9 @@ export interface InputProps {
   error?: string;
 
   append?: React.ReactElement;
+  styleInputGroup?: CSSProperties;
+  typeInput?: string | any;
+  classNameInputGroup?: string;
 }
 
 // eslint-disable-next-line react/display-name
@@ -30,7 +33,8 @@ export const Input = forwardRef<
   HTMLInputElement,
   InputProps & React.InputHTMLAttributes<HTMLInputElement>
 >((props, ref) => {
-  const { type, label, text, error, append } = props;
+  const { type, label, text, error, append, styleInputGroup, typeInput , classNameInputGroup } =
+    props;
 
   const attributes = { ...props };
   delete attributes.className;
@@ -41,6 +45,8 @@ export const Input = forwardRef<
   delete attributes.error;
   delete attributes.children;
   delete attributes.append;
+  delete attributes.styleInputGroup;
+  delete attributes.typeInput;
 
   const [inputId] = useState(() => {
     const bytes = new Uint8Array(4);
@@ -55,7 +61,7 @@ export const Input = forwardRef<
           {label}
         </Label>
       ) : null}
-      <InputGroup>
+      <InputGroup style={styleInputGroup} className={classNameInputGroup}>
         <ReactStrapInput
           id={inputId}
           className={classnames(
@@ -63,7 +69,7 @@ export const Input = forwardRef<
             props.className,
             styleInput.input
           )}
-          type={type}
+          type={typeInput ?? type}
           innerRef={ref}
           {...attributes}
         />

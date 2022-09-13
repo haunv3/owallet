@@ -4,7 +4,7 @@ import { useSendTxConfig } from '@owallet/hooks';
 import { useStore } from '../../stores';
 import { EthereumEndpoint } from '@owallet/common';
 import { PageWithScrollView } from '../../components/page';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import {
   AddressInput,
   AmountInput,
@@ -16,8 +16,7 @@ import { Button } from '../../components/button';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useSmartNavigation } from '../../navigation.provider';
 import { Buffer } from 'buffer';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, metrics, spacing, typography } from '../../themes';
+import { colors, spacing } from '../../themes';
 import { CText as Text } from '../../components/text';
 
 const styles = StyleSheet.create({
@@ -38,7 +37,6 @@ const styles = StyleSheet.create({
 
 export const SendScreen: FunctionComponent = observer(() => {
   const { chainStore, accountStore, queriesStore, analyticsStore } = useStore();
-  const safeAreaInsets = useSafeAreaInsets();
   const route = useRoute<
     RouteProp<
       Record<
@@ -73,9 +71,16 @@ export const SendScreen: FunctionComponent = observer(() => {
 
   useEffect(() => {
     if (route?.params?.currency) {
-      const currency = sendConfigs.amountConfig.sendableCurrencies.find(
-        (cur) => cur.coinMinimalDenom === route.params.currency
-      );
+      const currency = sendConfigs.amountConfig.sendableCurrencies.find(cur => {
+        if (cur.type === 'cw20') {
+          return cur.coinDenom == route.params.currency;
+        }
+        if (cur.coinDenom === route.params.currency) {
+          return cur.coinDenom === route.params.currency;
+        }
+        return cur.coinMinimalDenom == route.params.currency;
+      });
+
       if (currency) {
         sendConfigs.amountConfig.setSendCurrency(currency);
       }
@@ -118,34 +123,41 @@ export const SendScreen: FunctionComponent = observer(() => {
             labelStyle={styles.sendlabelInput}
           />
           <AddressInput
-            placeholder="Type the receiver"
+            placeholder="Enter receiving address"
             label="Send to"
             recipientConfig={sendConfigs.recipientConfig}
             memoConfig={sendConfigs.memoConfig}
             labelStyle={styles.sendlabelInput}
           />
           <AmountInput
-            placeholder="Type the receiver"
+            placeholder="ex. 1000 ORAI"
             label="Amount"
+            allowMax={chainStore.current.networkType !== 'evm' ? true : false}
             amountConfig={sendConfigs.amountConfig}
             labelStyle={styles.sendlabelInput}
           />
-          <FeeButtons
-            label="Transaction Fee"
-            gasLabel="gas"
-            feeConfig={sendConfigs.feeConfig}
-            gasConfig={sendConfigs.gasConfig}
-            labelStyle={styles.sendlabelInput}
-          />
+          {chainStore.current.networkType !== 'evm' ? (
+            <FeeButtons
+              label="Transaction Fee"
+              gasLabel="gas"
+              feeConfig={sendConfigs.feeConfig}
+              gasConfig={sendConfigs.gasConfig}
+              labelStyle={styles.sendlabelInput}
+            />
+          ) : null}
+
           <MemoInput
             label="Memo (Optional)"
             placeholder="Type your memo here"
             memoConfig={sendConfigs.memoConfig}
             labelStyle={styles.sendlabelInput}
           />
-          <TouchableOpacity
+          <Button
+            text="Send"
+            size="large"
+            disabled={!account.isReadyToSendMsgs || !txStateIsValid}
+            loading={account.isSendingMsg === 'send'}
             style={{
-              marginBottom: 24,
               backgroundColor: colors['purple-900'],
               borderRadius: 8
             }}
@@ -160,10 +172,17 @@ export const SendScreen: FunctionComponent = observer(() => {
                     sendConfigs.feeConfig.toStdFee(),
                     {
                       preferNoSetFee: true,
-                      preferNoSetMemo: true
+                      preferNoSetMemo: true,
+                      networkType: chainStore.current.networkType
                     },
                     {
-                      onBroadcasted: (txHash) => {
+                      onFulfill: tx => {
+                        console.log(
+                          tx,
+                          'TX INFO ON SEND PAGE!!!!!!!!!!!!!!!!!!!!!'
+                        );
+                      },
+                      onBroadcasted: txHash => {
                         analyticsStore.logEvent('Send token tx broadcasted', {
                           chainId: chainStore.current.chainId,
                           chainName: chainStore.current.chainName,
@@ -173,7 +192,22 @@ export const SendScreen: FunctionComponent = observer(() => {
                           txHash: Buffer.from(txHash).toString('hex')
                         });
                       }
-                    }
+                    },
+                    // In case send erc20 in evm network
+                    sendConfigs.amountConfig.sendCurrency.coinMinimalDenom.startsWith(
+                      'erc20'
+                    )
+                      ? {
+                          type: 'erc20',
+                          from: account.evmosHexAddress,
+                          contract_addr:
+                            sendConfigs.amountConfig.sendCurrency.coinMinimalDenom.split(
+                              ':'
+                            )[1],
+                          recipient: sendConfigs.recipientConfig.recipient,
+                          amount: sendConfigs.amountConfig.amount
+                        }
+                      : null
                   );
                 } catch (e) {
                   if (e?.message === 'Request rejected') {
@@ -184,6 +218,7 @@ export const SendScreen: FunctionComponent = observer(() => {
                   ) {
                     return;
                   }
+                  alert(e?.message);
                   console.log('send error', e);
                   if (smartNavigation.canGoBack) {
                     smartNavigation.goBack();
@@ -193,19 +228,7 @@ export const SendScreen: FunctionComponent = observer(() => {
                 }
               }
             }}
-          >
-            <Text
-              style={{
-                color: 'white',
-                textAlign: 'center',
-                fontWeight: '700',
-                fontSize: 16,
-                padding: 16
-              }}
-            >
-              Send
-            </Text>
-          </TouchableOpacity>
+          />
         </View>
       </View>
     </PageWithScrollView>

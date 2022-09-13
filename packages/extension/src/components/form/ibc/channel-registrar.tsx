@@ -40,7 +40,16 @@ export const IBCChannelRegistrarModal: FunctionComponent<{
     <Modal isOpen={isOpen} toggle={toggle} centered>
       <ModalBody>
         <Form>
-          <h1>Add IBC channel</h1>
+          <p
+            style={{
+              textAlign: 'center',
+              color: '#434193',
+              fontSize: 24,
+              fontWeight: 500
+            }}
+          >
+            Add IBC channel
+          </p>
           <FormGroup>
             <Label for="chain-dropdown" className="form-control-label">
               <FormattedMessage id="component.ibc.channel-registrar.chain-selector.label" />
@@ -93,6 +102,7 @@ export const IBCChannelRegistrarModal: FunctionComponent<{
             placeholder={intl.formatMessage({
               id: 'component.ibc.channel-registrar.chain-selector.add.channel.placeholder'
             })}
+            classNameInputGroup={style.inputGroup}
             onChange={(e) => {
               e.preventDefault();
               setChannelId(e.target.value);
@@ -103,7 +113,8 @@ export const IBCChannelRegistrarModal: FunctionComponent<{
           <Button
             type="submit"
             block
-            color="primary"
+            color=""
+            className={style.saveBtn}
             disabled={
               selectedChainId === '' || channelId === '' || error !== ''
             }

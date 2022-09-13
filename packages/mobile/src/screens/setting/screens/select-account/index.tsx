@@ -37,6 +37,44 @@ const CheckIcon: FunctionComponent<{
   );
 };
 
+export const getKeyStoreParagraph = (keyStore: MultiKeyStoreInfoElem) => {
+  const bip44HDPath = keyStore.bip44HDPath
+    ? keyStore.bip44HDPath
+    : {
+        account: 0,
+        change: 0,
+        addressIndex: 0
+      };
+
+  switch (keyStore.type) {
+    case 'ledger':
+      return `Ledger - m/44'/118'/${bip44HDPath.account}'${
+        bip44HDPath.change !== 0 || bip44HDPath.addressIndex !== 0
+          ? `/${bip44HDPath.change}/${bip44HDPath.addressIndex}`
+          : ''
+      }`;
+    case 'mnemonic':
+      if (
+        bip44HDPath.account !== 0 ||
+        bip44HDPath.change !== 0 ||
+        bip44HDPath.addressIndex !== 0
+      ) {
+        return `Mnemonic - m/44'/-/${bip44HDPath.account}'${
+          bip44HDPath.change !== 0 || bip44HDPath.addressIndex !== 0
+            ? `/${bip44HDPath.change}/${bip44HDPath.addressIndex}`
+            : ''
+        }`;
+      }
+      return;
+    case 'privateKey':
+      // Torus key
+      if (keyStore.meta?.email) {
+        return keyStore.meta.email;
+      }
+      return;
+  }
+};
+
 export const SettingSelectAccountScreen: FunctionComponent = observer(() => {
   const { keyRingStore, analyticsStore } = useStore();
 
@@ -58,7 +96,7 @@ export const SettingSelectAccountScreen: FunctionComponent = observer(() => {
 
   const privateKeyStores = useMemo(() => {
     return keyRingStore.multiKeyStoreInfo.filter(
-      (keyStore) => keyStore.type === 'privateKey'
+      (keyStore) => keyStore.type === 'privateKey' && !keyStore.meta?.email
     );
   }, [keyRingStore.multiKeyStoreInfo]);
 
@@ -82,15 +120,19 @@ export const SettingSelectAccountScreen: FunctionComponent = observer(() => {
     keyStores: MultiKeyStoreInfoWithSelectedElem[]
   ) => {
     return (
-      <>
+      <React.Fragment>
         {keyStores.length > 0 ? (
-          <>
+          <React.Fragment>
             <KeyStoreSectionTitle title={title} />
             {keyStores.map((keyStore, i) => {
               return (
                 <KeyStoreItem
                   key={i.toString()}
-                  label="OWallet Account"
+                  label={keyStore.meta?.name || 'OWallet Account'}
+                  paragraph={getKeyStoreParagraph(keyStore)}
+                  topBorder={i === 0}
+                  bottomBorder={keyStores.length - 1 !== i}
+                  active={keyStore.selected}
                   onPress={async () => {
                     analyticsStore.logEvent('Account changed');
                     await selectKeyStore(keyStore);
@@ -98,9 +140,9 @@ export const SettingSelectAccountScreen: FunctionComponent = observer(() => {
                 />
               );
             })}
-          </>
+          </React.Fragment>
         ) : null}
-      </>
+      </React.Fragment>
     );
   };
 

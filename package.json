@@ -1,6 +1,6 @@
 {
   "name": "owallet",
-  "description": "OWallet is a browser extension wallet for the Inter blockchain ecosystem.",
+  "description": "OWallet: Cosmos x EVM in one Wallet",
   "private": true,
   "workspaces": {
     "packages": [
@@ -26,7 +26,7 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "dev": "lerna run dev --parallel --ignore @owallet/extension --ignore @owallet/mobile --ignore @owallet/wc-client --ignore @owallet/wc-qrcode-modal",
-    "clean": "lerna run clean && rm -rf node_modules && yarn clean:watchman",
+    "clean": "lerna run clean && rimraf node_modules && yarn clean:watchman",
     "clean:watchman": "watchman watch-del-all",
     "build": "lerna run build",
     "build:libs": "lerna run build --ignore @owallet/extension --ignore @owallet/mobile",
@@ -36,8 +36,7 @@
     "lint-test": "lerna run lint-test",
     "lint-fix": "lerna run lint-fix",
     "ci": "yarn install --frozen-lockfile && yarn build && yarn workspace mobile typecheck && yarn test",
-    "ci-lint": "yarn install --frozen-lockfile && yarn lint-test",
-    "version": "npx zx ./scripts/lerna-lifecyle-check-version.mjs"
+    "ci-lint": "yarn install --frozen-lockfile && yarn lint-test"
   },
   "keywords": [],
   "author": "Oraichain",
@@ -78,5 +77,6 @@
     "libsodium": "file:./etc/noop",
     "libsodium-wrappers": "file:./etc/noop",
     "node-sass": "file:./etc/noop"
-  }
+  },
+  "version": "0.0.0"
 }

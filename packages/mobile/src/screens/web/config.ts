@@ -1,7 +1,11 @@
 import { ImageSourcePropType } from 'react-native';
 
-export const InjectedProviderUrl =
-  process.env.INJECTED_PROVIDER_URL || 'https://owallet-provider.oraidex.io';
+// export const InjectedProviderUrl = __DEV__
+//   ? 'http://son.local:8081'
+//   : 'https://static.orai.io';
+// export const InjectedProviderUrl =
+//   process.env.INJECTED_PROVIDER_URL || 'https://static.orai.io';
+export const InjectedProviderUrl = 'https://static.orai.io';
 
 export type DAppInfo = {
   id: number;
@@ -10,7 +14,7 @@ export type DAppInfo = {
   logo?: ImageSourcePropType;
 };
 
-export const oraiLogo = require('../../assets/image/webpage/orai_logo.png');
+const oraiLogo = require('../../assets/image/webpage/orai_logo.png');
 const balconyLogo = require('../../assets/image/webpage/balcony.png');
 
 export const DAppInfos: DAppInfo[] = [
@@ -57,10 +61,28 @@ export const DAppInfos: DAppInfo[] = [
   },
   {
     id: 7,
-    name: 'Info Oraidex',
+    name: 'OraiDEX Info',
     uri: 'https://info.oraidex.io',
     logo: oraiLogo
   },
+  {
+    id: 8,
+    name: 'Balcony Subnet EVM',
+    uri: 'https://staging-big-nft.web.app/properties',
+    logo: balconyLogo
+  },
+  {
+    id: 9,
+    name: 'Orchai App',
+    uri: 'https://app.orchai.io',
+    logo: oraiLogo
+  },
+  {
+    id: 10,
+    name: 'Orchai App Staging',
+    uri: 'https://app-staging.orchai.io',
+    logo: oraiLogo
+  }
 ];
 
 if (__DEV__) {
