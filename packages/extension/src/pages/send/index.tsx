@@ -216,6 +216,18 @@ export const SendPage: FunctionComponent<{
                       tx,
                       'TX INFO ON SEND PAGE!!!!!!!!!!!!!!!!!!!!!'
                     );
+                    notification.push({
+                      placement: 'top-center',
+                      type: tx?.data ? 'success' : 'danger',
+                      duration: 5,
+                      content: tx?.data
+                        ? `Transaction successful with tx: ${tx?.hash}`
+                        : `Transaction failed with tx: ${tx?.hash}`,
+                      canDelete: true,
+                      transition: {
+                        duration: 0.25
+                      }
+                    });
                   }
                 }
               );
