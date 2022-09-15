@@ -267,7 +267,7 @@ export const EmbedChainInfos: AppChainInfo[] = [
   },
   {
     rpc: 'https://tendermint1.kawaii.global',
-    evmRpc: 'https://endpoint1.kawaii.global',
+    // evmRpc: 'https://endpoint1.kawaii.global',
     rest: 'https://cosmos1.kawaii.global',
     chainId: 'kawaii_6886-1',
     networkType: 'cosmos',
@@ -293,7 +293,8 @@ export const EmbedChainInfos: AppChainInfo[] = [
       average: 0.000025,
       high: 0.00004
     },
-    features: ['ibc-transfer', 'ibc-go', 'stargate']
+    // features: ['ibc-transfer', 'ibc-go', 'stargate']
+    features: ['stargate', 'ibc-transfer', 'cosmwasm','no-legacy-stdTx'],
   },
   {
     rpc: 'https://tendermint1.kawaii.global',
@@ -322,7 +323,7 @@ export const EmbedChainInfos: AppChainInfo[] = [
       average: 0.000025,
       high: 0.00004
     },
-    features: ['ibc-transfer', 'ibc-go', 'stargate']
+    features: ['ibc-go', 'stargate', 'isEvm']
   },
   {
     // rpc: 'https://ethrpc-balcony-testnet.orai.us/',
@@ -598,24 +599,24 @@ export const EmbedChainInfos: AppChainInfo[] = [
   //       coinImageUrl:
   //         "https://s2.coinmarketcap.com/static/img/coins/64x64/7533.png",
   //     },
-  //     // {
-  //     //   coinDenom: "AIRI",
-  //     //   coinMinimalDenom:
-  //     //     "erc20:0x7e2a35c746f2f7c240b664f1da4dd100141ae71f:aiRight Token",
-  //     //   coinDecimals: 18,
-  //     //   coinGeckoId: "airight",
-  //     //   coinImageUrl:
-  //     //     "https://s2.coinmarketcap.com/static/img/coins/64x64/11563.png",
-  //     // },
-  //     // {
-  //     //   coinDenom: "KWT",
-  //     //   coinMinimalDenom:
-  //     //     "erc20:0x257a8d1e03d17b8535a182301f15290f11674b53:Kawaii Islands",
-  //     //   coinDecimals: 18,
-  //     //   coinGeckoId: "kawaii-islands",
-  //     //   coinImageUrl:
-  //     //     "https://s2.coinmarketcap.com/static/img/coins/64x64/12313.png",
-  //     // },
+  //     {
+  //       coinDenom: "AIRI",
+  //       coinMinimalDenom:
+  //         "erc20:0x7e2a35c746f2f7c240b664f1da4dd100141ae71f:aiRight Token",
+  //       coinDecimals: 18,
+  //       coinGeckoId: "airight",
+  //       coinImageUrl:
+  //         "https://s2.coinmarketcap.com/static/img/coins/64x64/11563.png",
+  //     },
+  //     {
+  //       coinDenom: "KWT",
+  //       coinMinimalDenom:
+  //         "erc20:0x257a8d1e03d17b8535a182301f15290f11674b53:Kawaii Islands",
+  //       coinDecimals: 18,
+  //       coinGeckoId: "kawaii-islands",
+  //       coinImageUrl:
+  //         "https://s2.coinmarketcap.com/static/img/coins/64x64/12313.png",
+  //     },
   //   ],
   //   feeCurrencies: [
   //     {
@@ -675,7 +676,7 @@ export const EmbedChainInfos: AppChainInfo[] = [
       average: 25000000000,
       high: 40000000000
     },
-    features: ['isEvm'],
+    features: ['ibc-go', 'stargate', 'isEvm'],
     txExplorer: {
       name: 'Etherscan',
       txUrl: 'https://etherscan.io/tx/{txHash}',
@@ -752,7 +753,7 @@ export const EmbedChainInfos: AppChainInfo[] = [
       average: 25000000000,
       high: 40000000000
     },
-    features: ['isEvm'],
+    features: ['ibc-go', 'stargate', 'isEvm'],
     txExplorer: {
       name: 'Bsc Scan',
       txUrl: 'https://bscscan.com/tx/${txHash}',
