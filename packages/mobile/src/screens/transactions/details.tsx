@@ -1,5 +1,5 @@
 import Clipboard from 'expo-clipboard';
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Divider } from '@rneui/base';
 import { CText as Text } from '../../components/text';
@@ -12,7 +12,10 @@ import { colors, metrics, spacing, typography } from '../../themes';
 import {
   convertAmount,
   formatContractAddress,
-  getTransactionValue
+  formatOrai,
+  getTransactionValue,
+  getTxTypeNew,
+  parseIbcMsgTransfer
 } from '../../utils/helper';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import moment from 'moment';
@@ -95,18 +98,16 @@ const InfoItems: FunctionComponent<{
           </Text>
           <Text
             style={{
-              ...bindStyleTxInfo(
-                label,
-                (title === 'Received Token' ? '+' : '-') + value
-              ),
+              ...bindStyleTxInfo(label, value),
               marginTop: spacing['2'],
               ...typography.body2
             }}
           >
-            {label !== 'Amount'
+            {value}
+            {/* {label !== 'Amount'
               ? bindValueTxInfo(label, value)
               : (title === 'Received Token' ? '+' : '-') +
-                bindValueTxInfo(label, value)}
+                bindValueTxInfo(label, value)} */}
           </Text>
         </View>
         {label !== 'Amount' && (
@@ -234,47 +235,159 @@ export const TransactionDetail: FunctionComponent<any> = () => {
       Record<
         string,
         {
-          item: object;
+          item: any;
         }
       >,
       string
     >
   >();
 
-  const { txhash, tx, timestamp, gas_used, gas_wanted, height, code }: any =
-    route.params?.item || {};
+  const { item } = route.params || {};
+  const { tx_hash, tx, timestamp, gas_used, gas_wanted, height, code }: any =
+    item || {};
+
+  const amountDataCell = useCallback(() => {
+    let amount;
+
+    if (
+      item?.messages?.find(
+        msg => getTxTypeNew(msg['@type']) === 'MsgRecvPacket'
+      )
+    ) {
+      const msg = item?.messages?.find(msg => {
+        return getTxTypeNew(msg['@type']) === 'MsgRecvPacket';
+      });
+
+      const msgRec = JSON.parse(
+        Buffer.from(msg?.packet?.data, 'base64').toString('ascii')
+      );
+      amount = msgRec;
+      const port = item?.message?.packet?.destination_port;
+      const channel = item?.message?.packet?.destination_channel;
+      console.log('msgRec', msgRec);
+    } else if (
+      item?.messages?.find(msg => getTxTypeNew(msg['@type']) === 'MsgTransfer')
+    ) {
+      const rawLog = JSON.parse(item?.raw_log);
+      const rawLogParse = parseIbcMsgTransfer(rawLog);
+      const rawLogDenomSplit = rawLogParse?.denom?.split('/');
+      console.log('rawLogParse', rawLogParse);
+      amount = rawLog;
+    } else {
+      const type = getTxTypeNew(
+        item.messages[item?.messages?.length - 1]['@type'],
+        item?.raw_log,
+        item?.result
+      );
+      const msg = item?.messages?.find(
+        msg => getTxTypeNew(msg['@type']) === type
+      );
+
+      amount = msg?.amount?.length > 0 ? msg?.amount[0] : msg?.amount ?? {};
+    }
+
+    return amount.denom === 'orai'
+      ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
+      : `${formatOrai(amount.amount ?? 0)} ${
+          amount.denom ? amount.denom?.substring(1) : ''
+        }`;
+  }, [item]);
+
   const date = moment(timestamp).format('MMM DD, YYYY [at] HH:mm');
-  const { messages } = tx?.body || {};
-  const { title, isPlus, amount, denom, unbond } = getTransactionValue({
-    data: [
-      {
-        type: messages?.[0]?.['@type']
-      }
-    ],
-    address: route.params?.item?.address,
-    logs: route.params?.item?.logs
-  });
+  // const { messages } = tx?.body || {};
+  const title = getTxTypeNew(
+    item.messages[item?.messages?.length - 1]['@type'],
+    item?.raw_log,
+    item?.result
+  );
+  // const { title, isPlus, amount, denom, unbond } = getTransactionValue({
+  //   data: [
+  //     {
+  //       type: messages?.[0]?.['@type']
+  //     }
+  //   ],
+  //   address: route.params?.item?.address,
+  //   logs: route.params?.item?.logs
+  // });
+
+  const txAddresses = () => {
+    if (title.includes('MsgExecuteContract')) {
+      return [
+        {
+          label: 'Contract',
+          value: formatContractAddress(item?.messages?.[0]?.contract)
+        },
+        {
+          label: 'Sender',
+          value: formatContractAddress(item?.messages?.[0]?.sender)
+        }
+      ];
+    }
+    switch (title) {
+      case 'MsgSend':
+        return [
+          {
+            label: 'From',
+            value: formatContractAddress(item?.messages?.[0]?.from_address)
+          },
+          {
+            label: 'To',
+            value: formatContractAddress(item?.messages?.[0]?.to_address)
+          }
+        ];
+
+      case 'MsgRecvPacket':
+        return [
+          {
+            label: 'Signer',
+            value: formatContractAddress(item?.messages?.[0]?.signer)
+          }
+        ];
+      case 'MsgVote':
+        return [
+          {
+            label: 'Voter',
+            value: formatContractAddress(item?.messages?.[0]?.voter)
+          }
+        ];
+      case 'MsgSubmitProposal':
+        return [
+          {
+            label: 'Proposer',
+            value: formatContractAddress(item?.messages?.[0]?.proposer)
+          }
+        ];
+      default:
+        return [
+          {
+            label: 'Delegator address',
+            value: formatContractAddress(item?.messages?.[0]?.delegator_address)
+          },
+          {
+            label: 'Validator address',
+            value: formatContractAddress(item?.messages?.[0]?.validator_address)
+          }
+        ];
+    }
+  };
 
   const txInfos: TransactionInfo[] = [
-    {
-      label: 'From',
-      value: tx?.body?.messages?.[0]?.from_address
-    },
-    {
-      label: 'To',
-      value: tx?.body?.messages?.[0]?.to_address
-    },
+    ...txAddresses(),
     {
       label: 'Transaction hash',
-      value: txhash
+      value: tx_hash
     },
     {
       label: 'Amount',
-      value: `${convertAmount(amount)} ${denom ?? ''}`
+      value: amountDataCell()
     }
   ];
 
   const txDetail: TransactionInfo[] = [
+    {
+      label: 'Msg',
+      value: title
+    },
     {
       label: 'Result',
       value: code === 0 ? 'Success' : 'Failed'
@@ -284,18 +397,16 @@ export const TransactionDetail: FunctionComponent<any> = () => {
       value: height
     },
     {
-      label: 'Gas (used/ wanted)',
-      value: `${gas_used} / ${gas_wanted}`
-    },
-    {
       label: 'Fee',
-      value: `${tx?.auth_info?.fee?.amount?.[0]?.amount * Math.pow(10, -6)} ${
-        tx?.auth_info?.fee?.amount?.[0]?.denom
-      }`
+      value: item?.fee?.amount
+        ? `${formatOrai(item.fee.amount[0].amount || 0)} ${
+            item.fee.amount[0].denom
+          }`
+        : 0
     },
     {
       label: 'Amount',
-      value: `${convertAmount(amount)} ${denom ?? ''}`
+      value: amountDataCell()
     },
     {
       label: 'Time',

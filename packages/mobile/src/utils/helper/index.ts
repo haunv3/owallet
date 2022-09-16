@@ -34,8 +34,8 @@ export const checkValidDomain = (url: string) => {
 export const _keyExtract = (item, index) => index.toString();
 
 export const formatContractAddress = (address: string) => {
-  const fristLetter = address.slice(0, 10);
-  const lastLetter = address.slice(-5);
+  const fristLetter = address?.slice(0, 10) ?? '';
+  const lastLetter = address?.slice(-5) ?? '';
 
   return `${fristLetter}...${lastLetter}`;
 };
@@ -192,4 +192,55 @@ export const getDomainFromUrl = url => {
   )}`
     .replace('https://', '')
     .replace('http://', '');
+};
+
+export const parseIbcMsgRecvPacket = denom => {
+  return denom?.slice(0, 1) === 'u' ? denom?.slice(1, denom?.length) : denom;
+};
+
+export const getTxTypeNew = (type, rawLog = '[]', result = '') => {
+  const typeArr = type.split('.');
+  let typeMsg = typeArr[typeArr.length - 1];
+  if (typeMsg === 'MsgExecuteContract' && result === 'Success') {
+    let rawLogArr = JSON.parse(rawLog);
+    for (let event of rawLogArr[0].events) {
+      if (event['type'] === 'wasm') {
+        for (let att of event['attributes']) {
+          if (att['key'] === 'action') {
+            let attValue = att['value']
+              .split('_')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join('');
+            typeMsg += '/' + attValue;
+            break;
+          }
+        }
+
+        break;
+      }
+    }
+  }
+  return typeMsg;
+};
+
+export const parseIbcMsgTransfer = (
+  rawLog,
+  type = 'send_packet',
+  key = 'packet_data'
+) => {
+  const arrayIbcDemonPacket =
+    rawLog && rawLog?.[0]?.events?.find(e => e.type === type);
+  const ibcDemonPackData =
+    arrayIbcDemonPacket &&
+    arrayIbcDemonPacket?.attributes?.find(ele => ele.key === key);
+  const ibcDemonObj =
+    typeof ibcDemonPackData?.value === 'string' ||
+    ibcDemonPackData?.value instanceof String
+      ? JSON.parse(ibcDemonPackData.value)
+      : { denom: '' };
+  return ibcDemonObj;
+};
+
+export const formatOrai = amount => {
+  return Number(amount) / Math.pow(10, 6);
 };

@@ -16,31 +16,30 @@ export const Transactions: FunctionComponent = () => {
   const [indexChildren, setIndexChildren] = useState<number>(0);
   const [data, setData] = useState([]);
   const smartNavigation = useSmartNavigation();
-  const offset = useRef(0);
+  const page = useRef(1);
   const hasMore = useRef(true);
   const fetchData = async (isLoadMore = false) => {
     crashlytics().log('transactions - home - fetchData');
-    const isRecipient = indexChildren === 1;
-    const isAll = indexChildren === 0;
+    // const isRecipient = indexChildren === 1;
+    // const isAll = indexChildren === 0;
     try {
-      const res = await API.getHistory(
+      const res = await API.getTransactions(
         {
           address: account.bech32Address,
-          offset: 0,
-          isRecipient,
-          isAll
+          page: page.current
         },
-        { baseURL: chainStore.current.rest }
+        // { baseURL: chainStore.current.rest }
+        { baseURL: 'https://api.scan.orai.io' }
       );
 
-      const value = res.data?.tx_responses || [];
-      const total = res?.data?.pagination?.total;
+      const value = res.data?.data || [];
       let newData = isLoadMore ? [...data, ...value] : value;
       hasMore.current = value?.length === 10;
-      offset.current = newData.length;
-      if (total && offset.current === Number(total)) {
+      page.current = res.data?.page.page_id + 1;
+      if (page.current === res.data?.page.total_page) {
         hasMore.current = false;
       }
+
       setData(newData);
     } catch (error) {
       crashlytics().recordError(error);
@@ -49,7 +48,7 @@ export const Transactions: FunctionComponent = () => {
   };
 
   useEffect(() => {
-    offset.current = 0;
+    page.current = 0;
     fetchData();
   }, [account.bech32Address, indexChildren]);
 
@@ -134,7 +133,7 @@ export const Transactions: FunctionComponent = () => {
               alignItems: 'center'
             }}
           >
-            {['Send', 'Receive'].map((title: string, i: number) => (
+            {/* {['Send', 'Receive'].map((title: string, i: number) => (
               <TouchableOpacity
                 key={i}
                 style={{
@@ -160,7 +159,7 @@ export const Transactions: FunctionComponent = () => {
                   {title}
                 </Text>
               </TouchableOpacity>
-            ))}
+            ))} */}
           </View>
           <TransactionSectionTitle
             title={'Transfer list'}
@@ -178,6 +177,7 @@ export const Transactions: FunctionComponent = () => {
               keyExtractor={_keyExtract}
               data={data}
               renderItem={_renderItem}
+              onEndReached={() => fetchData(true)}
               ListFooterComponent={<View style={{ height: spacing['12'] }} />}
               ListEmptyComponent={
                 <View style={styles.transactionListEmpty}>

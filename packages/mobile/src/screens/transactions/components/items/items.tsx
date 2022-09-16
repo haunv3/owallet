@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { FunctionComponent } from 'react';
-import { StyleSheet, TextStyle, View, ViewStyle } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 import { CText as Text } from '../../../../components/text';
 import { RectButton } from '../../../../components/rect-button';
-import { colors, metrics, spacing, typography } from '../../../../themes';
-import { convertAmount, getTransactionValue } from '../../../../utils/helper';
+import { colors, spacing, typography } from '../../../../themes';
+import {
+  convertAmount,
+  formatOrai,
+  getTransactionValue,
+  getTxTypeNew,
+  parseIbcMsgTransfer
+} from '../../../../utils/helper';
 import moment from 'moment';
+// import { Buffer } from 'buffer';
 
 interface TransactionItemProps {
   item: any;
@@ -21,38 +28,86 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
   containerStyle
 }) => {
   const { txhash, tx, timestamp } = item || {};
-  const date = moment(timestamp).format('MMM DD, YYYY [at] HH:mm');
-  const { messages } = tx?.body || {};
-  const { title, isPlus, amount, denom, unbond } = getTransactionValue({
-    data: [
-      {
-        type: messages?.[0]?.['@type']
-      }
-    ],
-    address,
-    logs: item.logs
-  });
 
-  const amountDataCell = (amount: any, denom: string, title: string) => {
+  const date = moment(timestamp).format('MMM DD, YYYY [at] HH:mm');
+  // const { messages } = tx?.body || {};
+  // const { title, isPlus, amount, denom, unbond } = getTransactionValue({
+  //   data: [
+  //     {
+  //       type: messages?.[0]?.['@type']
+  //     }
+  //   ],
+  //   address,
+  //   logs: item.logs
+  // });
+
+  const amountDataCell = useCallback(() => {
+    console.log(' item?.messages', item?.messages);
+
+    let amount;
+
+    if (
+      item?.messages?.find(
+        msg => getTxTypeNew(msg['@type']) === 'MsgRecvPacket'
+      )
+    ) {
+      const msg = item?.messages?.find(msg => {
+        return getTxTypeNew(msg['@type']) === 'MsgRecvPacket';
+      });
+
+      const msgRec = JSON.parse(
+        Buffer.from(msg?.packet?.data, 'base64').toString('ascii')
+      );
+      amount = msgRec;
+      const port = item?.message?.packet?.destination_port;
+      const channel = item?.message?.packet?.destination_channel;
+      console.log('msgRec', msgRec);
+    } else if (
+      item?.messages?.find(msg => getTxTypeNew(msg['@type']) === 'MsgTransfer')
+    ) {
+      if (item?.raw_log.includes('failed')) {
+        return;
+      }
+      const rawLog = JSON.parse(item?.raw_log);
+      const rawLogParse = parseIbcMsgTransfer(rawLog);
+      const rawLogDenomSplit = rawLogParse?.denom?.split('/');
+      console.log('rawLogParse', rawLogParse);
+      amount = rawLog;
+    } else {
+      const type = getTxTypeNew(
+        item.messages[item?.messages?.length - 1]['@type'],
+        item?.raw_log,
+        item?.result
+      );
+      const msg = item?.messages?.find(
+        msg => getTxTypeNew(msg['@type']) === type
+      );
+
+      amount = msg?.amount?.length > 0 ? msg?.amount[0] : msg?.amount ?? {};
+    }
+
     return (
       <Text
         style={{
           ...styles.textAmount,
           marginTop: spacing['8'],
-          textTransform: 'uppercase',
-          color:
-            amount == 0 || title === 'Received Token' || title === 'Reward'
-              ? colors['green-500']
-              : colors['red-500']
+          textTransform: 'uppercase'
+          // color:
+          //   amount == 0 || title === 'Received Token' || title === 'Reward'
+          //     : colors['red-500']
         }}
       >
-        {amount == 0 || title === 'Received Token' || title === 'Reward'
-          ? '+'
-          : '-'}
-        {amount} {denom}
+        {/* {amount == 0 || title === 'Received Token' || title === 'Reward'
+            ? '+'
+            : '-'} */}
+        {amount.denom === 'orai'
+          ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
+          : `${formatOrai(amount.amount ?? 0)} ${
+              amount.denom ? amount.denom?.substring(1) : ''
+            }`}
       </Text>
     );
-  };
+  }, [item]);
 
   const renderChildren = () => {
     return (
@@ -68,7 +123,11 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
               ...styles.textInfo
             }}
           >
-            {title}
+            {getTxTypeNew(
+              item.messages[item?.messages?.length - 1]['@type'],
+              item?.raw_log,
+              item?.result
+            )}
           </Text>
         </View>
 
@@ -87,7 +146,7 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
           >
             {date}
           </Text>
-          {amountDataCell(convertAmount(amount), denom, title)}
+          {amountDataCell()}
         </View>
       </View>
     );
@@ -119,7 +178,8 @@ const styles = StyleSheet.create({
   textInfo: {
     ...typography.h7,
     color: colors['gray-900'],
-    fontWeight: '600'
+    fontWeight: '600',
+    maxWidth: 200
   },
   textAmount: {
     ...typography.h6,

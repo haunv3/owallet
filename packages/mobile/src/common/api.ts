@@ -33,6 +33,15 @@ export const API = {
     return API.get(url, config);
   },
 
+  getTransactions: (
+    { address, page = 1, limit = 10 },
+    config: AxiosRequestConfig
+  ) => {
+    let url = `/v1/txs-account/${address}?limit=${limit}&page_id=${page}`;
+
+    return API.get(url, config);
+  },
+
   getNFTs: ({ address }, config: AxiosRequestConfig) => {
     let url = `assets?size=12&offset=0&filter=%7B%22accountAddress%22:%22${address}%22,%22nftStatuses%22:[2]%7D&sort=%7B%22updatedAt%22:%22DESC%22%7D`;
     return API.get(url, config);
@@ -47,6 +56,3 @@ export const API = {
     return API.get(url, config);
   }
 };
-
-// Example usage
-// return API.get(`cosmos/bank/v1beta1/balances/${address}`, config);
