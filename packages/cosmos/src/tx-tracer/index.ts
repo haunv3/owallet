@@ -131,8 +131,6 @@ export class TendermintTxTracer {
       try {
         const obj = JSON.parse(e.data);
 
-        console.log('obj ===', obj);
-
         if (obj?.id) {
           if (this.pendingQueries.has(obj.id)) {
             if (obj.error) {
