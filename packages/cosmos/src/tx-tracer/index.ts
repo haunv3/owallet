@@ -16,7 +16,7 @@ export class TendermintTxTracer {
   protected txSubscribes: Map<
     number,
     {
-      msg?: string;
+      address?: string;
       hash?: Uint8Array;
       resolver: (data?: unknown) => void;
       rejector: (e: Error) => void;
@@ -109,7 +109,7 @@ export class TendermintTxTracer {
       if (tx.hash) {
         this.sendSubscribeTxRpc(id, tx.hash);
       } else {
-        this.sendSubscribeMsgRpc(id, tx.msg);
+        this.sendSubscribeMsgRpc(id, tx.address);
       }
     }
 
@@ -220,7 +220,7 @@ export class TendermintTxTracer {
   }
 
   //  Subscribe the msg
-  subscribeMsgAndResolve(msg: string): Promise<any> {
+  subscribeMsgByAddress(msg: string): Promise<any> {
     return new Promise<any>(resolve => {
       this.subscribeMsg(msg).then(resolve);
     }).then(tx => {
@@ -234,27 +234,27 @@ export class TendermintTxTracer {
     });
   }
 
-  subscribeMsg(msg: string): Promise<any> {
+  subscribeMsg(address: string): Promise<any> {
     const id = this.createRandomId();
 
     return new Promise<unknown>((resolve, reject) => {
       this.txSubscribes.set(id, {
-        msg,
+        address,
         resolver: resolve,
         rejector: reject
       });
 
-      this.sendSubscribeMsgRpc(id, msg);
+      this.sendSubscribeMsgRpc(id, address);
     });
   }
 
-  protected sendSubscribeMsgRpc(id: number, msg: string): void {
+  protected sendSubscribeMsgRpc(id: number, address: string): void {
     if (this.readyState === WsReadyState.OPEN) {
       this.ws.send(
         JSON.stringify({
           jsonrpc: '2.0',
           method: 'subscribe',
-          params: [`tm.event='Tx' AND transfer.recipient = '${msg}'`],
+          params: [`tm.event='Tx' AND transfer.recipient = '${address}'`],
           id
         })
       );
