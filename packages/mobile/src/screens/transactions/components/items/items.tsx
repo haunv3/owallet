@@ -16,6 +16,7 @@ import moment from 'moment';
 
 interface TransactionItemProps {
   item: any;
+  type?: string;
   address: string;
   onPress?: () => void;
   containerStyle?: ViewStyle;
@@ -24,12 +25,14 @@ interface TransactionItemProps {
 export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
   item,
   address,
+  type,
   onPress,
   containerStyle
 }) => {
   const { txhash, tx, timestamp } = item || {};
 
   const date = moment(timestamp).format('MMM DD, YYYY [at] HH:mm');
+
   // const { messages } = tx?.body || {};
   // const { title, isPlus, amount, denom, unbond } = getTransactionValue({
   //   data: [
@@ -42,8 +45,6 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
   // });
 
   const amountDataCell = useCallback(() => {
-    console.log(' item?.messages', item?.messages);
-
     let amount;
 
     if (
@@ -75,7 +76,7 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
       amount = rawLog;
     } else {
       const type = getTxTypeNew(
-        item.messages[item?.messages?.length - 1]['@type'],
+        item?.messages[item?.messages?.length - 1]['@type'],
         item?.raw_log,
         item?.result
       );
@@ -110,7 +111,56 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
   }, [item]);
 
   const renderChildren = () => {
-    return (
+    return type === 'cw20' ? (
+      <View
+        style={{
+          ...styles.innerButton,
+          flex: 1
+        }}
+      >
+        <View>
+          <Text
+            style={{
+              ...styles.textInfo
+            }}
+          >
+            {item.name}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            flex: 1,
+            justifyContent: 'flex-end',
+            alignItems: 'flex-end'
+          }}
+        >
+          <Text
+            style={{
+              ...styles.textInfo,
+              color: colors['gray-300']
+            }}
+          >
+            {moment(item.transaction_time).format('MMM DD, YYYY [at] HH:mm')}
+          </Text>
+          <Text
+            style={{
+              ...styles.textAmount,
+              marginTop: spacing['8'],
+              textTransform: 'uppercase'
+              // color:
+              //   amount == 0 || title === 'Received Token' || title === 'Reward'
+              //     : colors['red-500']
+            }}
+          >
+            {/* {amount == 0 || title === 'Received Token' || title === 'Reward'
+            ? '+'
+            : '-'} */}
+            {formatOrai(item.amount ?? 0, item.decimal)} {item.symbol}
+          </Text>
+        </View>
+      </View>
+    ) : (
       <View
         style={{
           ...styles.innerButton,
@@ -124,7 +174,7 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
             }}
           >
             {getTxTypeNew(
-              item.messages[item?.messages?.length - 1]['@type'],
+              item?.messages[item?.messages?.length - 1]['@type'],
               item?.raw_log,
               item?.result
             )}

@@ -16,7 +16,8 @@ export class TendermintTxTracer {
   protected txSubscribes: Map<
     number,
     {
-      hash: Uint8Array;
+      msg?: string;
+      hash?: Uint8Array;
       resolver: (data?: unknown) => void;
       rejector: (e: Error) => void;
     }
@@ -105,7 +106,11 @@ export class TendermintTxTracer {
     }
 
     for (const [id, tx] of this.txSubscribes) {
-      this.sendSubscribeTxRpc(id, tx.hash);
+      if (tx.hash) {
+        this.sendSubscribeTxRpc(id, tx.hash);
+      } else {
+        this.sendSubscribeMsgRpc(id, tx.msg);
+      }
     }
 
     for (const [id, query] of this.pendingQueries) {
@@ -125,6 +130,8 @@ export class TendermintTxTracer {
     if (e.data) {
       try {
         const obj = JSON.parse(e.data);
+
+        console.log('obj ===', obj);
 
         if (obj?.id) {
           if (this.pendingQueries.has(obj.id)) {
@@ -212,9 +219,51 @@ export class TendermintTxTracer {
     }
   }
 
+  //  Subscribe the msg
+  subscribeMsgAndResolve(msg: string): Promise<any> {
+    return new Promise<any>(resolve => {
+      this.subscribeMsg(msg).then(resolve);
+    }).then(tx => {
+      // Occasionally, even if the subscribe tx event occurs, the state through query is not changed yet.
+      // Perhaps it is because the block has not been committed yet even though the result of deliverTx in tendermint is complete.
+      // This method is usually used to reflect the state change through query when tx is completed.
+      // The simplest solution is to just add a little delay.
+      return new Promise(resolve => {
+        setTimeout(() => resolve(tx), 100);
+      });
+    });
+  }
+
+  subscribeMsg(msg: string): Promise<any> {
+    const id = this.createRandomId();
+
+    return new Promise<unknown>((resolve, reject) => {
+      this.txSubscribes.set(id, {
+        msg,
+        resolver: resolve,
+        rejector: reject
+      });
+
+      this.sendSubscribeMsgRpc(id, msg);
+    });
+  }
+
+  protected sendSubscribeMsgRpc(id: number, msg: string): void {
+    if (this.readyState === WsReadyState.OPEN) {
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'subscribe',
+          params: [`tm.event='Tx' AND transfer.recipient = '${msg}'`],
+          id
+        })
+      );
+    }
+  }
+
   // Query the tx and subscribe the tx.
   traceTx(hash: Uint8Array): Promise<any> {
-    return new Promise<any>((resolve) => {
+    return new Promise<any>(resolve => {
       // At first, try to query the tx at the same time of subscribing the tx.
       // But, the querying's error will be ignored.
       this.queryTx(hash)
@@ -224,12 +273,12 @@ export class TendermintTxTracer {
         });
 
       this.subscribeTx(hash).then(resolve);
-    }).then((tx) => {
+    }).then(tx => {
       // Occasionally, even if the subscribe tx event occurs, the state through query is not changed yet.
       // Perhaps it is because the block has not been committed yet even though the result of deliverTx in tendermint is complete.
       // This method is usually used to reflect the state change through query when tx is completed.
       // The simplest solution is to just add a little delay.
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         setTimeout(() => resolve(tx), 100);
       });
     });

@@ -34,11 +34,13 @@ export const API = {
   },
 
   getTransactions: (
-    { address, page = 1, limit = 10 },
+    { address, page = 1, limit = 10, type = 'native' },
     config: AxiosRequestConfig
   ) => {
     let url = `/v1/txs-account/${address}?limit=${limit}&page_id=${page}`;
-
+    if (type === 'cw20') {
+      url = `/v1/ow20_smart_contracts/${address}?limit=${limit}&page_id=${page}`;
+    }
     return API.get(url, config);
   },
 

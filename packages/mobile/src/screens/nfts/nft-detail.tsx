@@ -322,7 +322,12 @@ export const NftDetailScreen: FunctionComponent = observer(props => {
         <FlatList
           data={[]}
           renderItem={({ item, index }) => (
-            <TransactionItem item={item} key={index} address={''} />
+            <TransactionItem
+              type={'native'}
+              item={item}
+              key={index}
+              address={''}
+            />
           )}
           keyExtractor={_keyExtract}
           showsVerticalScrollIndicator={false}

@@ -1,4 +1,10 @@
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { CText as Text } from '../../components/text';
 import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TransactionSectionTitle, TransactionItem } from './components';
@@ -9,6 +15,8 @@ import { useStore } from '../../stores';
 import { API } from '../../common/api';
 import crashlytics from '@react-native-firebase/crashlytics';
 import { NewsTab } from './news';
+import { useIsFocused } from '@react-navigation/core';
+import { TendermintTxTracer } from '@owallet/cosmos';
 export const Transactions: FunctionComponent = () => {
   const { chainStore, accountStore } = useStore();
   const account = accountStore.getAccount(chainStore.current.chainId);
@@ -18,7 +26,7 @@ export const Transactions: FunctionComponent = () => {
   const smartNavigation = useSmartNavigation();
   const page = useRef(1);
   const hasMore = useRef(true);
-  const fetchData = async (isLoadMore = false) => {
+  const fetchData = async (isLoadMore = false, isReload = false) => {
     crashlytics().log('transactions - home - fetchData');
     // const isRecipient = indexChildren === 1;
     // const isAll = indexChildren === 0;
@@ -26,7 +34,9 @@ export const Transactions: FunctionComponent = () => {
       const res = await API.getTransactions(
         {
           address: account.bech32Address,
-          page: page.current
+          page: isReload ? 1 : page.current,
+          limit: 10,
+          type: indexChildren === 0 ? 'native' : 'cw20'
         },
         // { baseURL: chainStore.current.rest }
         { baseURL: 'https://api.scan.orai.io' }
@@ -47,31 +57,61 @@ export const Transactions: FunctionComponent = () => {
     }
   };
 
-  useEffect(() => {
-    page.current = 0;
-    fetchData();
-  }, [account.bech32Address, indexChildren]);
+  const isFocused = useIsFocused();
 
-  const _renderItem = ({ item, index }) => {
-    return (
-      <TransactionItem
-        address={account.bech32Address}
-        item={item}
-        key={index}
-        onPress={() =>
-          smartNavigation.navigateSmart('Transactions.Detail', {
-            item: {
-              ...item,
-              address: account.bech32Address
-            }
-          })
-        }
-        containerStyle={{
-          backgroundColor: colors['gray-10']
-        }} // customize item transaction
-      />
-    );
-  };
+  useEffect(() => {
+    const chainInfo = chainStore.getChain(chainStore.current.chainId);
+    let msgTracer: TendermintTxTracer | undefined;
+
+    if (isFocused) {
+      msgTracer = new TendermintTxTracer(chainInfo.rpc, '/websocket');
+      msgTracer
+        .subscribeMsgAndResolve(account.bech32Address)
+        .then(tx => {
+          fetchData(false, true);
+        })
+        .catch(e => {
+          console.log(`Failed to trace the tx ()`, e);
+        });
+    }
+
+    return () => {
+      if (msgTracer) {
+        msgTracer.close();
+      }
+    };
+  }, [chainStore, isFocused]);
+
+  useEffect(() => {
+    page.current = 1;
+    fetchData();
+  }, [indexChildren]);
+
+  const _renderItem = useCallback(
+    ({ item, index }) => {
+      return (
+        <TransactionItem
+          type={indexChildren === 0 ? 'native' : 'cw20'}
+          address={account.bech32Address}
+          item={item}
+          key={index}
+          onPress={() =>
+            smartNavigation.navigateSmart('Transactions.Detail', {
+              item: {
+                ...item,
+                address: account.bech32Address
+              },
+              type: indexChildren === 0 ? 'native' : 'cw20'
+            })
+          }
+          containerStyle={{
+            backgroundColor: colors['gray-10']
+          }} // customize item transaction
+        />
+      );
+    },
+    [indexChildren]
+  );
 
   return (
     <View style={styles.container}>
@@ -133,7 +173,7 @@ export const Transactions: FunctionComponent = () => {
               alignItems: 'center'
             }}
           >
-            {/* {['Send', 'Receive'].map((title: string, i: number) => (
+            {['Transactions', 'CW20'].map((title: string, i: number) => (
               <TouchableOpacity
                 key={i}
                 style={{
@@ -143,6 +183,7 @@ export const Transactions: FunctionComponent = () => {
                   paddingVertical: spacing['12']
                 }}
                 onPress={() => {
+                  setData([]);
                   setIndexChildren(i);
                 }}
               >
@@ -159,7 +200,7 @@ export const Transactions: FunctionComponent = () => {
                   {title}
                 </Text>
               </TouchableOpacity>
-            ))} */}
+            ))}
           </View>
           <TransactionSectionTitle
             title={'Transfer list'}
@@ -167,7 +208,7 @@ export const Transactions: FunctionComponent = () => {
               paddingTop: spacing['4']
             }}
             onPress={() => {
-              fetchData();
+              fetchData(false, true);
             }}
           />
           <View style={styles.transactionList}>

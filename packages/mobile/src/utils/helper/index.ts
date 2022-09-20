@@ -241,6 +241,6 @@ export const parseIbcMsgTransfer = (
   return ibcDemonObj;
 };
 
-export const formatOrai = amount => {
-  return Number(amount) / Math.pow(10, 6);
+export const formatOrai = (amount, decimal = 6) => {
+  return Number(amount) / Math.pow(10, decimal);
 };

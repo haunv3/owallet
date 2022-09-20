@@ -26,6 +26,7 @@ interface TransactionInfo {
 }
 interface TransactionDetail {
   amount: string;
+  type?: string;
   result: 'Success' | 'Fail';
   height: number | string;
   size: number | string;
@@ -236,13 +237,17 @@ export const TransactionDetail: FunctionComponent<any> = () => {
         string,
         {
           item: any;
+          type: string;
         }
       >,
       string
     >
   >();
 
-  const { item } = route.params || {};
+  const { item, type } = route.params || {};
+
+  console.log('type', type);
+
   const { tx_hash, tx, timestamp, gas_used, gas_wanted, height, code }: any =
     item || {};
 
@@ -295,11 +300,14 @@ export const TransactionDetail: FunctionComponent<any> = () => {
 
   const date = moment(timestamp).format('MMM DD, YYYY [at] HH:mm');
   // const { messages } = tx?.body || {};
-  const title = getTxTypeNew(
-    item.messages[item?.messages?.length - 1]['@type'],
-    item?.raw_log,
-    item?.result
-  );
+  const title =
+    type === 'cw20'
+      ? item.name
+      : getTxTypeNew(
+          item?.messages[item?.messages?.length - 1]['@type'],
+          item?.raw_log,
+          item?.result
+        );
   // const { title, isPlus, amount, denom, unbond } = getTransactionValue({
   //   data: [
   //     {
@@ -311,6 +319,22 @@ export const TransactionDetail: FunctionComponent<any> = () => {
   // });
 
   const txAddresses = () => {
+    if (type === 'cw20') {
+      return [
+        {
+          label: 'Contract',
+          value: formatContractAddress(item?.contract_address)
+        },
+        {
+          label: 'Sender',
+          value: formatContractAddress(item?.sender)
+        },
+        {
+          label: 'Receiver',
+          value: formatContractAddress(item?.receiver)
+        }
+      ];
+    }
     if (title.includes('MsgExecuteContract')) {
       return [
         {
@@ -379,7 +403,10 @@ export const TransactionDetail: FunctionComponent<any> = () => {
     },
     {
       label: 'Amount',
-      value: amountDataCell()
+      value:
+        type === 'cw20'
+          ? `${formatOrai(item.amount ?? 0, item.decimal)} ${item.symbol ?? ''}`
+          : amountDataCell()
     }
   ];
 
@@ -390,11 +417,11 @@ export const TransactionDetail: FunctionComponent<any> = () => {
     },
     {
       label: 'Result',
-      value: code === 0 ? 'Success' : 'Failed'
+      value: code === 0 || item?.status_code === 0 ? 'Success' : 'Failed'
     },
     {
       label: 'Block height',
-      value: height
+      value: type === 'cw20' ? 'None' : height
     },
     {
       label: 'Fee',
@@ -404,13 +431,16 @@ export const TransactionDetail: FunctionComponent<any> = () => {
           }`
         : 0
     },
-    {
-      label: 'Amount',
-      value: amountDataCell()
-    },
+    // {
+    //   label: 'Amount',
+    //   value: amountDataCell()
+    // },
     {
       label: 'Time',
-      value: date
+      value:
+        type === 'cw20'
+          ? moment(item.transaction_time).format('MMM DD, YYYY [at] HH:mm')
+          : date
     }
   ];
 

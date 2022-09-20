@@ -1,7 +1,7 @@
 import React, { FunctionComponent, ReactElement, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Card, CardBody } from '../../components/card';
-import { View, ViewStyle, Image } from 'react-native';
+import { View, ViewStyle, Image, StyleSheet } from 'react-native';
 import { CText as Text } from '../../components/text';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useStore } from '../../stores';
@@ -23,6 +23,7 @@ import { NamespaceModal, AddressQRCodeModal } from './components';
 import { Hash } from '@owallet/crypto';
 import LinearGradient from 'react-native-linear-gradient';
 import MyWalletModal from './components/my-wallet-modal/my-wallet-modal';
+import { RectButton } from '../../components/rect-button';
 
 export const AccountCard: FunctionComponent<{
   containerStyle?: ViewStyle;
@@ -57,9 +58,6 @@ export const AccountCard: FunctionComponent<{
   const queryStakable = queries.queryBalances.getQueryBech32Address(
     account.bech32Address
   ).stakable;
-
-  console.log('queryStakable', queryStakable);
-  console.log('queryStakable balance', queryStakable.balance);
 
   const stakable = queryStakable.balance;
   const queryDelegated = queries.cosmos.queryDelegations.getQueryBech32Address(
@@ -243,13 +241,7 @@ export const AccountCard: FunctionComponent<{
           <View
             style={{
               backgroundColor: colors['white'],
-              display: 'flex',
-              height: 75,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingLeft: spacing['12'],
-              paddingRight: spacing['18'],
+              height: 155,
               borderBottomLeftRadius: spacing['11'],
               borderBottomRightRadius: spacing['11'],
               shadowColor: colors['gray-150'],
@@ -263,52 +255,64 @@ export const AccountCard: FunctionComponent<{
           >
             <View
               style={{
-                display: 'flex',
-                justifyContent: 'space-between'
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingLeft: spacing['12'],
+                paddingRight: spacing['18'],
+                paddingTop: spacing['18'],
+                width: '100%',
+                alignItems: 'center'
               }}
             >
               <View
                 style={{
                   display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingBottom: spacing['2']
+                  justifyContent: 'space-between'
                 }}
               >
-                <Image
+                <View
                   style={{
-                    width: spacing['26'],
-                    height: spacing['26']
-                  }}
-                  source={require('../../assets/image/address_default.png')}
-                  fadeDuration={0}
-                />
-                <Text
-                  style={{
-                    paddingLeft: spacing['6'],
-                    fontWeight: '700',
-                    fontSize: 16
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingBottom: spacing['2']
                   }}
                 >
-                  {account.name || '...'}
-                </Text>
-              </View>
+                  <Image
+                    style={{
+                      width: spacing['26'],
+                      height: spacing['26']
+                    }}
+                    source={require('../../assets/image/address_default.png')}
+                    fadeDuration={0}
+                  />
+                  <Text
+                    style={{
+                      paddingLeft: spacing['6'],
+                      fontWeight: '700',
+                      fontSize: 16
+                    }}
+                  >
+                    {account.name || '...'}
+                  </Text>
+                </View>
 
-              <AddressCopyable
-                address={account.bech32Address}
-                maxCharacters={22}
-              />
+                <AddressCopyable
+                  address={account.bech32Address}
+                  maxCharacters={22}
+                />
+              </View>
+              <TouchableOpacity onPress={_onPressMyWallet}>
+                <DownArrowIcon height={28} color={colors['gray-150']} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={_onPressMyWallet}>
-              <DownArrowIcon height={28} color={colors['gray-150']} />
-            </TouchableOpacity>
           </View>
 
           {queryStakable.isFetching ? (
             <View
               style={{
                 position: 'absolute',
-                bottom: 50,
+                bottom: 10,
                 left: '50%'
               }}
             >
@@ -317,9 +321,27 @@ export const AccountCard: FunctionComponent<{
           ) : null}
         </View>
       </CardBody>
-
+      <View
+        style={{
+          alignItems: 'center',
+          position: 'absolute',
+          bottom: 50,
+          left: '8%',
+          zIndex: 999,
+          justifyContent: 'center'
+        }}
+      >
+        <TouchableOpacity
+          style={styles.containerBtn}
+          onPress={() => {
+            smartNavigation.navigateSmart('Transactions', {});
+          }}
+        >
+          <Text style={styles.textLoadMore}>{'Transactions history'}</Text>
+        </TouchableOpacity>
+      </View>
       <NetworkErrorView />
-      <View style={{ height: 20 }} />
+      <View style={{ height: 100 }} />
       {/* <CardBody>
         <View
           style={{
@@ -395,4 +417,21 @@ export const AccountCard: FunctionComponent<{
       </CardBody> */}
     </Card>
   );
+});
+
+const styles = StyleSheet.create({
+  textLoadMore: {
+    ...typography['h7'],
+    color: colors['purple-700']
+  },
+  containerBtn: {
+    alignItems: 'center',
+    marginTop: spacing['18'],
+    justifyContent: 'center',
+    backgroundColor: colors['gray-50'],
+    width: metrics.screenWidth - 68,
+    height: spacing['40'],
+    paddingVertical: spacing['10'],
+    borderRadius: spacing['12']
+  }
 });
