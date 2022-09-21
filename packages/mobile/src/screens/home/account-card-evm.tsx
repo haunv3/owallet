@@ -306,6 +306,16 @@ export const AccountCardEVM: FunctionComponent<{
                 maxCharacters={22}
                 networkType={chainStore.current.networkType}
               />
+              {/* chainInfo.bip44.coinType */}
+              <Text
+                style={{
+                  paddingLeft: spacing['6'],
+                  fontWeight: '700',
+                  fontSize: 16
+                }}
+              >
+                {`Coin type: ${chainStore.current.bip44.coinType}`}
+              </Text>
             </View>
             <TouchableOpacity onPress={_onPressMyWallet}>
               <DownArrowIcon height={28} color={colors['gray-150']} />
