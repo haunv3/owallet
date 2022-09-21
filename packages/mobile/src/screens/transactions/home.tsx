@@ -26,7 +26,7 @@ export const Transactions: FunctionComponent = () => {
   const smartNavigation = useSmartNavigation();
   const page = useRef(1);
   const hasMore = useRef(true);
-  const fetchData = async (isLoadMore = false, isReload = false) => {
+  const fetchData = async (isLoadMore = false) => {
     crashlytics().log('transactions - home - fetchData');
     // const isRecipient = indexChildren === 1;
     // const isAll = indexChildren === 0;
@@ -34,7 +34,7 @@ export const Transactions: FunctionComponent = () => {
       const res = await API.getTransactions(
         {
           address: account.bech32Address,
-          page: isReload ? 1 : page.current,
+          page: page.current,
           limit: 10,
           type: indexChildren === 0 ? 'native' : 'cw20'
         },
@@ -49,7 +49,6 @@ export const Transactions: FunctionComponent = () => {
       if (page.current === res.data?.page.total_page) {
         hasMore.current = false;
       }
-
       setData(newData);
     } catch (error) {
       crashlytics().recordError(error);
@@ -68,7 +67,10 @@ export const Transactions: FunctionComponent = () => {
       msgTracer
         .subscribeMsgByAddress(account.bech32Address)
         .then(tx => {
-          fetchData(false, true);
+          page.current = 1;
+          setTimeout(() => {
+            fetchData();
+          }, 1500);
         })
         .catch(e => {
           console.log(`Failed to trace the tx ()`, e);
@@ -80,7 +82,7 @@ export const Transactions: FunctionComponent = () => {
         msgTracer.close();
       }
     };
-  }, [chainStore, isFocused]);
+  }, [chainStore, isFocused, data]);
 
   useEffect(() => {
     page.current = 1;
@@ -208,7 +210,8 @@ export const Transactions: FunctionComponent = () => {
               paddingTop: spacing['4']
             }}
             onPress={() => {
-              fetchData(false, true);
+              page.current = 1;
+              fetchData();
             }}
           />
           <View style={styles.transactionList}>
