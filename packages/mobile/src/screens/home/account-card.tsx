@@ -241,7 +241,7 @@ export const AccountCard: FunctionComponent<{
           <View
             style={{
               backgroundColor: colors['white'],
-              height: 155,
+              height: 165,
               borderBottomLeftRadius: spacing['11'],
               borderBottomRightRadius: spacing['11'],
               shadowColor: colors['gray-150'],
@@ -301,6 +301,15 @@ export const AccountCard: FunctionComponent<{
                   address={account.bech32Address}
                   maxCharacters={22}
                 />
+                <Text
+                  style={{
+                    paddingLeft: spacing['6'],
+                    fontSize: 14,
+                    paddingVertical: spacing['6']
+                  }}
+                >
+                  {`Coin type: ${chainStore.current.bip44.coinType}`}
+                </Text>
               </View>
               <TouchableOpacity onPress={_onPressMyWallet}>
                 <DownArrowIcon height={28} color={colors['gray-150']} />
@@ -325,7 +334,7 @@ export const AccountCard: FunctionComponent<{
         style={{
           alignItems: 'center',
           position: 'absolute',
-          bottom: 50,
+          bottom: 40,
           left: '8%',
           zIndex: 999,
           justifyContent: 'center'
