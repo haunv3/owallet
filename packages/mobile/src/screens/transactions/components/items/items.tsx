@@ -101,7 +101,7 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
         {/* {amount == 0 || title === 'Received Token' || title === 'Reward'
             ? '+'
             : '-'} */}
-        {amount.denom === 'orai'
+        {!amount.denom.startsWith('u')
           ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
           : `${formatOrai(amount.amount ?? 0)} ${
               amount.denom ? amount.denom?.substring(1) : ''
