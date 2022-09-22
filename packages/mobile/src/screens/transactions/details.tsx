@@ -291,7 +291,7 @@ export const TransactionDetail: FunctionComponent<any> = () => {
       amount = msg?.amount?.length > 0 ? msg?.amount[0] : msg?.amount ?? {};
     }
 
-    return amount.denom === 'orai'
+    return !amount.denom.startsWith('u')
       ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
       : `${formatOrai(amount.amount ?? 0)} ${
           amount.denom ? amount.denom?.substring(1) : ''
