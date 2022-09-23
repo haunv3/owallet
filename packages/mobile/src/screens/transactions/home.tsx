@@ -6,7 +6,13 @@ import React, {
   useState
 } from 'react';
 import { CText as Text } from '../../components/text';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { TransactionSectionTitle, TransactionItem } from './components';
 import { colors, metrics, spacing, typography } from '../../themes';
 import { _keyExtract } from '../../utils/helper';
@@ -23,6 +29,8 @@ export const Transactions: FunctionComponent = () => {
   const [indexParent, setIndexParent] = useState<number>(0);
   const [indexChildren, setIndexChildren] = useState<number>(0);
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadMore, setLoadMore] = useState(false);
   const smartNavigation = useSmartNavigation();
   const page = useRef(1);
   const hasMore = useRef(true);
@@ -50,8 +58,12 @@ export const Transactions: FunctionComponent = () => {
         hasMore.current = false;
       }
       setData(newData);
+      setLoading(false);
+      setLoadMore(false);
     } catch (error) {
       crashlytics().recordError(error);
+      setLoading(false);
+      setLoadMore(false);
       console.error(error);
     }
   };
@@ -186,6 +198,7 @@ export const Transactions: FunctionComponent = () => {
                 }}
                 onPress={() => {
                   setData([]);
+                  setLoading(true);
                   setIndexChildren(i);
                 }}
               >
@@ -211,32 +224,46 @@ export const Transactions: FunctionComponent = () => {
             }}
             onPress={() => {
               page.current = 1;
+              setLoading(true);
               fetchData();
             }}
           />
           <View style={styles.transactionList}>
-            <FlatList
-              contentContainerStyle={{ flexGrow: 1 }}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={_keyExtract}
-              data={data}
-              renderItem={_renderItem}
-              onEndReached={() => fetchData(true)}
-              ListFooterComponent={<View style={{ height: spacing['12'] }} />}
-              ListEmptyComponent={
-                <View style={styles.transactionListEmpty}>
-                  <Text
-                    style={{
-                      ...typography.subtitle1,
-                      color: colors['gray-300'],
-                      marginTop: spacing['8']
-                    }}
-                  >
-                    {'Not found transaction'}
-                  </Text>
-                </View>
-              }
-            />
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <FlatList
+                contentContainerStyle={{ flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={_keyExtract}
+                data={data}
+                renderItem={_renderItem}
+                onEndReached={() => {
+                  setLoadMore(true);
+                  fetchData(true);
+                }}
+                ListFooterComponent={<View style={{ height: spacing['12'] }} />}
+                ListEmptyComponent={
+                  <View style={styles.transactionListEmpty}>
+                    <Text
+                      style={{
+                        ...typography.subtitle1,
+                        color: colors['gray-300'],
+                        marginTop: spacing['8']
+                      }}
+                    >
+                      {'Not found transaction'}
+                    </Text>
+                  </View>
+                }
+              />
+            )}
+
+            {loadMore ? (
+              <View>
+                <ActivityIndicator />
+              </View>
+            ) : null}
           </View>
         </View>
       )}
