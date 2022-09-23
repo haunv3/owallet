@@ -246,8 +246,6 @@ export const TransactionDetail: FunctionComponent<any> = () => {
 
   const { item, type } = route.params || {};
 
-  console.log('type', type);
-
   const { tx_hash, tx, timestamp, gas_used, gas_wanted, height, code }: any =
     item || {};
 
@@ -291,7 +289,7 @@ export const TransactionDetail: FunctionComponent<any> = () => {
       amount = msg?.amount?.length > 0 ? msg?.amount[0] : msg?.amount ?? {};
     }
 
-    return !amount.denom.startsWith('u')
+    return amount && !amount?.denom?.startsWith('u')
       ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
       : `${formatOrai(amount.amount ?? 0)} ${
           amount.denom ? amount.denom?.substring(1) : ''
