@@ -46,7 +46,6 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
 
   const amountDataCell = useCallback(() => {
     let amount;
-
     if (
       item?.messages?.find(
         msg => getTxTypeNew(msg['@type']) === 'MsgRecvPacket'
@@ -62,7 +61,6 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
       amount = msgRec;
       const port = item?.message?.packet?.destination_port;
       const channel = item?.message?.packet?.destination_channel;
-      console.log('msgRec', msgRec);
     } else if (
       item?.messages?.find(msg => getTxTypeNew(msg['@type']) === 'MsgTransfer')
     ) {
@@ -72,7 +70,6 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
       const rawLog = JSON.parse(item?.raw_log);
       const rawLogParse = parseIbcMsgTransfer(rawLog);
       const rawLogDenomSplit = rawLogParse?.denom?.split('/');
-      console.log('rawLogParse', rawLogParse);
       amount = rawLog;
     } else {
       const type = getTxTypeNew(
@@ -92,16 +89,20 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
         style={{
           ...styles.textAmount,
           marginTop: spacing['8'],
-          textTransform: 'uppercase'
-          // color:
-          //   amount == 0 || title === 'Received Token' || title === 'Reward'
-          //     : colors['red-500']
+          textTransform: 'uppercase',
+          color:
+            getTxTypeNew(item?.messages?.[0]['@type']) === 'MsgSend' &&
+            item?.messages?.[0]?.from_address &&
+            address === item.messages[0].from_address
+              ? colors['red-500']
+              : colors['green-500']
         }}
       >
-        {/* {amount == 0 || title === 'Received Token' || title === 'Reward'
-            ? '+'
-            : '-'} */}
-        {console.log(amount, 'amount ===')}
+        {getTxTypeNew(item?.messages?.[0]['@type']) === 'MsgSend' &&
+        item?.messages?.[0]?.from_address &&
+        address === item.messages[0].from_address
+          ? '-'
+          : '+'}
         {amount && !amount?.denom?.startsWith('u')
           ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
           : `${formatOrai(amount.amount ?? 0)} ${

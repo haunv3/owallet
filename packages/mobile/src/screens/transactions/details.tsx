@@ -10,10 +10,8 @@ import { useStyle } from '../../styles';
 import { TransactionSectionTitle } from './components';
 import { colors, metrics, spacing, typography } from '../../themes';
 import {
-  convertAmount,
   formatContractAddress,
   formatOrai,
-  getTransactionValue,
   getTxTypeNew,
   parseIbcMsgTransfer
 } from '../../utils/helper';
@@ -267,14 +265,12 @@ export const TransactionDetail: FunctionComponent<any> = () => {
       amount = msgRec;
       const port = item?.message?.packet?.destination_port;
       const channel = item?.message?.packet?.destination_channel;
-      console.log('msgRec', msgRec);
     } else if (
       item?.messages?.find(msg => getTxTypeNew(msg['@type']) === 'MsgTransfer')
     ) {
       const rawLog = JSON.parse(item?.raw_log);
       const rawLogParse = parseIbcMsgTransfer(rawLog);
       const rawLogDenomSplit = rawLogParse?.denom?.split('/');
-      console.log('rawLogParse', rawLogParse);
       amount = rawLog;
     } else {
       const type = getTxTypeNew(
@@ -288,10 +284,16 @@ export const TransactionDetail: FunctionComponent<any> = () => {
 
       amount = msg?.amount?.length > 0 ? msg?.amount[0] : msg?.amount ?? {};
     }
+    const prefix =
+      getTxTypeNew(item?.messages?.[0]['@type']) === 'MsgSend' &&
+      item?.messages?.[0]?.from_address &&
+      item.address === item.messages[0].from_address
+        ? '-'
+        : '+';
 
     return amount && !amount?.denom?.startsWith('u')
-      ? `${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
-      : `${formatOrai(amount.amount ?? 0)} ${
+      ? `${prefix} ${formatOrai(amount.amount ?? 0)} ${amount.denom ?? ''}`
+      : `${prefix} ${formatOrai(amount.amount ?? 0)} ${
           amount.denom ? amount.denom?.substring(1) : ''
         }`;
   }, [item]);
@@ -397,7 +399,7 @@ export const TransactionDetail: FunctionComponent<any> = () => {
     ...txAddresses(),
     {
       label: 'Transaction hash',
-      value: tx_hash
+      value: formatContractAddress(tx_hash)
     },
     {
       label: 'Amount',
