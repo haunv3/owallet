@@ -73,7 +73,9 @@ export const Transactions: FunctionComponent = () => {
   useEffect(() => {
     const chainInfo = chainStore.getChain(chainStore.current.chainId);
     let msgTracer: TendermintTxTracer | undefined;
-
+    if (msgTracer) {
+      msgTracer.close();
+    }
     if (isFocused) {
       msgTracer = new TendermintTxTracer(chainInfo.rpc, '/websocket');
       msgTracer

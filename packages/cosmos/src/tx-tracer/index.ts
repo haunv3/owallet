@@ -52,7 +52,7 @@ export class TendermintTxTracer {
   }
 
   protected getWsEndpoint(): string {
-    let url = this.url ?? 'https://rpc.orai.io';
+    let url = this.url;
     if (url?.startsWith('http')) {
       url = url.replace('http', 'ws');
     }
@@ -61,7 +61,9 @@ export class TendermintTxTracer {
         ? this.wsEndpoint
         : '/' + this.wsEndpoint;
 
-      url = url?.endsWith('/') ? url + wsEndpoint.slice(1) : url + wsEndpoint;
+      url = (url + wsEndpoint).replace(/\/\//g, '/');
+
+      // url = url?.endsWith('/') ? url + wsEndpoint.slice(1) : url + wsEndpoint;
     }
 
     return url;
@@ -109,7 +111,9 @@ export class TendermintTxTracer {
       if (tx.hash) {
         this.sendSubscribeTxRpc(id, tx.hash);
       } else {
-        this.sendSubscribeMsgRpc(id, tx.address);
+        if (tx.address) {
+          this.sendSubscribeMsgRpc(id, tx.address);
+        }
       }
     }
 
@@ -218,18 +222,8 @@ export class TendermintTxTracer {
   }
 
   //  Subscribe the msg
-  subscribeMsgByAddress(msg: string): Promise<any> {
-    return new Promise<any>(resolve => {
-      this.subscribeMsg(msg).then(resolve);
-    }).then(tx => {
-      // Occasionally, even if the subscribe tx event occurs, the state through query is not changed yet.
-      // Perhaps it is because the block has not been committed yet even though the result of deliverTx in tendermint is complete.
-      // This method is usually used to reflect the state change through query when tx is completed.
-      // The simplest solution is to just add a little delay.
-      return new Promise(resolve => {
-        setTimeout(() => resolve(tx), 100);
-      });
-    });
+  async subscribeMsgByAddress(msg: string): Promise<any> {
+    await Promise.race([100, this.subscribeMsg(msg)]);
   }
 
   subscribeMsg(address: string): Promise<any> {
