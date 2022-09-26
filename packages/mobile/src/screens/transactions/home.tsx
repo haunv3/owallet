@@ -79,8 +79,6 @@ export const Transactions: FunctionComponent = () => {
       msgTracer
         .subscribeMsgByAddress(account.bech32Address)
         .then(tx => {
-          console.log('tx ===', tx);
-
           page.current = 1;
           setTimeout(() => {
             fetchData();

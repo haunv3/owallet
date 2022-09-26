@@ -62,8 +62,6 @@ export class TendermintTxTracer {
         : '/' + this.wsEndpoint;
 
       url = url?.endsWith('/') ? url + wsEndpoint.slice(1) : url + wsEndpoint;
-
-      console.log('url ===', url);
     }
 
     return url;
