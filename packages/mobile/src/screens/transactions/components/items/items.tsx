@@ -143,7 +143,7 @@ export const TransactionItem: FunctionComponent<TransactionItemProps> = ({
               color: colors['gray-300']
             }}
           >
-            {moment(item.transaction_time).format('MMM DD, YYYY [at] HH:mm')}
+            {moment(item.transaction_time).format('MMM DD, YYYY - HH:mm')}
           </Text>
           <Text
             style={{
