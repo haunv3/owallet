@@ -1,7 +1,7 @@
 import React, { FunctionComponent, ReactElement, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { Card, CardBody } from '../../components/card';
-import { View, ViewStyle, Image } from 'react-native';
+import { View, ViewStyle, Image, StyleSheet } from 'react-native';
 import { CText as Text } from '../../components/text';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useStore } from '../../stores';
@@ -9,8 +9,7 @@ import { AddressCopyable } from '../../components/address-copyable';
 import { LoadingSpinner } from '../../components/spinner';
 import { useSmartNavigation } from '../../navigation.provider';
 import { NetworkErrorView } from './network-error-view';
-import { DownArrowIcon, SettingDashboardIcon } from '../../components/icon';
-import { useNavigation } from '@react-navigation/native';
+import { DownArrowIcon } from '../../components/icon';
 import {
   BuyIcon,
   DepositIcon,
@@ -20,36 +19,26 @@ import { colors, metrics, spacing, typography } from '../../themes';
 import { navigate } from '../../router/root';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NamespaceModal, AddressQRCodeModal } from './components';
-import { Hash } from '@owallet/crypto';
 import LinearGradient from 'react-native-linear-gradient';
 import MyWalletModal from './components/my-wallet-modal/my-wallet-modal';
 
 export const AccountCard: FunctionComponent<{
   containerStyle?: ViewStyle;
 }> = observer(({ containerStyle }) => {
-  const { chainStore, accountStore, queriesStore, priceStore, modalStore } =
-    useStore();
+  const {
+    chainStore,
+    accountStore,
+    queriesStore,
+    priceStore,
+    modalStore,
+    keyRingStore
+  } = useStore();
 
-  const deterministicNumber = useCallback(chainInfo => {
-    const bytes = Hash.sha256(
-      Buffer.from(chainInfo.stakeCurrency.coinMinimalDenom)
-    );
-    return (
-      (bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)) >>> 0
-    );
-  }, []);
-
-  const profileColor = useCallback(
-    chainInfo => {
-      const colors = ['red', 'green', 'purple', 'orange'];
-
-      return colors[deterministicNumber(chainInfo) % colors.length];
-    },
-    [deterministicNumber]
+  const selected = keyRingStore?.multiKeyStoreInfo.find(
+    keyStore => keyStore?.selected
   );
 
   const smartNavigation = useSmartNavigation();
-  const navigation = useNavigation();
 
   const account = accountStore.getAccount(chainStore.current.chainId);
   const queries = queriesStore.get(chainStore.current.chainId);
@@ -57,9 +46,6 @@ export const AccountCard: FunctionComponent<{
   const queryStakable = queries.queryBalances.getQueryBech32Address(
     account.bech32Address
   ).stakable;
-
-  console.log('queryStakable', queryStakable);
-  console.log('queryStakable balance', queryStakable.balance);
 
   const stakable = queryStakable.balance;
   const queryDelegated = queries.cosmos.queryDelegations.getQueryBech32Address(
@@ -79,10 +65,6 @@ export const AccountCard: FunctionComponent<{
 
   const totalPrice = priceStore.calculatePrice(total);
 
-  const data: [number, number] = [
-    parseFloat(stakable.toDec().toString()),
-    parseFloat(stakedSum.toDec().toString())
-  ];
   const safeAreaInsets = useSafeAreaInsets();
   const onPressBtnMain = name => {
     if (name === 'Buy') {
@@ -98,10 +80,10 @@ export const AccountCard: FunctionComponent<{
     }
   };
 
-  const _onPressNamespace = () => {
-    modalStore.setOpen();
-    modalStore.setChildren(NamespaceModal(account));
-  };
+  // const _onPressNamespace = () => {
+  //   modalStore.setOpen();
+  //   modalStore.setChildren(NamespaceModal(account));
+  // };
   const _onPressMyWallet = () => {
     modalStore.setOpen();
     modalStore.setChildren(MyWalletModal());
@@ -243,13 +225,7 @@ export const AccountCard: FunctionComponent<{
           <View
             style={{
               backgroundColor: colors['white'],
-              display: 'flex',
-              height: 75,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              paddingLeft: spacing['12'],
-              paddingRight: spacing['18'],
+              height: 165,
               borderBottomLeftRadius: spacing['11'],
               borderBottomRightRadius: spacing['11'],
               shadowColor: colors['gray-150'],
@@ -263,52 +239,76 @@ export const AccountCard: FunctionComponent<{
           >
             <View
               style={{
-                display: 'flex',
-                justifyContent: 'space-between'
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                paddingLeft: spacing['12'],
+                paddingRight: spacing['18'],
+                paddingTop: spacing['18'],
+                width: '100%',
+                alignItems: 'center'
               }}
             >
               <View
                 style={{
                   display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingBottom: spacing['2']
+                  justifyContent: 'space-between'
                 }}
               >
-                <Image
+                <View
                   style={{
-                    width: spacing['26'],
-                    height: spacing['26']
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingBottom: spacing['2']
                   }}
-                  source={require('../../assets/image/address_default.png')}
-                  fadeDuration={0}
+                >
+                  <Image
+                    style={{
+                      width: spacing['26'],
+                      height: spacing['26']
+                    }}
+                    source={require('../../assets/image/address_default.png')}
+                    fadeDuration={0}
+                  />
+                  <Text
+                    style={{
+                      paddingLeft: spacing['6'],
+                      fontWeight: '700',
+                      fontSize: 16
+                    }}
+                  >
+                    {account.name || '...'}
+                  </Text>
+                </View>
+
+                <AddressCopyable
+                  address={account.bech32Address}
+                  maxCharacters={22}
                 />
                 <Text
                   style={{
                     paddingLeft: spacing['6'],
-                    fontWeight: '700',
-                    fontSize: 16
+                    fontSize: 14,
+                    paddingVertical: spacing['6']
                   }}
                 >
-                  {account.name || '...'}
+                  {`Coin type: ${
+                    selected?.bip44HDPath?.coinType ??
+                    chainStore?.current?.bip44?.coinType
+                  }`}
                 </Text>
               </View>
-
-              <AddressCopyable
-                address={account.bech32Address}
-                maxCharacters={22}
-              />
+              <TouchableOpacity onPress={_onPressMyWallet}>
+                <DownArrowIcon height={28} color={colors['gray-150']} />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={_onPressMyWallet}>
-              <DownArrowIcon height={28} color={colors['gray-150']} />
-            </TouchableOpacity>
           </View>
 
           {queryStakable.isFetching ? (
             <View
               style={{
                 position: 'absolute',
-                bottom: 50,
+                bottom: 10,
                 left: '50%'
               }}
             >
@@ -317,9 +317,27 @@ export const AccountCard: FunctionComponent<{
           ) : null}
         </View>
       </CardBody>
-
+      <View
+        style={{
+          alignItems: 'center',
+          position: 'absolute',
+          bottom: 40,
+          left: '8%',
+          zIndex: 999,
+          justifyContent: 'center'
+        }}
+      >
+        <TouchableOpacity
+          style={styles.containerBtn}
+          onPress={() => {
+            smartNavigation.navigateSmart('Transactions', {});
+          }}
+        >
+          <Text style={styles.textLoadMore}>{'Transactions history'}</Text>
+        </TouchableOpacity>
+      </View>
       <NetworkErrorView />
-      <View style={{ height: 20 }} />
+      <View style={{ height: 100 }} />
       {/* <CardBody>
         <View
           style={{
@@ -395,4 +413,21 @@ export const AccountCard: FunctionComponent<{
       </CardBody> */}
     </Card>
   );
+});
+
+const styles = StyleSheet.create({
+  textLoadMore: {
+    ...typography['h7'],
+    color: colors['purple-700']
+  },
+  containerBtn: {
+    alignItems: 'center',
+    marginTop: spacing['18'],
+    justifyContent: 'center',
+    backgroundColor: colors['gray-50'],
+    width: metrics.screenWidth - 68,
+    height: spacing['40'],
+    paddingVertical: spacing['10'],
+    borderRadius: spacing['12']
+  }
 });

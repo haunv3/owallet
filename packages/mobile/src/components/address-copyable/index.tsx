@@ -12,7 +12,7 @@ import { formatContractAddress } from '../../utils/helper';
 export const AddressCopyable: FunctionComponent<{
   style?: ViewStyle;
   address: string;
-  networkType: string;
+  networkType?: string;
   maxCharacters: number;
 }> = ({ style: propStyle, address, maxCharacters, networkType }) => {
   const { isTimedOut, setTimer } = useSimpleTimer();

@@ -1,6 +1,18 @@
-import React, { FunctionComponent, useEffect, useRef, useState } from 'react';
+import React, {
+  FunctionComponent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { CText as Text } from '../../components/text';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View
+} from 'react-native';
 import { TransactionSectionTitle, TransactionItem } from './components';
 import { colors, metrics, spacing, typography } from '../../themes';
 import { _keyExtract } from '../../utils/helper';
@@ -9,70 +21,111 @@ import { useStore } from '../../stores';
 import { API } from '../../common/api';
 import crashlytics from '@react-native-firebase/crashlytics';
 import { NewsTab } from './news';
+import { useIsFocused } from '@react-navigation/core';
+import { TendermintTxTracer } from '@owallet/cosmos';
 export const Transactions: FunctionComponent = () => {
   const { chainStore, accountStore } = useStore();
   const account = accountStore.getAccount(chainStore.current.chainId);
   const [indexParent, setIndexParent] = useState<number>(0);
   const [indexChildren, setIndexChildren] = useState<number>(0);
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadMore, setLoadMore] = useState(false);
   const smartNavigation = useSmartNavigation();
-  const offset = useRef(0);
+  const page = useRef(1);
   const hasMore = useRef(true);
   const fetchData = async (isLoadMore = false) => {
     crashlytics().log('transactions - home - fetchData');
-    const isRecipient = indexChildren === 1;
-    const isAll = indexChildren === 0;
+    // const isRecipient = indexChildren === 1;
+    // const isAll = indexChildren === 0;
     try {
-      const res = await API.getHistory(
+      const res = await API.getTransactions(
         {
           address: account.bech32Address,
-          offset: 0,
-          isRecipient,
-          isAll
+          page: page.current,
+          limit: 10,
+          type: indexChildren === 0 ? 'native' : 'cw20'
         },
-        { baseURL: chainStore.current.rest }
+        // { baseURL: chainStore.current.rest }
+        { baseURL: 'https://api.scan.orai.io' }
       );
 
-      const value = res.data?.tx_responses || [];
-      const total = res?.data?.pagination?.total;
+      const value = res.data?.data || [];
       let newData = isLoadMore ? [...data, ...value] : value;
       hasMore.current = value?.length === 10;
-      offset.current = newData.length;
-      if (total && offset.current === Number(total)) {
+      page.current = res.data?.page.page_id + 1;
+      if (page.current === res.data?.page.total_page) {
         hasMore.current = false;
       }
       setData(newData);
+      setLoading(false);
+      setLoadMore(false);
     } catch (error) {
       crashlytics().recordError(error);
+      setLoading(false);
+      setLoadMore(false);
       console.error(error);
     }
   };
 
-  useEffect(() => {
-    offset.current = 0;
-    fetchData();
-  }, [account.bech32Address, indexChildren]);
+  const isFocused = useIsFocused();
 
-  const _renderItem = ({ item, index }) => {
-    return (
-      <TransactionItem
-        address={account.bech32Address}
-        item={item}
-        key={index}
-        onPress={() =>
-          smartNavigation.navigateSmart('Transactions.Detail', {
-            item: {
-              ...item,
-              address: account.bech32Address
-            }
-          })
-        }
-        containerStyle={{
-          backgroundColor: colors['gray-10']
-        }} // customize item transaction
-      />
-    );
-  };
+  useEffect(() => {
+    const chainInfo = chainStore.getChain(chainStore.current.chainId);
+    let msgTracer: TendermintTxTracer | undefined;
+
+    if (isFocused) {
+      msgTracer = new TendermintTxTracer(chainInfo.rpc, '/websocket');
+      msgTracer
+        .subscribeMsgByAddress(account.bech32Address)
+        .then(tx => {
+          page.current = 1;
+          setTimeout(() => {
+            fetchData();
+          }, 1500);
+        })
+        .catch(e => {
+          console.log(`Failed to trace the tx ()`, e);
+        });
+    }
+
+    return () => {
+      if (msgTracer) {
+        msgTracer.close();
+      }
+    };
+  }, [chainStore, isFocused, data]);
+
+  useEffect(() => {
+    page.current = 1;
+    fetchData();
+  }, [indexChildren]);
+
+  const _renderItem = useCallback(
+    ({ item, index }) => {
+      return (
+        <TransactionItem
+          type={indexChildren === 0 ? 'native' : 'cw20'}
+          address={account.bech32Address}
+          item={item}
+          key={index}
+          onPress={() =>
+            smartNavigation.navigateSmart('Transactions.Detail', {
+              item: {
+                ...item,
+                address: account.bech32Address
+              },
+              type: indexChildren === 0 ? 'native' : 'cw20'
+            })
+          }
+          containerStyle={{
+            backgroundColor: colors['gray-10']
+          }} // customize item transaction
+        />
+      );
+    },
+    [indexChildren]
+  );
 
   return (
     <View style={styles.container}>
@@ -134,7 +187,7 @@ export const Transactions: FunctionComponent = () => {
               alignItems: 'center'
             }}
           >
-            {['Send', 'Receive'].map((title: string, i: number) => (
+            {['Transactions', 'CW20'].map((title: string, i: number) => (
               <TouchableOpacity
                 key={i}
                 style={{
@@ -144,6 +197,8 @@ export const Transactions: FunctionComponent = () => {
                   paddingVertical: spacing['12']
                 }}
                 onPress={() => {
+                  setData([]);
+                  setLoading(true);
                   setIndexChildren(i);
                 }}
               >
@@ -168,31 +223,47 @@ export const Transactions: FunctionComponent = () => {
               paddingTop: spacing['4']
             }}
             onPress={() => {
+              page.current = 1;
+              setLoading(true);
               fetchData();
             }}
           />
           <View style={styles.transactionList}>
-            <FlatList
-              contentContainerStyle={{ flexGrow: 1 }}
-              showsVerticalScrollIndicator={false}
-              keyExtractor={_keyExtract}
-              data={data}
-              renderItem={_renderItem}
-              ListFooterComponent={<View style={{ height: spacing['12'] }} />}
-              ListEmptyComponent={
-                <View style={styles.transactionListEmpty}>
-                  <Text
-                    style={{
-                      ...typography.subtitle1,
-                      color: colors['gray-300'],
-                      marginTop: spacing['8']
-                    }}
-                  >
-                    {'Not found transaction'}
-                  </Text>
-                </View>
-              }
-            />
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <FlatList
+                contentContainerStyle={{ flexGrow: 1 }}
+                showsVerticalScrollIndicator={false}
+                keyExtractor={_keyExtract}
+                data={data}
+                renderItem={_renderItem}
+                onEndReached={() => {
+                  setLoadMore(true);
+                  fetchData(true);
+                }}
+                ListFooterComponent={<View style={{ height: spacing['12'] }} />}
+                ListEmptyComponent={
+                  <View style={styles.transactionListEmpty}>
+                    <Text
+                      style={{
+                        ...typography.subtitle1,
+                        color: colors['gray-300'],
+                        marginTop: spacing['8']
+                      }}
+                    >
+                      {'Not found transaction'}
+                    </Text>
+                  </View>
+                }
+              />
+            )}
+
+            {loadMore ? (
+              <View>
+                <ActivityIndicator />
+              </View>
+            ) : null}
           </View>
         </View>
       )}

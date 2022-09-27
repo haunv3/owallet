@@ -35,7 +35,9 @@ const ChainElement: FunctionComponent<{
           await keyRingStore.changeChain({
             chainId: chainInfo.chainId,
             chainName: chainInfo.chainName,
-            networkType: chainInfo.networkType
+            networkType: chainInfo.networkType,
+            rpc: chainInfo?.rpc ?? chainInfo?.rest,
+            // ...chainInfo
           });
           chainStore.selectChain(chainInfo.chainId);
           chainStore.saveLastViewChainId();

@@ -72,28 +72,30 @@ export const TokenDetailScreen: FunctionComponent = observer(props => {
       queryBalances.positiveNativeUnstakables
     )
     .slice(0, 2);
-
+  const page = useRef(1);
   const [data, setData] = useState([]);
   const offset = useRef(0);
   const hasMore = useRef(true);
   const fetchData = async (isLoadMore = false) => {
-    const res = await API.getHistory(
+    const res = await API.getTransactions(
       {
         address: account.bech32Address,
-        offset: 0,
-        isRecipient: false
+        page: page.current,
+        limit: 10,
+        type: 'native'
       },
-      { baseURL: chainStore.current.rest }
+      // { baseURL: chainStore.current.rest }
+      { baseURL: 'https://api.scan.orai.io' }
     );
 
-    const value = res.data?.tx_responses || [];
-    const total = res?.data?.pagination?.total;
+    const value = res.data?.data || [];
     let newData = isLoadMore ? [...data, ...value] : value;
     hasMore.current = value?.length === 10;
-    offset.current = newData.length;
-    if (total && offset.current === Number(total)) {
+    page.current = res.data?.page.page_id + 1;
+    if (page.current === res.data?.page.total_page) {
       hasMore.current = false;
     }
+
     setData(newData);
   };
 
@@ -313,6 +315,7 @@ export const TokenDetailScreen: FunctionComponent = observer(props => {
           data={data}
           renderItem={({ item, index }) => (
             <TransactionItem
+              type={'native'}
               item={item}
               address={account.bech32Address}
               key={index}

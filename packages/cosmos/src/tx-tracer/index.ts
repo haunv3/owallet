@@ -16,7 +16,8 @@ export class TendermintTxTracer {
   protected txSubscribes: Map<
     number,
     {
-      hash: Uint8Array;
+      address?: string;
+      hash?: Uint8Array;
       resolver: (data?: unknown) => void;
       rejector: (e: Error) => void;
     }
@@ -52,15 +53,15 @@ export class TendermintTxTracer {
 
   protected getWsEndpoint(): string {
     let url = this.url;
-    if (url.startsWith('http')) {
+    if (url?.startsWith('http')) {
       url = url.replace('http', 'ws');
     }
-    if (!url.endsWith(this.wsEndpoint)) {
+    if (!url?.endsWith(this.wsEndpoint)) {
       const wsEndpoint = this.wsEndpoint.startsWith('/')
         ? this.wsEndpoint
         : '/' + this.wsEndpoint;
 
-      url = url.endsWith('/') ? url + wsEndpoint.slice(1) : url + wsEndpoint;
+      url = url?.endsWith('/') ? url + wsEndpoint.slice(1) : url + wsEndpoint;
     }
 
     return url;
@@ -105,7 +106,13 @@ export class TendermintTxTracer {
     }
 
     for (const [id, tx] of this.txSubscribes) {
-      this.sendSubscribeTxRpc(id, tx.hash);
+      if (tx.hash) {
+        this.sendSubscribeTxRpc(id, tx.hash);
+      } else {
+        if (tx.address) {
+          this.sendSubscribeMsgRpc(id, tx.address);
+        }
+      }
     }
 
     for (const [id, query] of this.pendingQueries) {
@@ -212,27 +219,67 @@ export class TendermintTxTracer {
     }
   }
 
-  // Query the tx and subscribe the tx.
-  traceTx(hash: Uint8Array): Promise<any> {
-    return new Promise<any>((resolve) => {
-      // At first, try to query the tx at the same time of subscribing the tx.
-      // But, the querying's error will be ignored.
-      this.queryTx(hash)
-        .then(resolve)
-        .catch(() => {
-          // noop
-        });
-
-      this.subscribeTx(hash).then(resolve);
-    }).then((tx) => {
-      // Occasionally, even if the subscribe tx event occurs, the state through query is not changed yet.
-      // Perhaps it is because the block has not been committed yet even though the result of deliverTx in tendermint is complete.
-      // This method is usually used to reflect the state change through query when tx is completed.
-      // The simplest solution is to just add a little delay.
-      return new Promise((resolve) => {
-        setTimeout(() => resolve(tx), 100);
-      });
+  //  Subscribe the msg
+  async subscribeMsgByAddress(msg: string): Promise<any> {
+    const result = await this.subscribeMsg(msg);
+    return new Promise(resolve => {
+      setTimeout(() => resolve(result), 100);
     });
+  }
+
+  subscribeMsg(address: string): Promise<any> {
+    const id = this.createRandomId();
+
+    return new Promise<unknown>((resolve, reject) => {
+      this.txSubscribes.set(id, {
+        address,
+        resolver: resolve,
+        rejector: reject
+      });
+
+      this.sendSubscribeMsgRpc(id, address);
+    });
+  }
+
+  protected sendSubscribeMsgRpc(id: number, address: string): void {
+    if (this.readyState === WsReadyState.OPEN) {
+      this.ws.send(
+        JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'subscribe',
+          params: [`tm.event='Tx' AND transfer.recipient = '${address}'`],
+          id
+        })
+      );
+    }
+  }
+
+  // Query the tx and subscribe the tx.
+  async traceTx(hash: Uint8Array): Promise<any> {
+    const result = await this.subscribeTx(hash);
+    this.queryTx(hash);
+    return new Promise(resolve => {
+      setTimeout(() => resolve(result), 100);
+    });
+    // return new Promise<any>(resolve => {
+    //   // At first, try to query the tx at the same time of subscribing the tx.
+    //   // But, the querying's error will be ignored.
+    //   this.queryTx(hash)
+    //     .then(resolve)
+    //     .catch(() => {
+    //       // noop
+    //     });
+
+    //   this.subscribeTx(hash).then(resolve);
+    // }).then(tx => {
+    //   // Occasionally, even if the subscribe tx event occurs, the state through query is not changed yet.
+    //   // Perhaps it is because the block has not been committed yet even though the result of deliverTx in tendermint is complete.
+    //   // This method is usually used to reflect the state change through query when tx is completed.
+    //   // The simplest solution is to just add a little delay.
+    //   return new Promise(resolve => {
+    //     setTimeout(() => resolve(tx), 100);
+    //   });
+    // });
   }
 
   subscribeTx(hash: Uint8Array): Promise<any> {

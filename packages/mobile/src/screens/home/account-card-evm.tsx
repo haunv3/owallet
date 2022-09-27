@@ -12,10 +12,8 @@ import { CText as Text } from '../../components/text';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useStore } from '../../stores';
 import { AddressCopyable } from '../../components/address-copyable';
-import { LoadingSpinner } from '../../components/spinner';
 import { useSmartNavigation } from '../../navigation.provider';
 import { DownArrowIcon, SettingDashboardIcon } from '../../components/icon';
-import { useNavigation } from '@react-navigation/native';
 import {
   BuyIcon,
   DepositIcon,
@@ -33,34 +31,25 @@ import { NetworkErrorViewEVM } from './network-error-view-evm';
 export const AccountCardEVM: FunctionComponent<{
   containerStyle?: ViewStyle;
 }> = observer(({ containerStyle }) => {
-  const { chainStore, accountStore, queriesStore, priceStore, modalStore } =
-    useStore();
+  const {
+    chainStore,
+    accountStore,
+    queriesStore,
+    priceStore,
+    modalStore,
+    keyRingStore
+  } = useStore();
 
   const [evmAddress, setEvmAddress] = useState(null);
-
-  const deterministicNumber = useCallback(chainInfo => {
-    const bytes = Hash.sha256(
-      Buffer.from(chainInfo.stakeCurrency.coinMinimalDenom)
-    );
-    return (
-      (bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24)) >>> 0
-    );
-  }, []);
-
-  const profileColor = useCallback(
-    chainInfo => {
-      const colors = ['red', 'green', 'purple', 'orange'];
-
-      return colors[deterministicNumber(chainInfo) % colors.length];
-    },
-    [deterministicNumber]
-  );
 
   const smartNavigation = useSmartNavigation();
   // const navigation = useNavigation();
 
   const account = accountStore.getAccount(chainStore.current.chainId);
   const queries = queriesStore.get(chainStore.current.chainId);
+  const selected = keyRingStore?.multiKeyStoreInfo.find(
+    keyStore => keyStore?.selected
+  );
 
   useEffect(() => {
     setEvmAddress(account.evmosHexAddress);
@@ -247,7 +236,7 @@ export const AccountCardEVM: FunctionComponent<{
             style={{
               backgroundColor: colors['white'],
               display: 'flex',
-              height: 75,
+              height: 95,
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -306,6 +295,18 @@ export const AccountCardEVM: FunctionComponent<{
                 maxCharacters={22}
                 networkType={chainStore.current.networkType}
               />
+              {/* chainInfo.bip44.coinType */}
+              <Text
+                style={{
+                  paddingLeft: spacing['6'],
+                  fontSize: 14
+                }}
+              >
+                {`Coin type: ${
+                  selected?.bip44HDPath?.coinType ??
+                  chainStore?.current?.bip44?.coinType
+                }`}
+              </Text>
             </View>
             <TouchableOpacity onPress={_onPressMyWallet}>
               <DownArrowIcon height={28} color={colors['gray-150']} />

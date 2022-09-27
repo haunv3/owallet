@@ -41,6 +41,7 @@ export const getKeyStoreParagraph = (keyStore: MultiKeyStoreInfoElem) => {
   const bip44HDPath = keyStore.bip44HDPath
     ? keyStore.bip44HDPath
     : {
+        coinType: 0,
         account: 0,
         change: 0,
         addressIndex: 0
@@ -84,19 +85,19 @@ export const SettingSelectAccountScreen: FunctionComponent = observer(() => {
 
   const mnemonicKeyStores = useMemo(() => {
     return keyRingStore.multiKeyStoreInfo.filter(
-      (keyStore) => !keyStore.type || keyStore.type === 'mnemonic'
+      keyStore => !keyStore.type || keyStore.type === 'mnemonic'
     );
   }, [keyRingStore.multiKeyStoreInfo]);
 
   const ledgerKeyStores = useMemo(() => {
     return keyRingStore.multiKeyStoreInfo.filter(
-      (keyStore) => keyStore.type === 'ledger'
+      keyStore => keyStore.type === 'ledger'
     );
   }, [keyRingStore.multiKeyStoreInfo]);
 
   const privateKeyStores = useMemo(() => {
     return keyRingStore.multiKeyStoreInfo.filter(
-      (keyStore) => keyStore.type === 'privateKey' && !keyStore.meta?.email
+      keyStore => keyStore.type === 'privateKey'
     );
   }, [keyRingStore.multiKeyStoreInfo]);
 

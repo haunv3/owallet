@@ -1,6 +1,12 @@
 ## How to start
 
 ```bash
+# Install Pod for iOS build
+cd ios
+pod install
+```
+
+```bash
 # link provider to specific static server
 yarn link:provider ~/Projects/oraiswap-frontend/public/injected-provider.bundle.js
 
