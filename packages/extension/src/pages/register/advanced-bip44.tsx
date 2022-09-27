@@ -8,7 +8,7 @@ import { BIP44HDPath } from '@owallet/background';
 
 export class BIP44Option {
   @observable
-  protected _coinType?: number = 0;
+  protected _coinType: number = 0;
 
   @observable
   protected _account: number = 0;
@@ -166,7 +166,7 @@ export const AdvancedBIP44Option: FunctionComponent<{
 
                 let value = e.target.value;
                 if (value) {
-                  if (value !== '0') {
+                  if (value.replace(/^0+/,'')) {
                     // Remove leading zeros
                     for (let i = 0; i < value.length; i++) {
                       if (value[i] === '0') {
@@ -197,7 +197,7 @@ export const AdvancedBIP44Option: FunctionComponent<{
 
                 let value = e.target.value;
                 if (value) {
-                  if (value !== '0') {
+                  if (value.replace(/^0+/,'')) {
                     // Remove leading zeros
                     for (let i = 0; i < value.length; i++) {
                       if (value[i] === '0') {
@@ -228,7 +228,7 @@ export const AdvancedBIP44Option: FunctionComponent<{
 
                 let value = e.target.value;
                 if (value) {
-                  if (value !== '0') {
+                  if (value.replace(/^0+/,'')) {
                     // Remove leading zeros
                     for (let i = 0; i < value.length; i++) {
                       if (value[i] === '0') {
@@ -262,7 +262,7 @@ export const AdvancedBIP44Option: FunctionComponent<{
 
                 let value = e.target.value;
                 if (value) {
-                  if (value !== '0') {
+                  if (value.replace(/^0+/,'')) {
                     // Remove leading zeros
                     for (let i = 0; i < value.length; i++) {
                       if (value[i] === '0') {
